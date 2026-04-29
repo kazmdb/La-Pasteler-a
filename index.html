@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Pastelería - Tortas y Postres Artesanales</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">La Pastelería</h1>
+            <p class="hero-subtitle">Tortas y Postres Artesanales con Amor</p>
+            <a href="#servicios" class="cta-button">Ver Nuestros Productos</a>
+        </div>
+        <div class="hero-image">
+
+<img src="assets/images/hero.jpg" alt="La Pastelería - Tortas artesanales" class="hero-image">
+
+        </div>
+    </section>
+
+    <!-- Servicios Section -->
+    <section id="servicios" class="services">
+        <div class="container">
+            <h2 class="section-title">Nuestros Productos</h2>
+            <div class="services-grid">
+                <div class="service-card" data-category="cumpleanos" onclick="showCatalog('cumpleanos')">
+                    <div class="service-image">
+<img src="assets/images/torta-cumpleanos.jpg" alt="Torta de Cumpleaños" class="torta-cumpleanos-image">
+                    </div>
+                    <h3>Tortas de Cumpleaños Personalizadas</h3>
+                    <p>Celebra tus momentos especiales con nuestras tortas personalizadas. Diseños únicos para cada edad y gusto.</p>
+                    <div class="service-cta">Ver Catálogo →</div>
+                </div>
+                <div class="service-card" data-category="casamientos" onclick="showCatalog('casamientos')">
+                    <div class="service-image">
+<img src="assets/images/torta-casamiento.jpg" alt="Tortas de casamiento y 15 años" class="casamiento-image">
+                    </div>
+                    <h3>Tortas de Casamiento y 15 años</h3>
+                    <p>Hacemos de tu boda, o tus 15 años un día inolvidable con tortas elegantes y sofisticadas que impresionan a todos.</p>
+                    <div class="service-cta">Ver Catálogo →</div>
+                </div>
+                <div class="service-card" data-category="postres" onclick="showCatalog('postres')">
+                    <div class="service-image">
+<img src="assets/images/postres.jpg" alt="Postres Variados" class="postres-image">
+                    </div>
+                    <h3>Postres Variados</h3>
+                    <p>Una amplia selección de postres artesanales: tiramisú, cheesecake, mousses y mucho más.</p>
+                    <div class="service-cta">Ver Catálogo →</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Catálogo Section -->
+    <section id="catalogo" class="catalog-section hidden">
+        <div class="container">
+            <button class="back-button" onclick="goBack()">← Volver al Inicio</button>
+            <h2 class="section-title" id="catalog-title">Catálogo</h2>
+            <div class="catalog-grid" id="catalog-grid">
+                <!-- Products will be loaded dynamically -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Precios Section -->
+    <section id="precios" class="prices">
+        <div class="container">
+            <h2 class="section-title">Nuestros Precios</h2>
+            <div class="prices-grid">
+                <div class="price-card">
+                    <h3>Torta 500g</h3>
+                    <div class="price">$500-$800</div>
+                    <ul class="price-features">
+                        <li>✓ Ideal para 6-8 personas</li>
+                        <li>✓ Sabor a elección</li>
+                        <li>✓ Decoración básica</li>
+                    </ul>
+                </div>
+                <div class="price-card featured">
+                    <div class="popular-badge">Más Popular</div>
+                    <h3>Torta +1kg</h3>
+                    <div class="price">$1000-$2000</div>
+                    <ul class="price-features">
+                        <li>✓ Ideal para 12-15 personas</li>
+                        <li>✓ Sabor a elección</li>
+                        <li>✓ Decoración personalizada</li>
+                        <li>✓ Incluye mensaje</li>
+                    </ul>
+                </div>
+                <div class="price-card">
+                    <h3>Postres</h3>
+                    <div class="price">$250-$450</div>
+                    <ul class="price-features">
+                        <li>✓ Porción individual</li>
+                        <li>✓ Variedad de sabores</li>
+                        <li>✓ Presentación elegante</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonios Section -->
+    <section id="testimonios" class="testimonials">
+        <div class="container">
+            <h2 class="section-title">Lo que Dicen Nuestros Clientes</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"La torta de cumpleaños de mi hija fue espectacular. ¡Todos quedaron encantados! El sabor era increíble y la decoración superó mis expectativas."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👩</div>
+                        <div class="author-info">
+                            <strong>María González</strong>
+                            <span>Cumpleaños infantil</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"Contratamos La Pastelería para nuestra boda y fue la mejor decisión. La torta fue hermosa y deliciosa. ¡Todos los invitados nos preguntaron dónde la habíamos pedido!"</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👨</div>
+                        <div class="author-info">
+                            <strong>Carlos Rodríguez</strong>
+                            <span>Casamiento</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p>"Los postres son simplemente divinos. Pido todas las semanas para mis reuniones familiares. La calidad es consistente y el precio es muy accesible."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">👩</div>
+                        <div class="author-info">
+                            <strong>Ana Martínez</strong>
+                            <span>Cliente frecuente</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contacto Section -->
+    <section id="contacto" class="contact">
+        <div class="container">
+            <h2 class="section-title">Contáctanos</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>¿Listo para hacer tu pedido?</h3>
+                    <p>Escríbenos para hacer tu pedido. Estamos aquí para hacer de tus momentos especiales algo inolvidable.</p>
+                    <div class="contact-details">
+                        <div class="contact-item">
+                            <span class="contact-icon">📞</span>
+                            <a href="https://wa.me/59892062729" target="_blank" class="contact-phone">092 062 729</a>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">📍</span>
+                            <span>Ciudad del Plata, San José, Uruguay</span>
+                        </div>
+                        <div class="contact-item">
+                            <span class="contact-icon">⏰</span>
+                            <span>Lunes a Sábado: 9:00 - 20:00</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-image">
+                    <img src="assets/images/contact.jpg" alt="Ubicación de La Pastelería" class="contact-image-img">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>La Pastelería</h3>
+                    <p>Tortas y postres artesanales con amor desde el primer día.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Enlaces</h3>
+                    <ul>
+                        <li><a href="#servicios">Servicios</a></li>
+                        <li><a href="#precios">Precios</a></li>
+                        <li><a href="#testimonios">Testimonios</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Contacto</h3>
+                    <p>📞 <a href="https://wa.me/59892062729" target="_blank" class="footer-phone">092 062 729</a></p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 La Pastelería. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+
+    <!-- Carrito Modal -->
+    <div id="cart-modal" class="cart-modal hidden">
+        <div class="cart-overlay" onclick="closeCart()"></div>
+        <div class="cart-content">
+            <div class="cart-header">
+                <h2>🛒 Tu Carrito</h2>
+                <button class="close-cart-button" onclick="closeCart()">✕</button>
+            </div>
+            <div class="cart-items" id="cart-items">
+                <!-- Cart items will be loaded dynamically -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cart-total">$0</span>
+                </div>
+                <button class="checkout-button" onclick="checkout()">
+                    Realizar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart Button -->
+    <button class="cart-button" onclick="openCart()">
+        <span class="cart-icon">🛒</span>
+        <span class="cart-count" id="cart-count">0</span>
+    </button>
+</body>
+</html>
