@@ -687,6 +687,13 @@ const catalogData = {
                 description: 'Postre de oreo con crema y galletas trituradas.',
                 price: 360,
                 image: 'assets/images/postres/oreo.jpg'
+            },
+            {
+                id: 10,
+                name: 'Lemon Pie',
+                description: 'Refrescante lemon pie con base de galleta, relleno de limón y merengue italiano.',
+                price: 380,
+                image: 'assets/images/postres/lemonpie.jpg'
             }
         ]
     },
@@ -760,8 +767,15 @@ const catalogData = {
                 id: 10,
                 name: 'Banana split en vasito',
                 description: 'Delicioso banana split con plátano, helado y salsas de chocolate y frutilla.',
-                price: 160,
+                price: 150,
                 image: 'assets/images/postres/bananasplitvaso.jpg'
+            },
+            {
+                id: 11,
+                name: 'Lemon Pie en vasito',
+                description: 'Refrescante lemon pie con base de galleta, relleno de limón y merengue italiano.',
+                price: 150,
+                image: 'assets/images/postres/lemonpievaso.jpg'
             }
         ]
     }
