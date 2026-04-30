@@ -624,160 +624,146 @@ const catalogData = {
     },
     postres: {
         title: 'Postres Variados',
-        type: 'two-level',
-        level1: [
+        products: [
             {
-                id: 'postres-vasito',
-                name: 'Postres en vasito',
-                emoji: '🥤',
-                description: 'Postres individuales y prácticos, perfectos para cualquier ocasión.'
+                id: 1,
+                name: 'Cheesecake',
+                description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
+                price: 400,
+                image: 'assets/images/postres/cheesecake.jpg'
             },
             {
-                id: 'postres-normal',
-                name: 'Postres',
-                emoji: '🍰',
-                description: 'Postres tradicionales y elaborados para compartir.'
+                id: 2,
+                name: 'Chajá',
+                description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
+                price: 380,
+                image: 'assets/images/postres/chaja.jpg'
+            },
+            {
+                id: 3,
+                name: 'Rogel',
+                description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
+                price: 420,
+                image: 'assets/images/postres/rogel.jpg'
+            },
+            {
+                id: 4,
+                name: 'Red velvet',
+                description: 'Suave red velvet con frosting de queso crema.',
+                price: 450,
+                image: 'assets/images/postres/redvelvet.jpg'
+            },
+            {
+                id: 5,
+                name: 'Matilda',
+                description: 'Torta matilda con chocolate, merengue y crema.',
+                price: 410,
+                image: 'assets/images/postres/matilda.jpg'
+            },
+            {
+                id: 6,
+                name: 'Selva negra',
+                description: 'Selva negra con chocolate, cerezas y crema batida.',
+                price: 440,
+                image: 'assets/images/postres/selvanegra.jpg'
+            },
+            {
+                id: 7,
+                name: 'Bombón de maní',
+                description: 'Bombón de maní con chocolate y crema.',
+                price: 390,
+                image: 'assets/images/postres/bombondemani.jpg'
+            },
+            {
+                id: 8,
+                name: 'Chocotorta',
+                description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
+                price: 370,
+                image: 'assets/images/postres/chocotorta.jpg'
+            },
+            {
+                id: 9,
+                name: 'Oreo',
+                description: 'Postre de oreo con crema y galletas trituradas.',
+                price: 360,
+                image: 'assets/images/postres/oreo.jpg'
             }
-        ],
-        level2: {
-            'postres-vasito': [
-                {
-                    id: 1,
-                    name: 'Cheesecake en vasito',
-                    description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
-                    price: 150,
-                    image: 'assets/images/postres/cheesecakevaso.jpg'
-                },
-                {
-                    id: 2,
-                    name: 'Chajá en vasito',
-                    description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
-                    price: 150,
-                    image: 'assets/images/postres/chajavaso.jpg'
-                },
-                {
-                    id: 3,
-                    name: 'Rogel en vasito',
-                    description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
-                    price: 150,
-                    image: 'assets/images/postres/rogelvaso.jpg'
-                },
-                {
-                    id: 4,
-                    name: 'Red velvet en vasito',
-                    description: 'Suave red velvet con frosting de queso crema.',
-                    price: 150,
-                    image: 'assets/images/postres/redvelvetvaso.jpg'
-                },
-                {
-                    id: 5,
-                    name: 'Matilda en vasito',
-                    description: 'Torta matilda con chocolate, merengue y crema.',
-                    price: 150,
-                    image: 'assets/images/postres/matildavaso.jpg'
-                },
-                {
-                    id: 6,
-                    name: 'Selva negra en vasito',
-                    description: 'Selva negra con chocolate, cerezas y crema batida.',
-                    price: 150,
-                    image: 'assets/images/postres/selvanegravaso.jpg'
-                },
-                {
-                    id: 7,
-                    name: 'Bombón de maní en vasito',
-                    description: 'Bombón de maní con chocolate y crema.',
-                    price: 150,
-                    image: 'assets/images/postres/bombondemanivaso.jpg'
-                },
-                {
-                    id: 8,
-                    name: 'Chocotorta en vasito',
-                    description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
-                    price: 150,
-                    image: 'assets/images/postres/chocotortavaso.jpg'
-                },
-                {
-                    id: 9,
-                    name: 'Oreo en vasito',
-                    description: 'Postre de oreo con crema y galletas trituradas.',
-                    price: 150,
-                    image: 'assets/images/postres/oreovaso.jpg'
-                },
-                {
-                    id: 10,
-                    name: 'Banana split en vasito',
-                    description: 'Delicioso banana split con plátano, helado y salsas de chocolate y frutilla.',
-                    price: 150,
-                    image: 'assets/images/postres/bananasplitvaso.jpg'
-                }
-            ],
-            'postres-normal': [
-                {
-                    id: 11,
-                    name: 'Cheesecake',
-                    description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
-                    price: 400,
-                    image: 'assets/images/postres/cheesecake.jpg'
-                },
-                {
-                    id: 12,
-                    name: 'Chajá',
-                    description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
-                    price: 380,
-                    image: 'assets/images/postres/chaja.jpg'
-                },
-                {
-                    id: 13,
-                    name: 'Rogel',
-                    description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
-                    price: 420,
-                    image: 'assets/images/postres/rogel.jpg'
-                },
-                {
-                    id: 14,
-                    name: 'Red velvet',
-                    description: 'Suave red velvet con frosting de queso crema.',
-                    price: 450,
-                    image: 'assets/images/postres/redvelvet.jpg'
-                },
-                {
-                    id: 15,
-                    name: 'Matilda',
-                    description: 'Torta matilda con chocolate, merengue y crema.',
-                    price: 410,
-                    image: 'assets/images/postres/matilda.jpg'
-                },
-                {
-                    id: 16,
-                    name: 'Selva negra',
-                    description: 'Selva negra con chocolate, cerezas y crema batida.',
-                    price: 440,
-                    image: 'assets/images/postres/selvanegra.jpg'
-                },
-                {
-                    id: 17,
-                    name: 'Bombón de maní',
-                    description: 'Bombón de maní con chocolate y crema.',
-                    price: 390,
-                    image: 'assets/images/postres/bombondemani.jpg'
-                },
-                {
-                    id: 18,
-                    name: 'Chocotorta',
-                    description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
-                    price: 370,
-                    image: 'assets/images/postres/chocotorta.jpg'
-                },
-                {
-                    id: 19,
-                    name: 'Oreo',
-                    description: 'Postre de oreo con crema y galletas trituradas.',
-                    price: 360,
-                    image: 'assets/images/postres/oreo.jpg'
-                }
-            ]
-        }
+        ]
+    },
+    individuales: {
+        title: 'Postres Individuales',
+        products: [
+            {
+                id: 1,
+                name: 'Cheesecake en vasito',
+                description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
+                price: 150,
+                image: 'assets/images/postres/cheesecakevaso.jpg'
+            },
+            {
+                id: 2,
+                name: 'Chajá en vasito',
+                description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
+                price: 150,
+                image: 'assets/images/postres/chajavaso.jpg'
+            },
+            {
+                id: 3,
+                name: 'Rogel en vasito',
+                description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
+                price: 150,
+                image: 'assets/images/postres/rogelvaso.jpg'
+            },
+            {
+                id: 4,
+                name: 'Red velvet en vasito',
+                description: 'Suave red velvet con frosting de queso crema.',
+                price: 150,
+                image: 'assets/images/postres/redvelvetvaso.jpg'
+            },
+            {
+                id: 5,
+                name: 'Matilda en vasito',
+                description: 'Torta matilda con chocolate, merengue y crema.',
+                price: 150,
+                image: 'assets/images/postres/matildavaso.jpg'
+            },
+            {
+                id: 6,
+                name: 'Selva negra en vasito',
+                description: 'Selva negra con chocolate, cerezas y crema batida.',
+                price: 150,
+                image: 'assets/images/postres/selvanegravaso.jpg'
+            },
+            {
+                id: 7,
+                name: 'Bombón de maní en vasito',
+                description: 'Bombón de maní con chocolate y crema.',
+                price: 150,
+                image: 'assets/images/postres/bombondemanivaso.jpg'
+            },
+            {
+                id: 8,
+                name: 'Chocotorta en vasito',
+                description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
+                price: 150,
+                image: 'assets/images/postres/chocotortavaso.jpg'
+            },
+            {
+                id: 9,
+                name: 'Oreo en vasito',
+                description: 'Postre de oreo con crema y galletas trituradas.',
+                price: 150,
+                image: 'assets/images/postres/oreovaso.jpg'
+            },
+            {
+                id: 10,
+                name: 'Banana split en vasito',
+                description: 'Delicioso banana split con plátano, helado y salsas de chocolate y frutilla.',
+                price: 160,
+                image: 'assets/images/postres/bananasplitvaso.jpg'
+            }
+        ]
     }
 };
 
@@ -936,9 +922,14 @@ function showCatalog(category, subCategory = null) {
             productCard.className = 'product-card';
             productCard.style.transitionDelay = `${index * 0.1}s`;
 
+            // Usar imagen si está disponible, si no usar emoji
+            const imageContent = product.image
+                ? `<img src="${product.image}" alt="${product.name}" class="product-image-img">`
+                : `<span>${product.emoji}</span>`;
+
             productCard.innerHTML = `
                 <div class="product-image">
-                    <span>${product.emoji}</span>
+                    ${imageContent}
                 </div>
                 <div class="product-info">
                     <h3 class="product-name">${product.name}</h3>
