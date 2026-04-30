@@ -229,6 +229,12 @@ section {
     margin-top: 40px;
 }
 
+/* Special grid for category options */
+.catalog-grid.has-category-options {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+}
+
 .product-card {
     background: var(--bg-light);
     border-radius: 20px;
@@ -271,8 +277,161 @@ section {
     object-fit: cover;
 }
 
+.product-image-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .product-image span {
     font-size: 3rem;
+}
+
+/* Catalog Slideshow Styles */
+.catalog-slideshow {
+    width: 100%;
+    height: 200px;
+    border-radius: 15px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    position: relative;
+    background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+}
+
+.slideshow-images-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.slideshow-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.slideshow-image.active {
+    opacity: 1;
+}
+
+.slideshow-card {
+    min-height: 400px;
+}
+
+/* Category Option Cards for Two-Level Navigation */
+.category-option-card {
+    background: var(--bg-light);
+    border-radius: 20px;
+    padding: 40px;
+    transition: var(--transition);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(30px);
+    min-height: 300px;
+    justify-content: center;
+}
+
+.category-option-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.category-option-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.category-option-card:active {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.category-option-emoji {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.category-option-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.category-option-name {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.category-option-description {
+    color: var(--text-light);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* Responsive styles for category options */
+@media (max-width: 768px) {
+    .catalog-grid {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .category-option-card {
+        padding: 30px;
+        min-height: 250px;
+    }
+
+    .category-option-emoji {
+        font-size: 4rem;
+        margin-bottom: 15px;
+    }
+
+    .category-option-name {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .category-option-description {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .category-option-card {
+        padding: 25px;
+        min-height: 220px;
+    }
+
+    .category-option-emoji {
+        font-size: 3.5rem;
+        margin-bottom: 12px;
+    }
+
+    .category-option-name {
+        font-size: 1.3rem;
+    }
+
+    .category-option-description {
+        font-size: 0.9rem;
+    }
 }
 
 .product-info {

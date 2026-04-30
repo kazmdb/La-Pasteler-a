@@ -303,9 +303,56 @@ function addToCart(button, productName, price) {
     }, 2000);
 }
 
+// Función para añadir al carrito con precio en rango
+function addToCartWithRange(button, productName, priceRange) {
+    if (button.classList.contains('added')) return;
+
+    button.classList.add('added');
+    button.textContent = '✓ Añadido';
+
+    // Buscar si el producto ya existe en el carrito
+    const existingItem = cart.items.find(item => item.name === productName);
+
+    if (existingItem) {
+        // Si existe, incrementar cantidad
+        existingItem.quantity += 1;
+    } else {
+        // Si no existe, agregar nuevo item con el rango de precio
+        cart.items.push({
+            name: productName,
+            price: priceRange,
+            quantity: 1,
+            isRange: true
+        });
+    }
+
+    // Actualizar total (para rangos, usamos el valor mínimo del rango)
+    updateCartTotal();
+
+    // Actualizar contador del carrito
+    updateCartCount();
+
+    // Mostrar notificación
+    showNotification(`${productName} añadido al carrito - $${priceRange}`);
+
+    // Resetear botón después de 2 segundos
+    setTimeout(() => {
+        button.classList.remove('added');
+        button.textContent = 'Añadir al Carrito';
+    }, 2000);
+}
+
 // Función para actualizar el total del carrito
 function updateCartTotal() {
-    cart.total = cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    cart.total = cart.items.reduce((sum, item) => {
+        if (item.isRange) {
+            // Para rangos, extraer el valor mínimo del rango (ej: "500-800" -> 500)
+            const minPrice = parseInt(item.price.toString().split('-')[0]);
+            return sum + (minPrice * item.quantity);
+        } else {
+            return sum + (item.price * item.quantity);
+        }
+    }, 0);
     const cartTotalElement = document.getElementById('cart-total');
     if (cartTotalElement) {
         cartTotalElement.textContent = `$${cart.total}`;
@@ -354,6 +401,16 @@ function renderCartItems() {
     cart.items.forEach((item, index) => {
         const cartItem = document.createElement('div');
         cartItem.className = 'cart-item';
+
+        // Calcular el subtotal para este item
+        let itemSubtotal;
+        if (item.isRange) {
+            const minPrice = parseInt(item.price.toString().split('-')[0]);
+            itemSubtotal = minPrice * item.quantity;
+        } else {
+            itemSubtotal = item.price * item.quantity;
+        }
+
         cartItem.innerHTML = `
             <div class="cart-item-info">
                 <h4 class="cart-item-name">${item.name}</h4>
@@ -366,7 +423,7 @@ function renderCartItems() {
                     <button class="quantity-button" onclick="updateQuantity(${index}, 1)">+</button>
                 </div>
                 <div class="cart-item-total">
-                    <span>$${item.price * item.quantity}</span>
+                    <span>$${itemSubtotal}</span>
                 </div>
                 <button class="remove-item-button" onclick="removeFromCart(${index})">
                     🗑️
@@ -473,48 +530,55 @@ function checkout() {
 const catalogData = {
     cumpleanos: {
         title: 'Tortas de Cumpleaños',
+        type: 'slideshow',
         products: [
             {
                 id: 1,
-                name: 'Torta Chocolate Clásica',
-                description: 'Deliciosa torta de chocolate con ganache y decoración colorida.',
-                price: 800,
-                emoji: '🎂'
+                name: 'Torta Personalizada de 1kg',
+                description: 'Torta personalizada ideal para 12-15 personas. Diseño único con el tema que elijas.',
+                price: '790',
+                priceRange: true,
+                images: [
+                    'assets/images/personalizada2.jpg',
+                    'assets/images/personalizada1.jpg',
+                    'assets/images/personalizada3.jpg',
+                    'assets/images/personalizada4.jpg',
+                    'assets/images/personalizada5.jpg',
+                    'assets/images/flores1.jpg',
+                    'assets/images/flores2.jpg',
+                    'assets/images/flores3.jpg',
+                    'assets/images/flores4.jpg',
+                    'assets/images/flores5.jpg',
+                    'assets/images/mariposas1.jpg',
+                    'assets/images/mariposas2.jpg',
+                    'assets/images/mariposas3.jpg',
+                    'assets/images/mariposas4.jpg',
+                    'assets/images/mariposas5.jpg'
+                ]
             },
             {
                 id: 2,
-                name: 'Torta Vainilla con Frutas',
-                description: 'Bizcocho de vainilla fresco con frutas de estación.',
-                price: 750,
-                emoji: '🍓'
-            },
-            {
-                id: 3,
-                name: 'Torta Oreo',
-                description: 'Torta de chocolate con galletas Oreo y crema de queso.',
-                price: 900,
-                emoji: '🍪'
-            },
-            {
-                id: 4,
-                name: 'Torta Mousse de Limón',
-                description: 'Refrescante mousse de limón con base de bizcocho.',
-                price: 850,
-                emoji: '🍋'
-            },
-            {
-                id: 5,
-                name: 'Torta Red Velvet',
-                description: 'Elegante torta Red Velvet con frosting de queso crema.',
-                price: 950,
-                emoji: '🎀'
-            },
-            {
-                id: 6,
-                name: 'Torta de Cumpleaños Personalizada',
-                description: 'Diseño personalizado con el tema que elijas.',
-                price: 1200,
-                emoji: '🎉'
+                name: 'Torta Personalizada de 500g',
+                description: 'Torta personalizada ideal para 6-8 personas. Perfecta para celebraciones íntimas.',
+                price: '400',
+                priceRange: true,
+                images: [
+                    'assets/images/personalizada1.jpg',
+                    'assets/images/personalizada2.jpg',
+                    'assets/images/personalizada1.jpg',
+                    'assets/images/personalizada4.jpg',
+                    'assets/images/personalizada5.jpg',
+                    'assets/images/flores1.jpg',
+                    'assets/images/flores2.jpg',
+                    'assets/images/flores3.jpg',
+                    'assets/images/flores4.jpg',
+                    'assets/images/flores5.jpg',
+                    'assets/images/mariposas1.jpg',
+                    'assets/images/mariposas2.jpg',
+                    'assets/images/mariposas3.jpg',
+                    'assets/images/mariposas4.jpg',
+                    'assets/images/mariposas5.jpg'
+                ]
             }
         ]
     },
@@ -560,59 +624,178 @@ const catalogData = {
     },
     postres: {
         title: 'Postres Variados',
-        products: [
+        type: 'two-level',
+        level1: [
             {
-                id: 12,
-                name: 'Tiramisú Clásico',
-                description: 'Auténtico tiramisú italiano con mascarpone y café.',
-                price: 450,
-                emoji: '☕'
+                id: 'postres-vasito',
+                name: 'Postres en vasito',
+                emoji: '🥤',
+                description: 'Postres individuales y prácticos, perfectos para cualquier ocasión.'
             },
             {
-                id: 13,
-                name: 'Cheesecake de Frutos Rojos',
-                description: 'Cremoso cheesecake con salsa de frutos rojos.',
-                price: 400,
-                emoji: '🍒'
-            },
-            {
-                id: 14,
-                name: 'Mousse de Chocolate',
-                description: 'Suave mousse de chocolate belga.',
-                price: 350,
-                emoji: '🍫'
-            },
-            {
-                id: 15,
-                name: 'Flan de Caramelo',
-                description: 'Flan casero con caramelo artesanal.',
-                price: 300,
-                emoji: '🍮'
-            },
-            {
-                id: 16,
-                name: 'Profiteroles',
-                description: 'Bolas de masa rellenas de crema con chocolate.',
-                price: 380,
-                emoji: '🥐'
-            },
-            {
-                id: 17,
-                name: 'Pavlova de Frutas',
-                description: 'Merengue crujiente con crema y frutas frescas.',
-                price: 420,
-                emoji: '🍓'
+                id: 'postres-normal',
+                name: 'Postres',
+                emoji: '🍰',
+                description: 'Postres tradicionales y elaborados para compartir.'
             }
-        ]
+        ],
+        level2: {
+            'postres-vasito': [
+                {
+                    id: 1,
+                    name: 'Cheesecake en vasito',
+                    description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
+                    price: 150,
+                    image: 'assets/images/postres/cheesecakevaso.jpg'
+                },
+                {
+                    id: 2,
+                    name: 'Chajá en vasito',
+                    description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
+                    price: 150,
+                    image: 'assets/images/postres/chajavaso.jpg'
+                },
+                {
+                    id: 3,
+                    name: 'Rogel en vasito',
+                    description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
+                    price: 150,
+                    image: 'assets/images/postres/rogelvaso.jpg'
+                },
+                {
+                    id: 4,
+                    name: 'Red velvet en vasito',
+                    description: 'Suave red velvet con frosting de queso crema.',
+                    price: 150,
+                    image: 'assets/images/postres/redvelvetvaso.jpg'
+                },
+                {
+                    id: 5,
+                    name: 'Matilda en vasito',
+                    description: 'Torta matilda con chocolate, merengue y crema.',
+                    price: 150,
+                    image: 'assets/images/postres/matildavaso.jpg'
+                },
+                {
+                    id: 6,
+                    name: 'Selva negra en vasito',
+                    description: 'Selva negra con chocolate, cerezas y crema batida.',
+                    price: 150,
+                    image: 'assets/images/postres/selvanegravaso.jpg'
+                },
+                {
+                    id: 7,
+                    name: 'Bombón de maní en vasito',
+                    description: 'Bombón de maní con chocolate y crema.',
+                    price: 150,
+                    image: 'assets/images/postres/bombondemanivaso.jpg'
+                },
+                {
+                    id: 8,
+                    name: 'Chocotorta en vasito',
+                    description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
+                    price: 150,
+                    image: 'assets/images/postres/chocotortavaso.jpg'
+                },
+                {
+                    id: 9,
+                    name: 'Oreo en vasito',
+                    description: 'Postre de oreo con crema y galletas trituradas.',
+                    price: 150,
+                    image: 'assets/images/postres/oreovaso.jpg'
+                },
+                {
+                    id: 10,
+                    name: 'Banana split en vasito',
+                    description: 'Delicioso banana split con plátano, helado y salsas de chocolate y frutilla.',
+                    price: 150,
+                    image: 'assets/images/postres/bananasplitvaso.jpg'
+                }
+            ],
+            'postres-normal': [
+                {
+                    id: 11,
+                    name: 'Cheesecake',
+                    description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
+                    price: 400,
+                    image: 'assets/images/postres/cheesecake.jpg'
+                },
+                {
+                    id: 12,
+                    name: 'Chajá',
+                    description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
+                    price: 380,
+                    image: 'assets/images/postres/chaja.jpg'
+                },
+                {
+                    id: 13,
+                    name: 'Rogel',
+                    description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
+                    price: 420,
+                    image: 'assets/images/postres/rogel.jpg'
+                },
+                {
+                    id: 14,
+                    name: 'Red velvet',
+                    description: 'Suave red velvet con frosting de queso crema.',
+                    price: 450,
+                    image: 'assets/images/postres/redvelvet.jpg'
+                },
+                {
+                    id: 15,
+                    name: 'Matilda',
+                    description: 'Torta matilda con chocolate, merengue y crema.',
+                    price: 410,
+                    image: 'assets/images/postres/matilda.jpg'
+                },
+                {
+                    id: 16,
+                    name: 'Selva negra',
+                    description: 'Selva negra con chocolate, cerezas y crema batida.',
+                    price: 440,
+                    image: 'assets/images/postres/selvanegra.jpg'
+                },
+                {
+                    id: 17,
+                    name: 'Bombón de maní',
+                    description: 'Bombón de maní con chocolate y crema.',
+                    price: 390,
+                    image: 'assets/images/postres/bombondemani.jpg'
+                },
+                {
+                    id: 18,
+                    name: 'Chocotorta',
+                    description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
+                    price: 370,
+                    image: 'assets/images/postres/chocotorta.jpg'
+                },
+                {
+                    id: 19,
+                    name: 'Oreo',
+                    description: 'Postre de oreo con crema y galletas trituradas.',
+                    price: 360,
+                    image: 'assets/images/postres/oreo.jpg'
+                }
+            ]
+        }
     }
 };
 
+// Variables globales para controlar los intervalos de slideshow
+let slideshowIntervals = [];
+let currentNavigationLevel = 0; // 0: inicio, 1: nivel 1, 2: nivel 2
+let currentCategory = null;
+let currentSubCategory = null;
+
 // Función para mostrar el catálogo
-function showCatalog(category) {
+function showCatalog(category, subCategory = null) {
     const catalogSection = document.getElementById('catalogo');
     const catalogTitle = document.getElementById('catalog-title');
     const catalogGrid = document.getElementById('catalog-grid');
     const mainContent = document.querySelector('.hero, .prices, .testimonials, .contact, .footer');
+
+    // Limpiar intervalos existentes antes de crear nuevos
+    clearSlideshowIntervals();
 
     // Ocultar contenido principal
     if (mainContent) {
@@ -630,39 +813,200 @@ function showCatalog(category) {
 
     // Cargar productos
     const categoryData = catalogData[category];
-    catalogTitle.textContent = categoryData.title;
+    currentCategory = category;
 
     catalogGrid.innerHTML = '';
 
-    categoryData.products.forEach((product, index) => {
-        const productCard = document.createElement('div');
-        productCard.className = 'product-card';
-        productCard.style.transitionDelay = `${index * 0.1}s`;
+    // Verificar si es un catálogo tipo slideshow
+    if (categoryData.type === 'slideshow') {
+        currentNavigationLevel = 1;
+        catalogTitle.textContent = categoryData.title;
 
-        productCard.innerHTML = `
-            <div class="product-image">
-                <span>${product.emoji}</span>
-            </div>
-            <div class="product-info">
-                <h3 class="product-name">${product.name}</h3>
-                <p class="product-description">${product.description}</p>
-                <div class="product-price">$${product.price}</div>
-                <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
-                    Añadir al Carrito
-                </button>
-            </div>
-        `;
+        categoryData.products.forEach((product, index) => {
+            const slideshowCard = document.createElement('div');
+            slideshowCard.className = 'product-card slideshow-card';
+            slideshowCard.style.transitionDelay = `${index * 0.1}s`;
 
-        catalogGrid.appendChild(productCard);
+            // Crear ID único para este slideshow
+            const slideshowId = `slideshow-${product.id}`;
 
-        // Animar entrada
-        setTimeout(() => {
-            productCard.classList.add('visible');
-        }, 100 + index * 100);
-    });
+            slideshowCard.innerHTML = `
+                <div class="catalog-slideshow" id="${slideshowId}">
+                    <div class="slideshow-images-container">
+                        ${product.images.map((img, imgIndex) => `
+                            <img src="${img}" alt="${product.name}" class="slideshow-image ${imgIndex === 0 ? 'active' : ''}" data-index="${imgIndex}">
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-description">${product.description}</p>
+                    <div class="product-price">$${product.price}</div>
+                    <button class="add-to-cart-button" onclick="addToCartWithRange(this, '${product.name}', '${product.price}')">
+                        Añadir al Carrito
+                    </button>
+                </div>
+            `;
+
+            catalogGrid.appendChild(slideshowCard);
+
+            // Iniciar la rotación de imágenes para este slideshow
+            startSlideshowRotation(slideshowId, product.id, product.images.length);
+
+            // Animar entrada
+            setTimeout(() => {
+                slideshowCard.classList.add('visible');
+            }, 100 + index * 100);
+        });
+    } else if (categoryData.type === 'two-level') {
+        // Navegación de dos niveles
+        if (!subCategory) {
+            // Mostrar nivel 1: opciones grandes
+            currentNavigationLevel = 1;
+            currentSubCategory = null;
+            catalogTitle.textContent = categoryData.title;
+
+            categoryData.level1.forEach((option, index) => {
+                const optionCard = document.createElement('div');
+                optionCard.className = 'category-option-card';
+                optionCard.style.transitionDelay = `${index * 0.15}s`;
+                optionCard.onclick = () => showCatalog(category, option.id);
+
+                optionCard.innerHTML = `
+                    <div class="category-option-emoji">${option.emoji}</div>
+                    <div class="category-option-info">
+                        <h3 class="category-option-name">${option.name}</h3>
+                        <p class="category-option-description">${option.description}</p>
+                    </div>
+                `;
+
+                catalogGrid.appendChild(optionCard);
+
+                // Animar entrada
+                setTimeout(() => {
+                    optionCard.classList.add('visible');
+                }, 100 + index * 150);
+            });
+        } else {
+            // Mostrar nivel 2: productos específicos
+            currentNavigationLevel = 2;
+            currentSubCategory = subCategory;
+
+            const subCategoryData = categoryData.level2[subCategory];
+            const subCategoryInfo = categoryData.level1.find(opt => opt.id === subCategory);
+
+            if (subCategoryInfo) {
+                catalogTitle.textContent = subCategoryInfo.name;
+            }
+
+            subCategoryData.forEach((product, index) => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.style.transitionDelay = `${index * 0.1}s`;
+
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <img src="${product.image}" alt="${product.name}" class="product-image-img">
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price">$${product.price}</div>
+                        <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
+                            Añadir al Carrito
+                        </button>
+                    </div>
+                `;
+
+                catalogGrid.appendChild(productCard);
+
+                // Animar entrada
+                setTimeout(() => {
+                    productCard.classList.add('visible');
+                }, 100 + index * 100);
+            });
+        }
+    } else {
+        // Catálogo normal de productos
+        currentNavigationLevel = 1;
+        catalogTitle.textContent = categoryData.title;
+
+        categoryData.products.forEach((product, index) => {
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.style.transitionDelay = `${index * 0.1}s`;
+
+            productCard.innerHTML = `
+                <div class="product-image">
+                    <span>${product.emoji}</span>
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <p class="product-description">${product.description}</p>
+                    <div class="product-price">$${product.price}</div>
+                    <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
+                        Añadir al Carrito
+                    </button>
+                </div>
+            `;
+
+            catalogGrid.appendChild(productCard);
+
+            // Animar entrada
+            setTimeout(() => {
+                productCard.classList.add('visible');
+            }, 100 + index * 100);
+        });
+    }
 
     // Scroll suave hacia el catálogo
     catalogSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Función para iniciar la rotación de imágenes de un slideshow
+function startSlideshowRotation(slideshowId, productId, imageCount) {
+    const slideshowElement = document.getElementById(slideshowId);
+
+    if (!slideshowElement) return;
+
+    // Crear intervalo para rotar imágenes cada 3 segundos
+    const interval = setInterval(() => {
+        // Obtener todas las imágenes
+        const images = slideshowElement.querySelectorAll('.slideshow-image');
+        if (images.length === 0) return;
+
+        // Encontrar la imagen activa actual
+        const currentActive = slideshowElement.querySelector('.slideshow-image.active');
+        let currentActiveIndex = 0;
+
+        if (currentActive) {
+            currentActiveIndex = parseInt(currentActive.dataset.index);
+            currentActive.classList.remove('active');
+        }
+
+        // Seleccionar una imagen aleatoria diferente a la actual
+        let nextIndex;
+        do {
+            nextIndex = Math.floor(Math.random() * imageCount);
+        } while (nextIndex === currentActiveIndex && imageCount > 1);
+
+        // Activar la siguiente imagen aleatoria
+        const nextImage = slideshowElement.querySelector(`.slideshow-image[data-index="${nextIndex}"]`);
+        if (nextImage) {
+            nextImage.classList.add('active');
+        }
+    }, 3000); // 3 segundos
+
+    // Guardar el intervalo para limpiarlo después
+    slideshowIntervals.push(interval);
+}
+
+// Función para limpiar todos los intervalos de slideshow
+function clearSlideshowIntervals() {
+    slideshowIntervals.forEach(interval => {
+        clearInterval(interval);
+    });
+    slideshowIntervals = [];
 }
 
 // Función para volver al inicio
@@ -671,21 +1015,36 @@ function goBack() {
     const mainContent = document.querySelector('.hero, .prices, .testimonials, .contact, .footer');
     const servicesSection = document.getElementById('servicios');
 
-    // Ocultar catálogo
-    catalogSection.classList.add('hidden');
+    // Limpiar intervalos de slideshow al volver
+    clearSlideshowIntervals();
 
-    // Mostrar contenido principal
-    if (mainContent) {
-        mainContent.style.display = '';
+    // Verificar el nivel de navegación actual
+    if (currentNavigationLevel === 2) {
+        // Si estamos en nivel 2, volver a nivel 1
+        currentNavigationLevel = 1;
+        showCatalog(currentCategory, null);
+    } else {
+        // Si estamos en nivel 1 o inicio, volver al inicio del sitio
+        currentNavigationLevel = 0;
+        currentCategory = null;
+        currentSubCategory = null;
+
+        // Ocultar catálogo
+        catalogSection.classList.add('hidden');
+
+        // Mostrar contenido principal
+        if (mainContent) {
+            mainContent.style.display = '';
+        }
+
+        // Mostrar sección de servicios
+        if (servicesSection) {
+            servicesSection.style.display = '';
+        }
+
+        // Scroll al inicio
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
-    // Mostrar sección de servicios
-    if (servicesSection) {
-        servicesSection.style.display = '';
-    }
-
-    // Scroll al inicio
-    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Función para mostrar notificación
