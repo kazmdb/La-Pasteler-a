@@ -582,48 +582,8 @@ const catalogData = {
             }
         ]
     },
-    casamientos: {
-        title: 'Tortas de Casamientos',
-        products: [
-            {
-                id: 7,
-                name: 'Torta Nupcial Clásica',
-                description: 'Elegante torta de varios pisos con decoración tradicional.',
-                price: 2500,
-                emoji: '💒'
-            },
-            {
-                id: 8,
-                name: 'Torta de Frutas',
-                description: 'Torta con frutas frescas y crema batida ligera.',
-                price: 2200,
-                emoji: '🍇'
-            },
-            {
-                id: 9,
-                name: 'Torta Chocolate Gourmet',
-                description: 'Torta de chocolate belga con ganache de lujo.',
-                price: 2800,
-                emoji: '🍫'
-            },
-            {
-                id: 10,
-                name: 'Torta Minimalista',
-                description: 'Diseño moderno y minimalista con flores naturales.',
-                price: 3000,
-                emoji: '🌸'
-            },
-            {
-                id: 11,
-                name: 'Torta Cupcake Tower',
-                description: 'Torre de cupcakes decorados con temática de boda.',
-                price: 1800,
-                emoji: '🧁'
-            }
-        ]
-    },
     postres: {
-        title: 'Postres Variados',
+        title: 'Postres Enteros',
         products: [
             {
                 id: 1,
@@ -651,14 +611,14 @@ const catalogData = {
                 name: 'Red velvet',
                 description: 'Suave red velvet con frosting de queso crema.',
                 price: 450,
-                image: 'assets/images/postres/redvelvet.jpg'
+                image: 'assets/images/postres/redvelvetentero.jpg'
             },
             {
                 id: 5,
                 name: 'Matilda',
                 description: 'Torta matilda con chocolate, merengue y crema.',
                 price: 410,
-                image: 'assets/images/postres/matilda.jpg'
+                image: 'assets/images/postres/matildaentero.jpg'
             },
             {
                 id: 6,
@@ -692,7 +652,7 @@ const catalogData = {
                 id: 10,
                 name: 'Lemon Pie',
                 description: 'Refrescante lemon pie con base de galleta, relleno de limón y merengue italiano.',
-                price: 380,
+                price: 340,
                 image: 'assets/images/postres/lemonpie.jpg'
             }
         ]
@@ -776,7 +736,21 @@ const catalogData = {
                 description: 'Refrescante lemon pie con base de galleta, relleno de limón y merengue italiano.',
                 price: 150,
                 image: 'assets/images/postres/lemonpievaso.jpg'
-            }
+            },
+            {
+                id: 12,
+                name: 'Red velvet',
+                description: 'Suave red velvet con frosting de queso crema.',
+                price: 200,
+                image: 'assets/images/postres/redvelvet.jpg'
+            },
+            {
+                id: 13,
+                name: 'Matilda',
+                description: 'Torta matilda con chocolate, merengue y crema.',
+                price: 200,
+                image: 'assets/images/postres/matilda.jpg'
+            },
         ]
     }
 };
