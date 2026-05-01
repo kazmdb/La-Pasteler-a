@@ -747,7 +747,7 @@ const catalogData = {
             {
                 id: 13,
                 name: 'Porción de Matilda',
-                description: 'Porción de torta matilda con chocolate, merengue y crema.',
+                description: 'Porción de torta matilda de chocolate rellena de ganache de chocolate.',
                 price: 200,
                 image: 'assets/images/postres/matilda.jpg'
             },
