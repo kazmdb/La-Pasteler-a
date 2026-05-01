@@ -602,7 +602,7 @@ const catalogData = {
             {
                 id: 2,
                 name: 'Chajá',
-                description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
+                description: 'Clásico chajá uruguayo con merengue, crema y durazno. Dulce de leche opcional.',
                 price: 1500,
                 image: 'assets/images/postres/chaja.jpg'
             },
@@ -637,7 +637,7 @@ const catalogData = {
             {
                 id: 7,
                 name: 'Bombón de maní',
-                description: 'Bombón de maní con chocolate y crema.',
+                description: 'Torta de chocolate rellena de crema de maní y ganache de chocolate.',
                 price: 1400,
                 image: 'assets/images/postres/bombondemani.jpg'
             },
@@ -677,7 +677,7 @@ const catalogData = {
             {
                 id: 2,
                 name: 'Chajá en vasito',
-                description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
+                description: 'Clásico chajá uruguayo con merengue, crema y durazno. Dulce de leche opcional.',
                 price: 150,
                 image: 'assets/images/postres/chajavaso.jpg'
             },
@@ -691,7 +691,7 @@ const catalogData = {
             {
                 id: 5,
                 name: 'Matilda en vasito',
-                description: 'Torta matilda con chocolate, merengue y crema.',
+                description: 'Torta matilda de chocolate con mousse de chocolate.',
                 price: 150,
                 image: 'assets/images/postres/matildavaso.jpg'
             },
@@ -705,7 +705,7 @@ const catalogData = {
             {
                 id: 7,
                 name: 'Bombón de maní en vasito',
-                description: 'Bombón de maní con chocolate y crema.',
+                description: 'Torta de chocolate con crema de maní y ganache de chocolate.',
                 price: 150,
                 image: 'assets/images/postres/bombondemanivaso.jpg'
             },
@@ -726,7 +726,7 @@ const catalogData = {
             {
                 id: 10,
                 name: 'Banana split en vasito',
-                description: 'Delicioso banana split con plátano, helado y salsas de chocolate y frutilla.',
+                description: 'Banana split con banana, dulce de leche, crema y salsa de frutilla.',
                 price: 150,
                 image: 'assets/images/postres/bananasplitvaso.jpg'
             },
@@ -750,6 +750,13 @@ const catalogData = {
                 description: 'Porción de torta matilda de chocolate rellena de ganache de chocolate.',
                 price: 200,
                 image: 'assets/images/postres/matilda.jpg'
+            },
+            { 
+                id: 14,
+                name: 'Porción de Carrot Cake',
+                description: 'Porción de torta de zanahoria con crema de queso y nueces.',
+                price: 200,
+                image: 'assets/images/postres/carrotcake.jpg'
             },
         ]
     }
