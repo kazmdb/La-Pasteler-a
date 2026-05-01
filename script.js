@@ -125,7 +125,7 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Counter animation for prices
+// Counter animation for single prices
 const animateCounter = (element, target, duration = 2000) => {
     let start = 0;
     const increment = target / (duration / 16);
@@ -133,10 +133,34 @@ const animateCounter = (element, target, duration = 2000) => {
     const updateCounter = () => {
         start += increment;
         if (start < target) {
-            element.textContent = Math.floor(start);
+            element.textContent = `$${Math.floor(start)}`;
             requestAnimationFrame(updateCounter);
         } else {
-            element.textContent = target;
+            element.textContent = `$${target}`;
+        }
+    };
+
+    updateCounter();
+};
+
+// Counter animation for price ranges
+const animateRangeCounter = (element, minPrice, maxPrice, duration = 2000) => {
+    let startMin = 0;
+    let startMax = 0;
+    const incrementMin = minPrice / (duration / 16);
+    const incrementMax = maxPrice / (duration / 16);
+
+    const updateCounter = () => {
+        startMin += incrementMin;
+        startMax += incrementMax;
+
+        if (startMin < minPrice || startMax < maxPrice) {
+            const currentMin = Math.min(Math.floor(startMin), minPrice);
+            const currentMax = Math.min(Math.floor(startMax), maxPrice);
+            element.textContent = `$${currentMin}-$${currentMax}`;
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.textContent = `$${minPrice}-$${maxPrice}`;
         }
     };
 
@@ -149,20 +173,27 @@ const priceObserver = new IntersectionObserver((entries) => {
         if (entry.isIntersecting) {
             const priceElement = entry.target.querySelector('.price');
             if (priceElement) {
-                // Check if price is a range (contains dash) - don't animate ranges
-                if (priceElement.textContent.includes('-')) {
-                    // Skip animation for price ranges
-                    return;
-                }
-
-                const priceText = priceElement.textContent.replace(/[^0-9]/g, '');
-                const priceValue = parseInt(priceText);
-
                 // Only animate if not already animated
                 if (!priceElement.dataset.animated) {
                     priceElement.dataset.animated = 'true';
-                    priceElement.textContent = '$0';
-                    animateCounter(priceElement, priceValue);
+
+                    // Check if price is a range (contains dash)
+                    if (priceElement.textContent.includes('-')) {
+                        // Extract min and max prices from range
+                        const prices = priceElement.textContent.match(/\$?(\d+)-\$?(\d+)/);
+                        if (prices) {
+                            const minPrice = parseInt(prices[1]);
+                            const maxPrice = parseInt(prices[2]);
+                            priceElement.textContent = '$0-$0';
+                            animateRangeCounter(priceElement, minPrice, maxPrice);
+                        }
+                    } else {
+                        // Single price animation
+                        const priceText = priceElement.textContent.replace(/[^0-9]/g, '');
+                        const priceValue = parseInt(priceText);
+                        priceElement.textContent = '$0';
+                        animateCounter(priceElement, priceValue);
+                    }
                 }
             }
         }
@@ -555,30 +586,6 @@ const catalogData = {
                     'assets/images/mariposas4.jpg',
                     'assets/images/mariposas5.jpg'
                 ]
-            },
-            {
-                id: 2,
-                name: 'Torta Personalizada de 500g',
-                description: 'Torta personalizada ideal para 6-8 personas. Perfecta para celebraciones íntimas.',
-                price: '400',
-                priceRange: true,
-                images: [
-                    'assets/images/personalizada1.jpg',
-                    'assets/images/personalizada2.jpg',
-                    'assets/images/personalizada1.jpg',
-                    'assets/images/personalizada4.jpg',
-                    'assets/images/personalizada5.jpg',
-                    'assets/images/flores1.jpg',
-                    'assets/images/flores2.jpg',
-                    'assets/images/flores3.jpg',
-                    'assets/images/flores4.jpg',
-                    'assets/images/flores5.jpg',
-                    'assets/images/mariposas1.jpg',
-                    'assets/images/mariposas2.jpg',
-                    'assets/images/mariposas3.jpg',
-                    'assets/images/mariposas4.jpg',
-                    'assets/images/mariposas5.jpg'
-                ]
             }
         ]
     },
@@ -589,70 +596,70 @@ const catalogData = {
                 id: 1,
                 name: 'Cheesecake',
                 description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
-                price: 400,
+                price: 1800,
                 image: 'assets/images/postres/cheesecake.jpg'
             },
             {
                 id: 2,
                 name: 'Chajá',
                 description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
-                price: 380,
+                price: 1500,
                 image: 'assets/images/postres/chaja.jpg'
             },
             {
                 id: 3,
                 name: 'Rogel',
                 description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
-                price: 420,
+                price: 1700,
                 image: 'assets/images/postres/rogel.jpg'
             },
             {
                 id: 4,
                 name: 'Red velvet',
                 description: 'Suave red velvet con frosting de queso crema.',
-                price: 450,
+                price: 2000,
                 image: 'assets/images/postres/redvelvetentero.jpg'
             },
             {
                 id: 5,
                 name: 'Matilda',
                 description: 'Torta matilda con chocolate, merengue y crema.',
-                price: 410,
+                price: 1600,
                 image: 'assets/images/postres/matildaentero.jpg'
             },
             {
                 id: 6,
                 name: 'Selva negra',
                 description: 'Selva negra con chocolate, cerezas y crema batida.',
-                price: 440,
+                price: 2000,
                 image: 'assets/images/postres/selvanegra.jpg'
             },
             {
                 id: 7,
                 name: 'Bombón de maní',
                 description: 'Bombón de maní con chocolate y crema.',
-                price: 390,
+                price: 1400,
                 image: 'assets/images/postres/bombondemani.jpg'
             },
             {
                 id: 8,
                 name: 'Chocotorta',
                 description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
-                price: 370,
+                price: 1200,
                 image: 'assets/images/postres/chocotorta.jpg'
             },
             {
                 id: 9,
                 name: 'Oreo',
                 description: 'Postre de oreo con crema y galletas trituradas.',
-                price: 360,
+                price: 1300,
                 image: 'assets/images/postres/oreo.jpg'
             },
             {
                 id: 10,
                 name: 'Lemon Pie',
                 description: 'Refrescante lemon pie con base de galleta, relleno de limón y merengue italiano.',
-                price: 340,
+                price: 1900,
                 image: 'assets/images/postres/lemonpie.jpg'
             }
         ]
@@ -673,13 +680,6 @@ const catalogData = {
                 description: 'Clásico chajá uruguayo con merengue, crema y durazno.',
                 price: 150,
                 image: 'assets/images/postres/chajavaso.jpg'
-            },
-            {
-                id: 3,
-                name: 'Rogel en vasito',
-                description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
-                price: 150,
-                image: 'assets/images/postres/rogelvaso.jpg'
             },
             {
                 id: 4,
@@ -739,15 +739,15 @@ const catalogData = {
             },
             {
                 id: 12,
-                name: 'Red velvet',
-                description: 'Suave red velvet con frosting de queso crema.',
+                name: 'Porción de Red velvet',
+                description: 'Porción de red velvet con frosting de queso crema.',
                 price: 200,
                 image: 'assets/images/postres/redvelvet.jpg'
             },
             {
                 id: 13,
-                name: 'Matilda',
-                description: 'Torta matilda con chocolate, merengue y crema.',
+                name: 'Porción de Matilda',
+                description: 'Porción de torta matilda con chocolate, merengue y crema.',
                 price: 200,
                 image: 'assets/images/postres/matilda.jpg'
             },

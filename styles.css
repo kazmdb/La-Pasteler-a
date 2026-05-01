@@ -1188,6 +1188,18 @@ section {
     text-decoration: underline;
 }
 
+.contact-instagram {
+    color: var(--text-dark);
+    text-decoration: none;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.contact-instagram:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
 .contact-icon {
     font-size: 1.5rem;
 }
@@ -1272,6 +1284,17 @@ section {
 }
 
 .footer-phone:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+.footer-instagram {
+    color: white;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.footer-instagram:hover {
     color: var(--secondary-color);
     text-decoration: underline;
 }
