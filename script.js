@@ -595,7 +595,7 @@ const catalogData = {
             {
                 id: 1,
                 name: 'Cheesecake',
-                description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
+                description: 'Cremoso cheesecake con base de galleta.',
                 price: 1800,
                 image: 'assets/images/postres/cheesecake.jpg'
             },
@@ -623,7 +623,7 @@ const catalogData = {
             {
                 id: 5,
                 name: 'Matilda',
-                description: 'Torta matilda con chocolate, merengue y crema.',
+                description: 'Torta matilda de chocolate rellena de ganache de chocolate.',
                 price: 1600,
                 image: 'assets/images/postres/matildaentero.jpg'
             },
