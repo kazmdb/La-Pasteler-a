@@ -741,21 +741,21 @@ const catalogData = {
                 id: 12,
                 name: 'Porción de Red velvet',
                 description: 'Porción de red velvet con frosting de queso crema.',
-                price: 200,
+                price: 150,
                 image: 'assets/images/postres/redvelvet.jpg'
             },
             {
                 id: 13,
                 name: 'Porción de Matilda',
                 description: 'Porción de torta matilda de chocolate rellena de ganache de chocolate.',
-                price: 200,
+                price: 150,
                 image: 'assets/images/postres/matilda.jpg'
             },
             { 
                 id: 14,
                 name: 'Porción de Carrot Cake',
                 description: 'Porción de torta de zanahoria con crema de queso y nueces.',
-                price: 200,
+                price: 150,
                 image: 'assets/images/postres/carrotcake.jpg'
             },
         ]
