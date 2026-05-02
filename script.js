@@ -1038,7 +1038,7 @@ const catalogData = {
                 ]
             },
             {
-                title: 'Porciones y antojos',
+                title: 'Porciones y alfajores',
                 products: [
                     {
                         id: 11,
