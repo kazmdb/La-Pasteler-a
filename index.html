@@ -9,15 +9,50 @@
 <body>
     <!-- Hero Section -->
     <section class="hero">
-        <div class="hero-content">
-            <h1 class="hero-title">La Pastelería</h1>
-            <p class="hero-subtitle">Tortas y Postres Artesanales con Amor</p>
-            <a href="#servicios" class="cta-button">Ver Nuestros Productos</a>
+        <div class="hero-background">
+            <div class="hero-slideshow" id="hero-slideshow">
+                <img src="assets/images/postres/cheesecake.webp" alt="La Pastelería - Cheesecake" class="hero-bg-image">
+                <img src="assets/images/postres/chaja.webp" alt="La Pastelería - Chajá" class="hero-bg-image">
+                <img src="assets/images/postres/rogel.webp" alt="La Pastelería - Rogel" class="hero-bg-image">
+                <img src="assets/images/postres/redvelvetentero.webp" alt="La Pastelería - Red Velvet" class="hero-bg-image">
+                <img src="assets/images/postres/matildaentero.webp" alt="La Pastelería - Matilda" class="hero-bg-image">
+                <img src="assets/images/postres/selvanegra.webp" alt="La Pastelería - Selva Negra" class="hero-bg-image">
+                <img src="assets/images/postres/bombondemani.webp" alt="La Pastelería - Bombón de Maní" class="hero-bg-image">
+                <img src="assets/images/postres/chocotorta.webp" alt="La Pastelería - Chocotorta" class="hero-bg-image">
+                <img src="assets/images/postres/oreo.webp" alt="La Pastelería - Oreo" class="hero-bg-image">
+                <img src="assets/images/postres/lemonpie.webp" alt="La Pastelería - Lemon Pie" class="hero-bg-image">
+                <img src="assets/images/postres/tortalimon.webp" alt="La Pastelería - Torta de Limón" class="hero-bg-image">
+                <img src="assets/images/postres/redvelvet.webp" alt="La Pastelería - Porción de Red Velvet" class="hero-bg-image">
+                <img src="assets/images/postres/matilda.webp" alt="La Pastelería - Porción de Matilda" class="hero-bg-image">
+                <img src="assets/images/postres/carrotcake.webp" alt="La Pastelería - Carrot Cake" class="hero-bg-image">
+            </div>
         </div>
-        <div class="hero-image">
+        <div class="hero-overlay"></div>
 
-<img src="assets/images/hero.webp" alt="La Pastelería - Tortas artesanales" class="hero-image">
+        <!-- Navigation -->
+        <nav class="hero-nav">
+            <div class="nav-container">
+                <div class="nav-logo">
+                    <span class="logo-text">La Pastelería</span>
+                </div>
+                <div class="nav-menu">
+                    <a href="#servicios" class="nav-link">Productos</a>
+                    <a href="#testimonios" class="nav-link">Testimonios</a>
+                    <a href="#contacto" class="nav-link">Contacto</a>
+                </div>
+            </div>
+        </nav>
 
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">La Pastelería</h1>
+                <p class="hero-subtitle">Tortas y Postres Artesanales con Amor</p>
+                <p class="hero-description">Los pedidos se entregan dentro de las 24 horas. Le invitamos a realizar su pedido con tiempo.</p>
+                <div class="hero-buttons">
+                    <a href="#servicios" class="cta-button primary">Ver Nuestros Productos</a>
+                    <a href="#contacto" class="cta-button secondary">Contáctanos</a>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -28,7 +63,7 @@
             <div class="services-grid">
                 <div class="service-card" data-category="cumpleanos" onclick="showCatalog('cumpleanos')">
                     <div class="service-image">
-<img src="assets/images/torta-cumpleanos.webp" alt="Torta de Cumpleaños" class="torta-cumpleanos-image">
+<img src="" alt="Torta de Cumpleaños" class="torta-cumpleanos-image" id="cumpleanos-service-image">
                     </div>
                     <h3>Tortas de Cumpleaños Personalizadas</h3>
                     <p>Celebra tus momentos especiales con nuestras tortas personalizadas. Diseños únicos para cada edad y gusto.</p>
@@ -36,7 +71,7 @@
                 </div>
                 <div class="service-card" data-category="postres" onclick="showCatalog('postres')">
                     <div class="service-image">
-<img src="assets/images/postres.webp" alt="Postres Variados" class="postres-image">
+<img src="" alt="Postres Variados" class="postres-image" id="postres-service-image">
                     </div>
                     <h3>Postres Enteros</h3>
                     <p>Una amplia selección de postres artesanales: chajá, cheesecake, matilda y mucho más.</p>
@@ -44,7 +79,7 @@
                 </div>
                 <div class="service-card" data-category="individuales" onclick="showCatalog('individuales')">
                     <div class="service-image">
-<img src="assets/images/torta-casamiento.webp" alt="Postres Individuales" class="individuales-image">
+<img src="" alt="Postres Individuales" class="individuales-image" id="individuales-service-image">
                     </div>
                     <h3>Postres Individuales</h3>
                     <p>Postres individuales: perfectos para cualquier ocasión. Prácticos y deliciosos.</p>
@@ -52,10 +87,18 @@
                 </div>
                 <div class="service-card" data-category="budines" onclick="showCatalog('budines')">
                     <div class="service-image">
-<img src="assets/images/budines/budinlimon.webp" alt="Budines" class="budines-image">
+<img src="" alt="Budines" class="budines-image" id="budines-service-image">
                     </div>
                     <h3>Budines</h3>
                     <p>Deliciosos budines artesanales en variados sabores. Perfectos para acompañar el mate.</p>
+                    <div class="service-cta">Ver Catálogo →</div>
+                </div>
+                <div class="service-card" data-category="salados" onclick="showCatalog('salados')">
+                    <div class="service-image">
+<img src="" alt="Salados" class="salados-image" id="salados-service-image">
+                    </div>
+                    <h3>Salados</h3>
+                    <p>Variedad de salados artesanales: tartas, milanesas y más. Perfectos para cualquier ocasión.</p>
                     <div class="service-cta">Ver Catálogo →</div>
                 </div>
             </div>
@@ -73,45 +116,6 @@
         </div>
     </section>
 
-    <!-- Precios Section -->
-    <section id="precios" class="prices">
-        <div class="container">
-            <h2 class="section-title">Nuestros Precios</h2>
-            <div class="prices-grid">
-                <div class="price-card featured">
-                    <div class="popular-badge">Más Vendido</div>
-                    <h3>Torta 1kg</h3>
-                    <div class="price">$790</div>
-                    <ul class="price-features">
-                        <li>✓ Ideal para 12-15 personas</li>
-                        <li>✓ Sabor a elección</li>
-                        <li>✓ Decoración personalizada</li>
-                    </ul>
-                </div>
-                <div class="price-card">
-                    <h3>Postres Enteros</h3>
-                    <div class="price">$1200-$2000</div>
-                    <ul class="price-features">
-                        <li>✓ Postres artesanales completos</li>
-                        <li>✓ Variedad de sabores premium</li>
-                        <li>✓ Presentación elegante</li>
-                        <li>✓ Perfectos para compartir</li>
-                    </ul>
-                </div>
-                <div class="price-card">
-                    <h3>Postres Individuales</h3>
-                    <div class="price">$150-$300</div>
-                    <ul class="price-features">
-                        <li>✓ Porción individual en vasito</li>
-                        <li>✓ Prácticos y portátiles</li>
-                        <li>✓ Variedad de sabores</li>
-                        <li>✓ Presentación perfecta</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Testimonios Section -->
     <section id="testimonios" class="testimonials">
         <div class="container">
@@ -119,7 +123,7 @@
             <div class="testimonials-grid">
                 <div class="testimonial-card">
                     <div class="testimonial-content">
-                        <p>"La torta de cumpleaños de mi hija fue espectacular. ¡Todos quedaron encantados! El sabor era increíble y la decoración superó mis expectativas."</p>
+                        <p>"La torta de cumpleaños de mi hija fue espectacular. Todos quedaron encantados! El sabor era increíble y la decoración superó mis expectativas."</p>
                     </div>
                     <div class="testimonial-author">
                         <div class="author-avatar">👩</div>
@@ -131,7 +135,7 @@
                 </div>
                 <div class="testimonial-card">
                     <div class="testimonial-content">
-                        <p>"Contratamos La Pastelería para nuestra boda y fue la mejor decisión. La torta fue hermosa y deliciosa. ¡Todos los invitados nos preguntaron dónde la habíamos pedido!"</p>
+                        <p>"Contratamos La Pastelería para nuestra boda y fue la mejor decisión. La torta fue hermosa y deliciosa. Todos los invitados nos preguntaron dónde la habíamos pedido!"</p>
                     </div>
                     <div class="testimonial-author">
                         <div class="author-avatar">👨</div>
@@ -197,13 +201,12 @@
             <div class="footer-content">
                 <div class="footer-section">
                     <h3>La Pastelería</h3>
-                    <p>Tortas y postres artesanales con amor desde el primer día.</p>
+                    <p>Tortas y postres artesanales con amor.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Enlaces</h3>
                     <ul>
                         <li><a href="#servicios">Servicios</a></li>
-                        <li><a href="#precios">Precios</a></li>
                         <li><a href="#testimonios">Testimonios</a></li>
                         <li><a href="#contacto">Contacto</a></li>
                     </ul>

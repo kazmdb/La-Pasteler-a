@@ -288,6 +288,157 @@ window.addEventListener('scroll', debouncedParallax);
 
 console.log('La Pastelería website loaded successfully! 🎂');
 
+// ==================== HERO SLIDESHOW ====================
+
+// Variables para el slideshow del hero
+let heroSlideshowInterval;
+let currentHeroImageIndex = 0;
+
+// Función para obtener un índice aleatorio diferente al actual
+function getRandomImageIndex(totalImages, currentIndex) {
+    let newIndex;
+    do {
+        newIndex = Math.floor(Math.random() * totalImages);
+    } while (newIndex === currentIndex && totalImages > 1);
+    return newIndex;
+}
+
+// Función para iniciar el slideshow del hero
+function startHeroSlideshow() {
+    const heroSlideshow = document.getElementById('hero-slideshow');
+    if (!heroSlideshow) return;
+
+    const heroImages = heroSlideshow.querySelectorAll('.hero-bg-image');
+    if (heroImages.length === 0) return;
+
+    // Seleccionar una imagen aleatoria al inicio
+    const randomStartIndex = Math.floor(Math.random() * heroImages.length);
+    currentHeroImageIndex = randomStartIndex;
+
+    // Activar inmediatamente la imagen aleatoria inicial
+    heroImages.forEach((img, index) => {
+        if (index === randomStartIndex) {
+            img.classList.add('active');
+        } else {
+            img.classList.remove('active');
+        }
+    });
+
+    // Iniciar rotación cada 4 segundos con selección aleatoria
+    heroSlideshowInterval = setInterval(() => {
+        // Remover clase active de la imagen actual
+        heroImages[currentHeroImageIndex].classList.remove('active');
+
+        // Obtener un índice aleatorio diferente al actual
+        currentHeroImageIndex = getRandomImageIndex(heroImages.length, currentHeroImageIndex);
+
+        // Agregar clase active a la siguiente imagen aleatoria
+        heroImages[currentHeroImageIndex].classList.add('active');
+    }, 4000); // 4 segundos
+}
+
+// Iniciar el slideshow cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', () => {
+    startHeroSlideshow();
+    setRandomServiceImages(); // Establecer imágenes iniciales
+    startServiceImagesRotation(); // Iniciar rotación continua
+});
+
+// ==================== IMÁGENES ALEATORIAS DE SERVICIOS ====================
+
+// Variables para controlar la rotación de imágenes de servicios
+let serviceImagesIntervals = {};
+
+// Función para establecer imágenes aleatorias en las tarjetas de servicio
+function setRandomServiceImages() {
+    const categories = ['cumpleanos', 'postres', 'individuales', 'budines', 'salados'];
+
+    categories.forEach(category => {
+        const categoryData = catalogData[category];
+        if (!categoryData) return;
+
+        let randomImage;
+
+        if (categoryData.type === 'slideshow' && categoryData.products[0].images) {
+            // Para categorías tipo slideshow (cumpleanos), usar imágenes del array
+            const images = categoryData.products[0].images;
+            randomImage = images[Math.floor(Math.random() * images.length)];
+        } else if (categoryData.type === 'sections' && categoryData.sections) {
+            // Para categorías tipo sections (individuales), obtener productos de todas las secciones
+            const allProducts = categoryData.sections.flatMap(section => section.products);
+            if (allProducts.length > 0) {
+                const randomProduct = allProducts[Math.floor(Math.random() * allProducts.length)];
+                randomImage = randomProduct.image;
+            }
+        } else if (categoryData.products && categoryData.products.length > 0) {
+            // Para categorías normales, usar la imagen del producto
+            const randomProduct = categoryData.products[Math.floor(Math.random() * categoryData.products.length)];
+            randomImage = randomProduct.image;
+        }
+
+        if (randomImage) {
+            const serviceImage = document.getElementById(`${category}-service-image`);
+            if (serviceImage) {
+                serviceImage.src = randomImage;
+            }
+        }
+    });
+}
+
+// Función para iniciar la rotación continua de imágenes de servicios
+function startServiceImagesRotation() {
+    const categories = ['cumpleanos', 'postres', 'individuales', 'budines', 'salados'];
+
+    categories.forEach(category => {
+        const categoryData = catalogData[category];
+        if (!categoryData) return;
+
+        // Crear intervalo para cada categoría
+        serviceImagesIntervals[category] = setInterval(() => {
+            let randomImage;
+
+            if (categoryData.type === 'slideshow' && categoryData.products[0].images) {
+                // Para categorías tipo slideshow, usar imágenes del array
+                const images = categoryData.products[0].images;
+                randomImage = images[Math.floor(Math.random() * images.length)];
+            } else if (categoryData.type === 'sections' && categoryData.sections) {
+                // Para categorías tipo sections, obtener productos de todas las secciones
+                const allProducts = categoryData.sections.flatMap(section => section.products);
+                if (allProducts.length > 0) {
+                    const randomProduct = allProducts[Math.floor(Math.random() * allProducts.length)];
+                    randomImage = randomProduct.image;
+                }
+            } else if (categoryData.products && categoryData.products.length > 0) {
+                // Para categorías normales, usar la imagen del producto
+                const randomProduct = categoryData.products[Math.floor(Math.random() * categoryData.products.length)];
+                randomImage = randomProduct.image;
+            }
+
+            if (randomImage) {
+                const serviceImage = document.getElementById(`${category}-service-image`);
+                if (serviceImage) {
+                    // Agregar efecto de transición
+                    serviceImage.style.opacity = '0';
+                    serviceImage.style.transition = 'opacity 0.5s ease';
+
+                    setTimeout(() => {
+                        serviceImage.src = randomImage;
+                        serviceImage.style.opacity = '1';
+                    }, 500);
+                }
+            }
+        }, 5000); // Cambiar cada 5 segundos
+    });
+}
+
+// Función para detener la rotación de imágenes de servicios
+function stopServiceImagesRotation() {
+    Object.keys(serviceImagesIntervals).forEach(category => {
+        clearInterval(serviceImagesIntervals[category]);
+    });
+    serviceImagesIntervals = {};
+}
+
 // ==================== SISTEMA DE CARRITO ====================
 
 // Objeto global del carrito
@@ -296,13 +447,11 @@ let cart = {
     total: 0
 };
 
+// Objeto para mantener referencia a los botones de cantidad por producto
+let productButtons = {};
+
 // Función para añadir al carrito
 function addToCart(button, productName, price) {
-    if (button.classList.contains('added')) return;
-
-    button.classList.add('added');
-    button.textContent = '✓ Añadido';
-
     // Buscar si el producto ya existe en el carrito
     const existingItem = cart.items.find(item => item.name === productName);
 
@@ -324,23 +473,15 @@ function addToCart(button, productName, price) {
     // Actualizar contador del carrito
     updateCartCount();
 
+    // Reemplazar el botón con controles de cantidad
+    replaceButtonWithQuantityControls(button, productName, price);
+
     // Mostrar notificación
     showNotification(`${productName} añadido al carrito - $${price}`);
-
-    // Resetear botón después de 2 segundos
-    setTimeout(() => {
-        button.classList.remove('added');
-        button.textContent = 'Añadir al Carrito';
-    }, 2000);
 }
 
 // Función para añadir al carrito con precio en rango
 function addToCartWithRange(button, productName, priceRange) {
-    if (button.classList.contains('added')) return;
-
-    button.classList.add('added');
-    button.textContent = '✓ Añadido';
-
     // Buscar si el producto ya existe en el carrito
     const existingItem = cart.items.find(item => item.name === productName);
 
@@ -363,14 +504,11 @@ function addToCartWithRange(button, productName, priceRange) {
     // Actualizar contador del carrito
     updateCartCount();
 
+    // Reemplazar el botón con controles de cantidad
+    replaceButtonWithQuantityControls(button, productName, priceRange, true);
+
     // Mostrar notificación
     showNotification(`${productName} añadido al carrito - $${priceRange}`);
-
-    // Resetear botón después de 2 segundos
-    setTimeout(() => {
-        button.classList.remove('added');
-        button.textContent = 'Añadir al Carrito';
-    }, 2000);
 }
 
 // Función para actualizar el total del carrito
@@ -396,6 +534,113 @@ function updateCartCount() {
     const cartCountElement = document.getElementById('cart-count');
     if (cartCountElement) {
         cartCountElement.textContent = totalCount;
+    }
+}
+
+// Función para reemplazar el botón con controles de cantidad
+function replaceButtonWithQuantityControls(button, productName, price, isRange = false) {
+    // Obtener el item actual del carrito
+    const item = cart.items.find(item => item.name === productName);
+    if (!item) return;
+
+    // Guardar referencia al botón original
+    productButtons[productName] = button;
+
+    // Crear contenedor de controles de cantidad
+    const quantityContainer = document.createElement('div');
+    quantityContainer.className = 'quantity-controls-container';
+    quantityContainer.innerHTML = `
+        <div class="quantity-controls">
+            <button class="quantity-button" onclick="updateProductQuantity('${productName}', -1, ${isRange})">-</button>
+            <span class="quantity">${item.quantity}</span>
+            <button class="quantity-button" onclick="updateProductQuantity('${productName}', 1, ${isRange})">+</button>
+        </div>
+    `;
+
+    // Reemplazar el botón con el contenedor de controles
+    button.replaceWith(quantityContainer);
+}
+
+// Función para actualizar la cantidad de un producto desde el catálogo
+function updateProductQuantity(productName, change, isRange = false) {
+    const item = cart.items.find(item => item.name === productName);
+    if (!item) return;
+
+    if (change === -1 && item.quantity === 1) {
+        // Si la cantidad es 1 y se quiere restar, eliminar del carrito
+        removeFromCartByName(productName);
+        return;
+    }
+
+    // Actualizar cantidad
+    item.quantity += change;
+
+    // Actualizar total y contador
+    updateCartTotal();
+    updateCartCount();
+
+    // Actualizar el mostrador de cantidad en el botón
+    updateQuantityDisplay(productName, item.quantity);
+
+    // Si el carrito está abierto, re-renderizar
+    const cartModal = document.getElementById('cart-modal');
+    if (!cartModal.classList.contains('hidden')) {
+        renderCartItems();
+    }
+}
+
+// Función para actualizar el mostrador de cantidad en el botón
+function updateQuantityDisplay(productName, quantity) {
+    const container = document.querySelector(`.quantity-controls-container`);
+    if (container) {
+        const quantitySpan = container.querySelector('.quantity');
+        if (quantitySpan) {
+            quantitySpan.textContent = quantity;
+        }
+    }
+}
+
+// Función para eliminar un producto del carrito por nombre
+function removeFromCartByName(productName) {
+    const item = cart.items.find(item => item.name === productName);
+    if (!item) return;
+
+    const index = cart.items.indexOf(item);
+    cart.items.splice(index, 1);
+
+    // Actualizar total y contador
+    updateCartTotal();
+    updateCartCount();
+
+    // Restaurar el botón original
+    restoreOriginalButton(productName);
+
+    // Si el carrito está abierto, re-renderizar
+    const cartModal = document.getElementById('cart-modal');
+    if (!cartModal.classList.contains('hidden')) {
+        renderCartItems();
+    }
+
+    // Mostrar notificación
+    showNotification(`${productName} eliminado del carrito`);
+}
+
+// Función para restaurar el botón original
+function restoreOriginalButton(productName) {
+    const originalButton = productButtons[productName];
+    const container = document.querySelector(`.quantity-controls-container`);
+
+    if (originalButton && container) {
+        // Crear un nuevo botón igual al original
+        const newButton = originalButton.cloneNode(true);
+        newButton.classList.remove('added');
+        newButton.textContent = 'Añadir al Carrito';
+
+        // Reemplazar el contenedor con el botón original
+        container.replaceWith(newButton);
+
+        // Eliminar la referencia
+        delete productButtons[productName];
     }
 }
 
@@ -668,103 +913,135 @@ const catalogData = {
                 description: 'Torta de limón con crema de limón y merenguitos.',
                 price: 1900,
                 image: 'assets/images/postres/tortalimon.webp'
+            },
+            {
+                id: 12,
+                name: 'Pasta Frola',
+                description: 'Pasta Frola de membrillo o dulce de leche.',
+                price: 1200,
+                image: 'assets/images/postres/pastafrola.webp'
             }
         ]
     },
     individuales: {
         title: 'Postres Individuales',
-        products: [
+        type: 'sections',
+        sections: [
             {
-                id: 1,
-                name: 'Cheesecake en vasito',
-                description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
-                price: 150,
-                image: 'assets/images/postres/cheesecakevaso.webp'
+                title: 'Postres en vasito',
+                products: [
+                    {
+                        id: 1,
+                        name: 'Cheesecake en vasito',
+                        description: 'Cheesecake con base de galleta y topping de frutos rojos.',
+                        price: 150,
+                        image: 'assets/images/postres/cheesecakevaso.webp'
+                    },
+                    {
+                        id: 2,
+                        name: 'Chajá en vasito',
+                        description: 'Clásico chajá uruguayo con merengue, crema y durazno. Dulce de leche opcional.',
+                        price: 150,
+                        image: 'assets/images/postres/chajavaso.webp'
+                    },
+                    {
+                        id: 3,
+                        name: 'Red velvet en vasito',
+                        description: 'Suave red velvet con frosting de queso crema.',
+                        price: 150,
+                        image: 'assets/images/postres/redvelvetvaso.webp'
+                    },
+                    {
+                        id: 4,
+                        name: 'Matilda en vasito',
+                        description: 'Torta matilda de chocolate con mousse de chocolate.',
+                        price: 150,
+                        image: 'assets/images/postres/matildavaso.webp'
+                    },
+                    {
+                        id: 5,
+                        name: 'Selva negra en vasito',
+                        description: 'Selva negra con chocolate, cerezas y crema batida.',
+                        price: 150,
+                        image: 'assets/images/postres/selvanegravaso.webp'
+                    },
+                    {
+                        id: 6,
+                        name: 'Bombón de maní en vasito',
+                        description: 'Torta de chocolate con crema de maní y ganache de chocolate.',
+                        price: 150,
+                        image: 'assets/images/postres/bombondemanivaso.webp'
+                    },
+                    {
+                        id: 7,
+                        name: 'Chocotorta en vasito',
+                        description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
+                        price: 150,
+                        image: 'assets/images/postres/chocotortavaso.webp'
+                    },
+                    {
+                        id: 8,
+                        name: 'Oreo en vasito',
+                        description: 'Postre de oreo con crema y galletas trituradas.',
+                        price: 150,
+                        image: 'assets/images/postres/oreovaso.webp'
+                    },
+                    {
+                        id: 9,
+                        name: 'Banana split en vasito',
+                        description: 'Banana split con banana, dulce de leche, crema y salsa de frutilla.',
+                        price: 150,
+                        image: 'assets/images/postres/bananasplitvaso.webp'
+                    },
+                    {
+                        id: 10,
+                        name: 'Lemon Pie en vasito',
+                        description: 'Lemon pie con base de galleta, relleno de limón y merengue italiano.',
+                        price: 150,
+                        image: 'assets/images/postres/lemonpievaso.webp'
+                    }
+                ]
             },
             {
-                id: 2,
-                name: 'Chajá en vasito',
-                description: 'Clásico chajá uruguayo con merengue, crema y durazno. Dulce de leche opcional.',
-                price: 150,
-                image: 'assets/images/postres/chajavaso.webp'
-            },
-            {
-                id: 4,
-                name: 'Red velvet en vasito',
-                description: 'Suave red velvet con frosting de queso crema.',
-                price: 150,
-                image: 'assets/images/postres/redvelvetvaso.webp'
-            },
-            {
-                id: 5,
-                name: 'Matilda en vasito',
-                description: 'Torta matilda de chocolate con mousse de chocolate.',
-                price: 150,
-                image: 'assets/images/postres/matildavaso.webp'
-            },
-            {
-                id: 6,
-                name: 'Selva negra en vasito',
-                description: 'Selva negra con chocolate, cerezas y crema batida.',
-                price: 150,
-                image: 'assets/images/postres/selvanegravaso.webp'
-            },
-            {
-                id: 7,
-                name: 'Bombón de maní en vasito',
-                description: 'Torta de chocolate con crema de maní y ganache de chocolate.',
-                price: 150,
-                image: 'assets/images/postres/bombondemanivaso.webp'
-            },
-            {
-                id: 8,
-                name: 'Chocotorta en vasito',
-                description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
-                price: 150,
-                image: 'assets/images/postres/chocotortavaso.webp'
-            },
-            {
-                id: 9,
-                name: 'Oreo en vasito',
-                description: 'Postre de oreo con crema y galletas trituradas.',
-                price: 150,
-                image: 'assets/images/postres/oreovaso.webp'
-            },
-            {
-                id: 10,
-                name: 'Banana split en vasito',
-                description: 'Banana split con banana, dulce de leche, crema y salsa de frutilla.',
-                price: 150,
-                image: 'assets/images/postres/bananasplitvaso.webp'
-            },
-            {
-                id: 11,
-                name: 'Lemon Pie en vasito',
-                description: 'Lemon pie con base de galleta, relleno de limón y merengue italiano.',
-                price: 150,
-                image: 'assets/images/postres/lemonpievaso.webp'
-            },
-            {
-                id: 12,
-                name: 'Porción de Red velvet',
-                description: 'Porción de red velvet con frosting de queso crema.',
-                price: 150,
-                image: 'assets/images/postres/redvelvet.webp'
-            },
-            {
-                id: 13,
-                name: 'Porción de Matilda',
-                description: 'Porción de torta matilda de chocolate rellena de ganache de chocolate.',
-                price: 150,
-                image: 'assets/images/postres/matilda.webp'
-            },
-            { 
-                id: 14,
-                name: 'Porción de Carrot Cake',
-                description: 'Porción de torta de zanahoria con crema de queso y nueces.',
-                price: 150,
-                image: 'assets/images/postres/carrotcake.webp'
-            },
+                title: 'Porciones y antojos',
+                products: [
+                    {
+                        id: 11,
+                        name: 'Porción de Red velvet',
+                        description: 'Porción de red velvet con frosting de queso crema.',
+                        price: 150,
+                        image: 'assets/images/postres/redvelvet.webp'
+                    },
+                    {
+                        id: 12,
+                        name: 'Porción de Matilda',
+                        description: 'Porción de torta matilda de chocolate rellena de ganache de chocolate.',
+                        price: 150,
+                        image: 'assets/images/postres/matilda.webp'
+                    },
+                    {
+                        id: 13,
+                        name: 'Porción de Carrot Cake',
+                        description: 'Porción de torta de zanahoria con crema de queso y nueces.',
+                        price: 150,
+                        image: 'assets/images/postres/carrotcake.webp'
+                    },
+                    {
+                        id: 14,
+                        name: 'Alfajores de chocolate',
+                        description: 'Alfajores de chocolate con relleno de dulce de leche.',
+                        price: 150,
+                        image: 'assets/images/postres/alfajoreschocolate.webp'
+                    },
+                    {
+                        id: 15,
+                        name: 'Alfajores de maicena',
+                        description: 'Alfajores de maicena con relleno de dulce de leche.',
+                        price: 150,
+                        image: 'assets/images/postres/alfajoresmaicena.webp'
+                    }
+                ]
+            }
         ]
     },
     budines: {
@@ -818,6 +1095,53 @@ const catalogData = {
                 description: 'Budín de vainilla con nueces y pasas de uva.',
                 price: 350,
                 image: 'assets/images/budines/budinvainillaconnuezyapasas.webp'
+            },
+            {
+                id: 8,
+                name: 'Budín de Chocolate.',
+                description: 'Budín de Chocolate.',
+                price: 250,
+                image: 'assets/images/budines/budinchocolate.webp'
+            },
+            {
+                id: 9,
+                name: 'Budín de Vainilla',
+                description: 'Budín de Vainilla.',
+                price: 250,
+                image: 'assets/images/budines/budinvainilla.webp'
+            }
+        ]
+    },
+    salados: {
+        title: 'Salados',
+        products: [
+            {
+                id: 1,
+                name: 'Tarta de zapallitos',
+                description: 'Tarta de zapallitos con queso y cebolla. Ideal para acompañar.',
+                price: 800,
+                image: 'assets/images/salados/tartazapallitos.webp'
+            },
+            {
+                id: 2,
+                name: 'Torta de fiambre',
+                description: 'Torta de fiambre con mayonesa y vegetales. Perfecta para compartir.',
+                price: 900,
+                image: 'assets/images/salados/tortafiambre.webp'
+            },
+            {
+                id: 3,
+                name: 'Milanesa al pan',
+                description: 'Milanesa al pan con lechuga, tomate y mayonesa. Clásica y deliciosa.',
+                price: 350,
+                image: 'assets/images/salados/milanesapan.webp'
+            },
+            {
+                id: 4,
+                name: 'Arrolladitos primavera',
+                description: 'Arrolladitos primavera con jamón, queso y vegetales frescos.',
+                price: 200,
+                image: 'assets/images/salados/arrolladitosprimavera.webp'
             }
         ]
     }
@@ -974,6 +1298,67 @@ function showCatalog(category, subCategory = null) {
                 }, 100 + index * 100);
             });
         }
+    } else if (categoryData.type === 'sections') {
+        // Catálogo con secciones múltiples
+        currentNavigationLevel = 1;
+        catalogTitle.textContent = categoryData.title;
+
+        let globalIndex = 0;
+
+        categoryData.sections.forEach((section, sectionIndex) => {
+            // Crear título de sección
+            const sectionTitle = document.createElement('h3');
+            sectionTitle.className = 'section-subtitle';
+            sectionTitle.textContent = section.title;
+            sectionTitle.style.gridColumn = '1 / -1';
+            sectionTitle.style.marginTop = sectionIndex > 0 ? '40px' : '0';
+            sectionTitle.style.marginBottom = '20px';
+            sectionTitle.style.fontSize = '2rem';
+            sectionTitle.style.color = 'var(--primary-color)';
+            sectionTitle.style.fontWeight = '700';
+            sectionTitle.style.textAlign = 'center';
+            catalogGrid.appendChild(sectionTitle);
+
+            // Animar entrada del título de sección
+            setTimeout(() => {
+                sectionTitle.style.opacity = '1';
+                sectionTitle.style.transform = 'translateY(0)';
+            }, 100 + globalIndex * 100);
+
+            // Mostrar productos de esta sección
+            section.products.forEach((product, productIndex) => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.style.transitionDelay = `${globalIndex * 0.1}s`;
+
+                const imageContent = product.image
+                    ? `<img src="${product.image}" alt="${product.name}" class="product-image-img">`
+                    : `<span>${product.emoji}</span>`;
+
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        ${imageContent}
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-price">$${product.price}</div>
+                        <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
+                            Añadir al Carrito
+                        </button>
+                    </div>
+                `;
+
+                catalogGrid.appendChild(productCard);
+
+                // Animar entrada
+                setTimeout(() => {
+                    productCard.classList.add('visible');
+                }, 100 + globalIndex * 100);
+
+                globalIndex++;
+            });
+        });
     } else {
         // Catálogo normal de productos
         currentNavigationLevel = 1;
