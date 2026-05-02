@@ -1174,14 +1174,14 @@ const catalogData = {
             {
                 id: 4,
                 name: 'Pre-Pizza',
-                description: 'Pizzas congeladas listas para hornear y comer.',
+                description: 'Pizzas congeladas listas para hornear.',
                 price: 150,
                 image: 'assets/images/salados/prepizza.webp'
             },
             {
                 id: 5,
                 name: 'Pre-Pizza con Muzzarella',
-                description: 'Pizzas congeladas con Muzzarella listas para hornear y comer.',
+                description: 'Pizzas congeladas con Muzzarella listas para hornear.',
                 price: 200,
                 image: 'assets/images/salados/prepizzamuzza.webp'
             }
