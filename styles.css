@@ -239,7 +239,7 @@ section {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 30px;
     margin-top: 40px;
-    align-items: start;
+    align-items: stretch;
     justify-items: stretch;
 }
 
@@ -259,7 +259,8 @@ section {
     flex-direction: column;
     opacity: 0;
     transform: translateY(30px);
-    height: auto;
+    height: 100%;
+    min-height: 450px;
     width: 100%;
 }
 
@@ -309,7 +310,7 @@ section {
 /* Catalog Slideshow Styles */
 .catalog-slideshow {
     width: 100%;
-    height: 250px;
+    height: 350px;
     border-radius: 15px;
     margin-bottom: 15px;
     overflow: hidden;
@@ -344,6 +345,40 @@ section {
 
 .slideshow-card {
     height: auto;
+    padding: 30px;
+    min-height: 500px;
+}
+
+.slideshow-grid {
+    grid-template-columns: 1fr !important;
+    max-width: 800px;
+    margin: 0 auto;
+    align-items: stretch;
+}
+
+.slideshow-card .product-name {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+}
+
+.slideshow-card .product-description {
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 15px;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.slideshow-card .product-price {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+.slideshow-card .add-to-cart-button {
+    padding: 15px 25px;
+    font-size: 1.1rem;
 }
 
 /* Category Option Cards for Two-Level Navigation */
@@ -418,7 +453,7 @@ section {
     .catalog-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px;
-        align-items: start;
+        align-items: stretch;
         justify-items: stretch;
     }
 
@@ -429,6 +464,7 @@ section {
     .product-card {
         padding: 8px;
         border-radius: 12px;
+        min-height: 280px;
     }
 
     .product-image {
@@ -438,8 +474,43 @@ section {
     }
 
     .catalog-slideshow {
-        height: 150px;
+        height: 250px;
         margin-bottom: 6px;
+    }
+
+    .slideshow-grid {
+        max-width: 100%;
+        align-items: stretch;
+    }
+
+    .slideshow-card {
+        padding: 15px;
+        min-height: 350px;
+    }
+
+    .slideshow-card .product-name {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    .slideshow-card .product-description {
+        font-size: 0.85rem;
+        line-height: 1.4;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .slideshow-card .product-price {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    .slideshow-card .add-to-cart-button {
+        padding: 8px 12px;
+        font-size: 0.9rem;
     }
 
     .product-name {
@@ -501,12 +572,14 @@ section {
     .catalog-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 6px;
+        align-items: stretch;
         justify-items: stretch;
     }
 
     .product-card {
         padding: 6px;
         border-radius: 10px;
+        min-height: 260px;
     }
 
     .product-image {
@@ -516,8 +589,43 @@ section {
     }
 
     .catalog-slideshow {
-        height: 130px;
+        height: 200px;
         margin-bottom: 5px;
+    }
+
+    .slideshow-grid {
+        max-width: 100%;
+        align-items: stretch;
+    }
+
+    .slideshow-card {
+        padding: 12px;
+        min-height: 320px;
+    }
+
+    .slideshow-card .product-name {
+        font-size: 1rem;
+        margin-bottom: 6px;
+    }
+
+    .slideshow-card .product-description {
+        font-size: 0.8rem;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .slideshow-card .product-price {
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+    }
+
+    .slideshow-card .add-to-cart-button {
+        padding: 6px 10px;
+        font-size: 0.85rem;
     }
 
     .product-name {
@@ -528,6 +636,11 @@ section {
     .product-description {
         font-size: 0.65rem;
         margin-bottom: 5px;
+        line-height: 1.2;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
     }
 
     .product-price {
@@ -587,6 +700,11 @@ section {
     margin-bottom: 10px;
     flex: 1;
     width: 100%;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .product-price {
@@ -982,7 +1100,7 @@ section {
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 40px;
 }
 
@@ -1587,21 +1705,46 @@ section {
         gap: 25px;
     }
 
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
     .service-card,
     .price-card,
     .testimonial-card {
-        padding: 30px;
+        padding: 20px;
+    }
+
+    .service-card {
+        padding: 15px;
     }
 
     .service-image img {
-        max-width: 150px;
-        max-height: 150px;
+        max-width: 80px;
+        max-height: 80px;
     }
 
     .service-image .placeholder-image {
-        width: 150px;
-        height: 150px;
-        font-size: 2.5rem;
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+
+    .service-card h3 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .service-card p {
+        font-size: 0.75rem;
+        line-height: 1.4;
+        margin-bottom: 8px;
+    }
+
+    .service-cta {
+        font-size: 0.8rem;
+        margin-top: 10px;
     }
 
     .price-card.featured {
@@ -1684,11 +1827,11 @@ section {
     }
 
     section {
-        padding: 40px 0;
+        padding: 30px 0;
     }
 
     .container {
-        padding: 0 15px;
+        padding: 0 10px;
     }
 
     .service-card,
@@ -1697,9 +1840,23 @@ section {
         padding: 25px 20px;
     }
 
+    .service-card {
+        padding: 12px;
+    }
+
+    .services-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
     .service-card h3,
     .price-card h3 {
         font-size: 1.3rem;
+    }
+
+    .service-card h3 {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
     }
 
     .price {
@@ -1707,14 +1864,30 @@ section {
     }
 
     .service-image img {
-        max-width: 120px;
-        max-height: 120px;
+        max-width: 60px;
+        max-height: 60px;
     }
 
     .service-image .placeholder-image {
-        width: 120px;
-        height: 120px;
-        font-size: 2rem;
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .service-card h3 {
+        font-size: 0.9rem;
+        margin-bottom: 6px;
+    }
+
+    .service-card p {
+        font-size: 0.7rem;
+        line-height: 1.3;
+        margin-bottom: 6px;
+    }
+
+    .service-cta {
+        font-size: 0.75rem;
+        margin-top: 8px;
     }
 
     .contact-image img {
@@ -1761,6 +1934,42 @@ section {
     .hero-title {
         font-size: 1.5rem;
     }
+
+    .services-grid {
+        gap: 8px;
+    }
+
+    .service-card {
+        padding: 10px;
+    }
+
+    .service-image img {
+        max-width: 50px;
+        max-height: 50px;
+    }
+
+    .service-image .placeholder-image {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+
+    .service-card h3 {
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+    }
+
+    .service-card p {
+        font-size: 0.65rem;
+        line-height: 1.2;
+        margin-bottom: 5px;
+    }
+
+    .service-cta {
+        font-size: 0.7rem;
+        margin-top: 6px;
+    }
+}
 
     .hero-subtitle {
         font-size: 0.9rem;

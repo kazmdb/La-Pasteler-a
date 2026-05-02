@@ -570,21 +570,21 @@ const catalogData = {
                 price: '790',
                 priceRange: true,
                 images: [
-                    'assets/images/personalizada2.jpg',
-                    'assets/images/personalizada1.jpg',
-                    'assets/images/personalizada3.jpg',
-                    'assets/images/personalizada4.jpg',
-                    'assets/images/personalizada5.jpg',
-                    'assets/images/flores1.jpg',
-                    'assets/images/flores2.jpg',
-                    'assets/images/flores3.jpg',
-                    'assets/images/flores4.jpg',
-                    'assets/images/flores5.jpg',
-                    'assets/images/mariposas1.jpg',
-                    'assets/images/mariposas2.jpg',
-                    'assets/images/mariposas3.jpg',
-                    'assets/images/mariposas4.jpg',
-                    'assets/images/mariposas5.jpg'
+                    'assets/images/personalizada2.webp',
+                    'assets/images/personalizada1.webp',
+                    'assets/images/personalizada3.webp',
+                    'assets/images/personalizada4.webp',
+                    'assets/images/personalizada5.webp',
+                    'assets/images/flores1.webp',
+                    'assets/images/flores2.webp',
+                    'assets/images/flores3.webp',
+                    'assets/images/flores4.webp',
+                    'assets/images/flores5.webp',
+                    'assets/images/mariposas1.webp',
+                    'assets/images/mariposas2.webp',
+                    'assets/images/mariposas3.webp',
+                    'assets/images/mariposas4.webp',
+                    'assets/images/mariposas5.webp'
                 ]
             }
         ]
@@ -595,72 +595,79 @@ const catalogData = {
             {
                 id: 1,
                 name: 'Cheesecake',
-                description: 'Cremoso cheesecake con base de galleta.',
+                description: 'Cheesecake con base de galleta, cubierto de mermelada de frutilla.',
                 price: 1800,
-                image: 'assets/images/postres/cheesecake.jpg'
+                image: 'assets/images/postres/cheesecake.webp'
             },
             {
                 id: 2,
                 name: 'Chajá',
-                description: 'Clásico chajá uruguayo con merengue, crema y durazno. Dulce de leche opcional.',
+                description: 'Chajá con merengue, crema y durazno. Dulce de leche opcional.',
                 price: 1500,
-                image: 'assets/images/postres/chaja.jpg'
+                image: 'assets/images/postres/chaja.webp'
             },
             {
                 id: 3,
                 name: 'Rogel',
-                description: 'Delicioso rogel con capas de masa hojaldrada y dulce de leche.',
+                description: 'Rogel con capas de masa hojaldrada y dulce de leche.',
                 price: 1700,
-                image: 'assets/images/postres/rogel.jpg'
+                image: 'assets/images/postres/rogel.webp'
             },
             {
                 id: 4,
                 name: 'Red velvet',
-                description: 'Suave red velvet con frosting de queso crema.',
+                description: 'Red velvet con frosting de queso crema.',
                 price: 2000,
-                image: 'assets/images/postres/redvelvetentero.jpg'
+                image: 'assets/images/postres/redvelvetentero.webp'
             },
             {
                 id: 5,
                 name: 'Matilda',
                 description: 'Torta matilda de chocolate rellena de ganache de chocolate.',
                 price: 1600,
-                image: 'assets/images/postres/matildaentero.jpg'
+                image: 'assets/images/postres/matildaentero.webp'
             },
             {
                 id: 6,
                 name: 'Selva negra',
                 description: 'Selva negra con chocolate, cerezas y crema batida.',
                 price: 2000,
-                image: 'assets/images/postres/selvanegra.jpg'
+                image: 'assets/images/postres/selvanegra.webp'
             },
             {
                 id: 7,
                 name: 'Bombón de maní',
                 description: 'Torta de chocolate rellena de crema de maní y ganache de chocolate.',
                 price: 1400,
-                image: 'assets/images/postres/bombondemani.jpg'
+                image: 'assets/images/postres/bombondemani.webp'
             },
             {
                 id: 8,
                 name: 'Chocotorta',
                 description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
                 price: 1200,
-                image: 'assets/images/postres/chocotorta.jpg'
+                image: 'assets/images/postres/chocotorta.webp'
             },
             {
                 id: 9,
                 name: 'Oreo',
                 description: 'Postre de oreo con crema y galletas trituradas.',
                 price: 1300,
-                image: 'assets/images/postres/oreo.jpg'
+                image: 'assets/images/postres/oreo.webp'
             },
             {
                 id: 10,
                 name: 'Lemon Pie',
-                description: 'Refrescante lemon pie con base de galleta, relleno de limón y merengue italiano.',
+                description: 'Lemon pie con base de galleta, relleno de limón y merengue italiano.',
                 price: 1900,
-                image: 'assets/images/postres/lemonpie.jpg'
+                image: 'assets/images/postres/lemonpie.webp'
+            },
+            {
+                id: 11,
+                name: 'Torta de limón',
+                description: 'Torta de limón con crema de limón y merenguitos.',
+                price: 1900,
+                image: 'assets/images/postres/tortalimon.webp'
             }
         ]
     },
@@ -672,92 +679,146 @@ const catalogData = {
                 name: 'Cheesecake en vasito',
                 description: 'Cremoso cheesecake con base de galleta y topping de frutos rojos.',
                 price: 150,
-                image: 'assets/images/postres/cheesecakevaso.jpg'
+                image: 'assets/images/postres/cheesecakevaso.webp'
             },
             {
                 id: 2,
                 name: 'Chajá en vasito',
                 description: 'Clásico chajá uruguayo con merengue, crema y durazno. Dulce de leche opcional.',
                 price: 150,
-                image: 'assets/images/postres/chajavaso.jpg'
+                image: 'assets/images/postres/chajavaso.webp'
             },
             {
                 id: 4,
                 name: 'Red velvet en vasito',
                 description: 'Suave red velvet con frosting de queso crema.',
                 price: 150,
-                image: 'assets/images/postres/redvelvetvaso.jpg'
+                image: 'assets/images/postres/redvelvetvaso.webp'
             },
             {
                 id: 5,
                 name: 'Matilda en vasito',
                 description: 'Torta matilda de chocolate con mousse de chocolate.',
                 price: 150,
-                image: 'assets/images/postres/matildavaso.jpg'
+                image: 'assets/images/postres/matildavaso.webp'
             },
             {
                 id: 6,
                 name: 'Selva negra en vasito',
                 description: 'Selva negra con chocolate, cerezas y crema batida.',
                 price: 150,
-                image: 'assets/images/postres/selvanegravaso.jpg'
+                image: 'assets/images/postres/selvanegravaso.webp'
             },
             {
                 id: 7,
                 name: 'Bombón de maní en vasito',
                 description: 'Torta de chocolate con crema de maní y ganache de chocolate.',
                 price: 150,
-                image: 'assets/images/postres/bombondemanivaso.jpg'
+                image: 'assets/images/postres/bombondemanivaso.webp'
             },
             {
                 id: 8,
                 name: 'Chocotorta en vasito',
                 description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
                 price: 150,
-                image: 'assets/images/postres/chocotortavaso.jpg'
+                image: 'assets/images/postres/chocotortavaso.webp'
             },
             {
                 id: 9,
                 name: 'Oreo en vasito',
                 description: 'Postre de oreo con crema y galletas trituradas.',
                 price: 150,
-                image: 'assets/images/postres/oreovaso.jpg'
+                image: 'assets/images/postres/oreovaso.webp'
             },
             {
                 id: 10,
                 name: 'Banana split en vasito',
                 description: 'Banana split con banana, dulce de leche, crema y salsa de frutilla.',
                 price: 150,
-                image: 'assets/images/postres/bananasplitvaso.jpg'
+                image: 'assets/images/postres/bananasplitvaso.webp'
             },
             {
                 id: 11,
                 name: 'Lemon Pie en vasito',
-                description: 'Refrescante lemon pie con base de galleta, relleno de limón y merengue italiano.',
+                description: 'Lemon pie con base de galleta, relleno de limón y merengue italiano.',
                 price: 150,
-                image: 'assets/images/postres/lemonpievaso.jpg'
+                image: 'assets/images/postres/lemonpievaso.webp'
             },
             {
                 id: 12,
                 name: 'Porción de Red velvet',
                 description: 'Porción de red velvet con frosting de queso crema.',
                 price: 150,
-                image: 'assets/images/postres/redvelvet.jpg'
+                image: 'assets/images/postres/redvelvet.webp'
             },
             {
                 id: 13,
                 name: 'Porción de Matilda',
                 description: 'Porción de torta matilda de chocolate rellena de ganache de chocolate.',
                 price: 150,
-                image: 'assets/images/postres/matilda.jpg'
+                image: 'assets/images/postres/matilda.webp'
             },
             { 
                 id: 14,
                 name: 'Porción de Carrot Cake',
                 description: 'Porción de torta de zanahoria con crema de queso y nueces.',
                 price: 150,
-                image: 'assets/images/postres/carrotcake.jpg'
+                image: 'assets/images/postres/carrotcake.webp'
             },
+        ]
+    },
+    budines: {
+        title: 'Budines',
+        products: [
+            {
+                id: 1,
+                name: 'Budín de Limón',
+                description: 'Budín de limón con glaseado de limón.',
+                price: 350,
+                image: 'assets/images/budines/budinlimon.webp'
+            },
+            {
+                id: 2,
+                name: 'Budín de Naranja',
+                description: 'Budín de naranja cítrico con ralladura de naranja.',
+                price: 250,
+                image: 'assets/images/budines/budinnaranja.webp'
+            },
+            {
+                id: 3,
+                name: 'Budín Marmolado',
+                description: 'Budín marmolado de vainilla y chocolate.',
+                price: 250,
+                image: 'assets/images/budines/budinmarmolado.webp'
+            },
+            {
+                id: 4,
+                name: 'Budín de Banana con Nuez',
+                description: 'Budín de banana con nueces crujientes.',
+                price: 350,
+                image: 'assets/images/budines/budinbananaconnuez.webp'
+            },
+            {
+                id: 5,
+                name: 'Budín Carrot Cake',
+                description: 'Budín de zanahoria con frosting de queso crema.',
+                price: 350,
+                image: 'assets/images/budines/budincarrotcake.webp'
+            },
+            {
+                id: 6,
+                name: 'Budín de Vainilla con Chispas de Chocolate',
+                description: 'Budín de vainilla con chispas de chocolate.',
+                price: 350,
+                image: 'assets/images/budines/budinvainillaconchips.webp'
+            },
+            {
+                id: 7,
+                name: 'Budín de Vainilla con Nuez y Pasas',
+                description: 'Budín de vainilla con nueces y pasas de uva.',
+                price: 350,
+                image: 'assets/images/budines/budinvainillaconnuezyapasas.webp'
+            }
         ]
     }
 };
@@ -798,10 +859,16 @@ function showCatalog(category, subCategory = null) {
 
     catalogGrid.innerHTML = '';
 
+    // Remover clase especial de slideshow si existe
+    catalogGrid.classList.remove('slideshow-grid');
+
     // Verificar si es un catálogo tipo slideshow
     if (categoryData.type === 'slideshow') {
         currentNavigationLevel = 1;
         catalogTitle.textContent = categoryData.title;
+
+        // Agregar clase especial al grid para catálogos de slideshow
+        catalogGrid.classList.add('slideshow-grid');
 
         categoryData.products.forEach((product, index) => {
             const slideshowCard = document.createElement('div');
@@ -1000,9 +1067,13 @@ function goBack() {
     const catalogSection = document.getElementById('catalogo');
     const mainContent = document.querySelector('.hero, .prices, .testimonials, .contact, .footer');
     const servicesSection = document.getElementById('servicios');
+    const catalogGrid = document.getElementById('catalog-grid');
 
     // Limpiar intervalos de slideshow al volver
     clearSlideshowIntervals();
+
+    // Remover clase especial de slideshow
+    catalogGrid.classList.remove('slideshow-grid');
 
     // Verificar el nivel de navegación actual
     if (currentNavigationLevel === 2) {
