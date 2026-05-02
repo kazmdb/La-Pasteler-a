@@ -37,6 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(el);
     });
 
+    // Observe shipping cards with stagger
+    document.querySelectorAll('.shipping-card').forEach((el, index) => {
+        el.style.transitionDelay = `${index * 0.2}s`;
+        observer.observe(el);
+    });
+
     // Observe contact sections
     document.querySelectorAll('.contact-info, .contact-image').forEach(el => {
         observer.observe(el);
@@ -71,7 +77,7 @@ window.addEventListener('scroll', () => {
 });
 
 // Add hover effect to cards
-document.querySelectorAll('.service-card, .price-card, .testimonial-card').forEach(card => {
+document.querySelectorAll('.service-card, .price-card, .testimonial-card, .shipping-card').forEach(card => {
     card.addEventListener('mouseenter', function() {
         this.style.transform = 'translateY(-10px) scale(1.02)';
     });
@@ -1559,8 +1565,8 @@ function goBack() {
             servicesSection.style.display = '';
         }
 
-        // Scroll al inicio
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Scroll a la sección de servicios
+        servicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 }
 

@@ -243,6 +243,102 @@ section {
     background: var(--bg-white);
 }
 
+/* Shipping Section */
+.shipping {
+    background: var(--bg-light);
+}
+
+.shipping-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.shipping-card {
+    background: var(--bg-white);
+    border-radius: 20px;
+    padding: 40px;
+    text-align: center;
+    transition: var(--transition);
+    opacity: 0;
+    transform: translateY(50px);
+    box-shadow: var(--shadow);
+    position: relative;
+    cursor: pointer;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.shipping-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.shipping-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.shipping-card:active {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.shipping-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.shipping-card h3 {
+    font-size: 1.5rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.shipping-price {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+.shipping-promo {
+    font-size: 1rem;
+    color: var(--accent-color);
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.432);
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.shipping-features {
+    list-style: none;
+    text-align: left;
+}
+
+.shipping-features li {
+    padding: 10px 0;
+    color: var(--text-light);
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.shipping-features li::before {
+    content: '✓';
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.shipping-features li:last-child {
+    border-bottom: none;
+}
+
 /* Order Notice Section */
 .order-notice {
     background: linear-gradient(135deg, var(--accent-color) 0%, #FFD700 100%);
@@ -397,9 +493,8 @@ section {
 
 .product-card.diadelamadre-card .product-description {
     font-size: 1.15rem;
-    line-height: 1.6;
-    -webkit-line-clamp: 9;
-    line-clamp: 9;
+    line-height: 1.8;
+    white-space: pre-line;
     margin-bottom: 15px;
 }
 
@@ -619,8 +714,7 @@ section {
 
     .product-card.diadelamadre-card .product-description {
         font-size: 1rem;
-        -webkit-line-clamp: 9;
-        line-clamp: 9;
+        white-space: pre-line;
     }
 
     .product-image {
@@ -767,8 +861,7 @@ section {
 
     .product-card.diadelamadre-card .product-description {
         font-size: 0.95rem;
-        -webkit-line-clamp: 9;
-        line-clamp: 10;
+        white-space: pre-line;
     }
 
     .product-image {
@@ -1360,7 +1453,7 @@ section {
 
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 40px;
 }
 
@@ -2032,7 +2125,8 @@ section {
 
     .service-card,
     .price-card,
-    .testimonial-card {
+    .testimonial-card,
+    .shipping-card {
         padding: 20px;
     }
 
@@ -2178,7 +2272,8 @@ section {
 
     .service-card,
     .price-card,
-    .testimonial-card {
+    .testimonial-card,
+    .shipping-card {
         padding: 25px 20px;
     }
 
@@ -2192,13 +2287,40 @@ section {
     }
 
     .service-card h3,
-    .price-card h3 {
+    .price-card h3,
+    .shipping-card h3 {
         font-size: 1.3rem;
     }
 
     .service-card h3 {
         font-size: 0.9rem;
         margin-bottom: 6px;
+    }
+
+    .shipping-card h3 {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .shipping-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+    }
+
+    .shipping-price {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .shipping-promo {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+        padding: 6px 10px;
+    }
+
+    .shipping-features li {
+        font-size: 0.9rem;
+        padding: 8px 0;
     }
 
     .price {
@@ -2349,8 +2471,7 @@ section {
 
     .product-card.diadelamadre-card .product-description {
         font-size: 0.9rem;
-        -webkit-line-clamp: 9;
-        line-clamp: 9;
+        white-space: pre-line;
     }
 
     .service-slideshow {
@@ -2366,6 +2487,32 @@ section {
     .service-card h3 {
         font-size: 1rem;
         margin-bottom: 5px;
+    }
+
+    .shipping-card h3 {
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .shipping-icon {
+        font-size: 2.5rem;
+        margin-bottom: 12px;
+    }
+
+    .shipping-price {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+    }
+
+    .shipping-promo {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+        padding: 5px 8px;
+    }
+
+    .shipping-features li {
+        font-size: 0.85rem;
+        padding: 6px 0;
     }
 
     .service-card p {
@@ -2402,7 +2549,8 @@ section {
 @media (hover: none) and (pointer: coarse) {
     .service-card:hover,
     .price-card:hover,
-    .testimonial-card:hover {
+    .testimonial-card:hover,
+    .shipping-card:hover {
         transform: none;
     }
 
@@ -2412,7 +2560,8 @@ section {
 
     .service-card:active,
     .price-card:active,
-    .testimonial-card:active {
+    .testimonial-card:active,
+    .shipping-card:active {
         transform: scale(0.98);
     }
 }
