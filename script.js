@@ -1029,14 +1029,14 @@ const catalogData = {
                     {
                         id: 14,
                         name: 'Alfajores de chocolate',
-                        description: 'Alfajores de chocolate con relleno de dulce de leche.',
+                        description: '5 Alfajores de chocolate con relleno de dulce de leche.',
                         price: 150,
                         image: 'assets/images/postres/alfajoreschocolate.webp'
                     },
                     {
                         id: 15,
                         name: 'Alfajores de maicena',
-                        description: 'Alfajores de maicena con relleno de dulce de leche.',
+                        description: '5 Alfajores de maicena con relleno de dulce de leche.',
                         price: 150,
                         image: 'assets/images/postres/alfajoresmaicena.webp'
                     }
