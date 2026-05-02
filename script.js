@@ -584,6 +584,7 @@ function replaceButtonWithQuantityControls(button, productName, price, isRange =
     // Crear contenedor de controles de cantidad
     const quantityContainer = document.createElement('div');
     quantityContainer.className = 'quantity-controls-container';
+    quantityContainer.dataset.productName = productName;
     quantityContainer.innerHTML = `
         <div class="quantity-controls">
             <button class="quantity-button" onclick="updateProductQuantity('${productName}', -1, ${isRange})">-</button>
@@ -626,7 +627,7 @@ function updateProductQuantity(productName, change, isRange = false) {
 
 // Función para actualizar el mostrador de cantidad en el botón
 function updateQuantityDisplay(productName, quantity) {
-    const container = document.querySelector(`.quantity-controls-container`);
+    const container = document.querySelector(`.quantity-controls-container[data-product-name="${productName}"]`);
     if (container) {
         const quantitySpan = container.querySelector('.quantity');
         if (quantitySpan) {
@@ -663,7 +664,7 @@ function removeFromCartByName(productName) {
 // Función para restaurar el botón original
 function restoreOriginalButton(productName) {
     const originalButton = productButtons[productName];
-    const container = document.querySelector(`.quantity-controls-container`);
+    const container = document.querySelector(`.quantity-controls-container[data-product-name="${productName}"]`);
 
     if (originalButton && container) {
         // Crear un nuevo botón igual al original
