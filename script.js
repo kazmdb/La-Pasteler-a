@@ -1166,17 +1166,24 @@ const catalogData = {
             },
             {
                 id: 3,
-                name: 'Milanesa al pan',
-                description: 'Milanesa al pan con lechuga, tomate y mayonesa. Clásica y deliciosa.',
-                price: 350,
-                image: 'assets/images/salados/milanesapan.webp'
+                name: 'Pascualina',
+                description: 'Pascualina rellena de acelga, espinaca y huevo.',
+                price: 700,
+                image: 'assets/images/salados/pascualina.webp'
             },
             {
                 id: 4,
-                name: 'Arrolladitos primavera',
-                description: 'Arrolladitos primavera con jamón, queso y vegetales frescos.',
+                name: 'Pre-Pizza',
+                description: 'Pizzas congeladas listas para hornear y comer.',
+                price: 150,
+                image: 'assets/images/salados/prepizza.webp'
+            },
+            {
+                id: 5,
+                name: 'Pre-Pizza con Muzzarella',
+                description: 'Pizzas congeladas con Muzzarella listas para hornear y comer.',
                 price: 200,
-                image: 'assets/images/salados/arrolladitosprimavera.webp'
+                image: 'assets/images/salados/prepizzamuzza.webp'
             }
         ]
     },
