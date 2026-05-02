@@ -1190,35 +1190,35 @@ const catalogData = {
         products: [
             {
                 id: 1,
-                name: 'Opción 1',
+                name: 'Desayuno Opción 1',
                 description: 'Porción de Red Velvet, 2 mini budines, 5 galletas de avena y naranja, 3 sandwiches de jamón y queso, bombones, bebida a elección: jugo o capuccino y Tarjeta con mensaje personalizado.',
                 price: 650,
                 image: 'assets/images/festivos/desayuno1.webp'
             },
             {
                 id: 2,
-                name: 'Opción 2',
+                name: 'Desayuno Opción 2',
                 description: 'Mini torta rellena de dulce de leche, Scons de queso y orégano, Taza + capuccino y tarjeta con mensaje personalizado.',
                 price: 750,
                 image: 'assets/images/festivos/desayuno2.webp'
             },
             {
                 id: 3,
-                name: 'Opción 3',
+                name: 'Desayuno Opción 3',
                 description: 'Mini torta rellena de dulce de leche, 2 postres en vasito, bolsita de bombones, taza, sobre de capuccino y tarjeta con mensaje personalizado.',
                 price: 790,
                 image: 'assets/images/festivos/desayuno3.webp'
             },
             {
                 id: 4,
-                name: 'Opción 4',
+                name: 'Desayuno Opción 4',
                 description: 'Torta delicada y riquísima, elegí tu diseño favorito. Incluye topper con el mensaje que quieras.',
                 price: 500,
                 image: 'assets/images/festivos/desayuno4.webp'
             },
             {
                 id: 5,
-                name: 'Opción 5',
+                name: 'Desayuno Opción 5',
                 description: '4 cuadrados de pasta frola, 4 cuadrados de tarta de coco y dulce de leche, 4 cuadrados de limón, 4 galletas de avena y naranja, taza + sobre de capuccino.',
                 price: 450,
                 image: 'assets/images/festivos/desayuno5.webp'
