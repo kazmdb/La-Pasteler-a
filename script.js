@@ -1207,7 +1207,7 @@ const catalogData = {
             {
                 id: 4,
                 name: 'Opción 4',
-                description: 'Tortas delicadas y riquísimas, elegí tu diseño favorito. Incluye topper con el mensaje que quieras.',
+                description: 'Torta delicada y riquísima, elegí tu diseño favorito. Incluye topper con el mensaje que quieras.',
                 price: 500,
                 image: 'assets/images/festivos/desayuno4.webp'
             },
@@ -1234,6 +1234,7 @@ function showCatalog(category, subCategory = null) {
     const catalogTitle = document.getElementById('catalog-title');
     const catalogGrid = document.getElementById('catalog-grid');
     const mainContent = document.querySelector('.hero, .prices, .testimonials, .contact, .footer');
+    const shippingSection = document.getElementById('envios');
 
     // Limpiar intervalos existentes antes de crear nuevos
     clearSlideshowIntervals();
@@ -1249,8 +1250,33 @@ function showCatalog(category, subCategory = null) {
         servicesSection.style.display = 'none';
     }
 
+    // Ocultar aviso de pedidos limitados en la página principal
+    const orderNotice = document.querySelector('.order-notice');
+    if (orderNotice) {
+        orderNotice.style.display = 'none';
+    }
+
     // Mostrar catálogo
     catalogSection.classList.remove('hidden');
+
+    // Insertar aviso de pedidos limitados al principio del catálogo
+    const catalogContainer = catalogSection.querySelector('.container');
+    if (catalogContainer && !catalogContainer.querySelector('.catalog-order-notice')) {
+        const orderNoticeClone = document.createElement('div');
+        orderNoticeClone.className = 'order-notice catalog-order-notice';
+        orderNoticeClone.innerHTML = `
+            <div class="order-notice-content">
+                <span class="order-notice-icon">⚠️</span>
+                <p class="order-notice-text">Pedidos limitados, recomendamos reservar con tiempo para asegurar disponibilidad.</p>
+            </div>
+        `;
+        catalogContainer.insertBefore(orderNoticeClone, catalogContainer.firstChild);
+    }
+
+    // Mostrar sección de envíos
+    if (shippingSection) {
+        shippingSection.classList.remove('hidden');
+    }
 
     // Cargar productos
     const categoryData = catalogData[category];
@@ -1534,6 +1560,8 @@ function goBack() {
     const mainContent = document.querySelector('.hero, .prices, .testimonials, .contact, .footer');
     const servicesSection = document.getElementById('servicios');
     const catalogGrid = document.getElementById('catalog-grid');
+    const shippingSection = document.getElementById('envios');
+    const orderNotice = document.querySelector('.order-notice');
 
     // Limpiar intervalos de slideshow al volver
     clearSlideshowIntervals();
@@ -1563,6 +1591,17 @@ function goBack() {
         // Mostrar sección de servicios
         if (servicesSection) {
             servicesSection.style.display = '';
+        }
+
+        // Mostrar aviso de pedidos limitados
+        if (orderNotice) {
+            orderNotice.style.display = '';
+        }
+
+        // Eliminar aviso de pedidos limitados del catálogo
+        const catalogOrderNotice = catalogSection.querySelector('.catalog-order-notice');
+        if (catalogOrderNotice) {
+            catalogOrderNotice.remove();
         }
 
         // Scroll a la sección de servicios
