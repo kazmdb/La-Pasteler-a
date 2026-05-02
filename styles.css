@@ -162,7 +162,7 @@ body {
     font-weight: 600;
     margin-bottom: 30px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
-    color: rgb(252, 120, 208)--accent-color);
+    color: var(--accent-color);
 }
 
 .hero-description {
@@ -1283,15 +1283,28 @@ section {
     margin-bottom: 20px;
 }
 
-.service-image img {
+.service-slideshow {
     width: 100%;
-    height: auto;
-    max-width: 200px;
-    max-height: 200px;
-    object-fit: cover;
+    height: 250px;
+    position: relative;
     border-radius: 15px;
+    overflow: hidden;
     box-shadow: var(--shadow);
-    transition: opacity 0.5s ease;
+}
+
+.service-bg-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.service-bg-image.active {
     opacity: 1;
 }
 
@@ -1846,10 +1859,6 @@ section {
     .hero-buttons {
         gap: 15px;
     }
-        width: 280px;
-        height: 280px;
-        margin-top: 30px;
-    }
 
     .section-title {
         font-size: 2rem;
@@ -1882,9 +1891,8 @@ section {
         padding: 15px;
     }
 
-    .service-image img {
-        max-width: 80px;
-        max-height: 80px;
+    .service-slideshow {
+        height: 150px;
     }
 
     .service-image .placeholder-image {
@@ -1987,9 +1995,6 @@ section {
     .hero-buttons {
         gap: 10px;
     }
-        height: 250px;
-        font-size: 4rem;
-    }
 
     .section-title {
         font-size: 1.8rem;
@@ -2033,9 +2038,8 @@ section {
         font-size: 2.5rem;
     }
 
-    .service-image img {
-        max-width: 60px;
-        max-height: 60px;
+    .service-slideshow {
+        height: 120px;
     }
 
     .service-image .placeholder-image {
@@ -2147,9 +2151,8 @@ section {
         padding: 10px;
     }
 
-    .service-image img {
-        max-width: 50px;
-        max-height: 50px;
+    .service-slideshow {
+        height: 100px;
     }
 
     .service-image .placeholder-image {
@@ -2172,36 +2175,6 @@ section {
     .service-cta {
         font-size: 0.7rem;
         margin-top: 6px;
-    }
-}
-
-
-    .price {
-        font-size: 2rem;
-    }
-
-    .service-image img {
-        max-width: 100px;
-        max-height: 100px;
-    }
-
-    .service-image .placeholder-image {
-        width: 100px;
-        height: 100px;
-        font-size: 1.5rem;
-    }
-
-    .contact-image img {
-        max-height: 120px;
-    }
-
-    .contact-image-img {
-        max-height: 120px;
-    }
-
-    .contact-image .placeholder-image {
-        height: 120px;
-        font-size: 2.5rem;
     }
 }
 

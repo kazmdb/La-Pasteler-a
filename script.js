@@ -348,39 +348,70 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Variables para controlar la rotación de imágenes de servicios
 let serviceImagesIntervals = {};
+let serviceCurrentImageIndices = {};
+
+// Función para obtener un índice aleatorio diferente al actual
+function getServiceRandomImageIndex(totalImages, currentIndex) {
+    let newIndex;
+    do {
+        newIndex = Math.floor(Math.random() * totalImages);
+    } while (newIndex === currentIndex && totalImages > 1);
+    return newIndex;
+}
+
+// Función para obtener todas las imágenes de una categoría
+function getCategoryImages(category) {
+    const categoryData = catalogData[category];
+    if (!categoryData) return [];
+
+    let images = [];
+
+    if (categoryData.type === 'slideshow' && categoryData.products[0].images) {
+        // Para categorías tipo slideshow (cumpleanos), usar imágenes del array
+        images = categoryData.products[0].images;
+    } else if (categoryData.type === 'sections' && categoryData.sections) {
+        // Para categorías tipo sections (individuales), obtener productos de todas las secciones
+        const allProducts = categoryData.sections.flatMap(section => section.products);
+        images = allProducts.map(product => product.image);
+    } else if (categoryData.products && categoryData.products.length > 0) {
+        // Para categorías normales, usar las imágenes de los productos
+        images = categoryData.products.map(product => product.image);
+    }
+
+    return images;
+}
 
 // Función para establecer imágenes aleatorias en las tarjetas de servicio
 function setRandomServiceImages() {
     const categories = ['cumpleanos', 'postres', 'individuales', 'budines', 'salados'];
 
     categories.forEach(category => {
-        const categoryData = catalogData[category];
-        if (!categoryData) return;
+        const images = getCategoryImages(category);
+        if (images.length === 0) return;
 
-        let randomImage;
+        const serviceSlideshow = document.getElementById(`${category}-service-slideshow`);
+        if (!serviceSlideshow) return;
 
-        if (categoryData.type === 'slideshow' && categoryData.products[0].images) {
-            // Para categorías tipo slideshow (cumpleanos), usar imágenes del array
-            const images = categoryData.products[0].images;
-            randomImage = images[Math.floor(Math.random() * images.length)];
-        } else if (categoryData.type === 'sections' && categoryData.sections) {
-            // Para categorías tipo sections (individuales), obtener productos de todas las secciones
-            const allProducts = categoryData.sections.flatMap(section => section.products);
-            if (allProducts.length > 0) {
-                const randomProduct = allProducts[Math.floor(Math.random() * allProducts.length)];
-                randomImage = randomProduct.image;
+        const serviceImages = serviceSlideshow.querySelectorAll('.service-bg-image');
+        if (serviceImages.length === 0) return;
+
+        // Seleccionar índices aleatorios iniciales (asegurando que sean diferentes)
+        serviceCurrentImageIndices[category] = [];
+
+        for (let i = 0; i < serviceImages.length; i++) {
+            let randomIndex;
+            if (i === 0) {
+                // Primera imagen: completamente aleatoria
+                randomIndex = Math.floor(Math.random() * images.length);
+            } else {
+                // Imágenes siguientes: diferentes a las anteriores
+                let previousIndex = serviceCurrentImageIndices[category][i - 1];
+                randomIndex = getServiceRandomImageIndex(images.length, previousIndex);
             }
-        } else if (categoryData.products && categoryData.products.length > 0) {
-            // Para categorías normales, usar la imagen del producto
-            const randomProduct = categoryData.products[Math.floor(Math.random() * categoryData.products.length)];
-            randomImage = randomProduct.image;
-        }
 
-        if (randomImage) {
-            const serviceImage = document.getElementById(`${category}-service-image`);
-            if (serviceImage) {
-                serviceImage.src = randomImage;
-            }
+            serviceCurrentImageIndices[category].push(randomIndex);
+            serviceImages[i].src = images[randomIndex];
+            serviceImages[i].classList.add('active');
         }
     });
 }
@@ -390,44 +421,42 @@ function startServiceImagesRotation() {
     const categories = ['cumpleanos', 'postres', 'individuales', 'budines', 'salados'];
 
     categories.forEach(category => {
-        const categoryData = catalogData[category];
-        if (!categoryData) return;
+        const images = getCategoryImages(category);
+        if (images.length === 0) return;
+
+        const serviceSlideshow = document.getElementById(`${category}-service-slideshow`);
+        if (!serviceSlideshow) return;
+
+        const serviceImages = serviceSlideshow.querySelectorAll('.service-bg-image');
+        if (serviceImages.length === 0) return;
+
+        // Inicializar índices actuales si no existen
+        if (!serviceCurrentImageIndices[category]) {
+            serviceCurrentImageIndices[category] = serviceImages.map((_, i) =>
+                i === 0 ? Math.floor(Math.random() * images.length) : getServiceRandomImageIndex(images.length, serviceCurrentImageIndices[category]?.[i - 1] || 0)
+            );
+        }
 
         // Crear intervalo para cada categoría
         serviceImagesIntervals[category] = setInterval(() => {
-            let randomImage;
+            serviceImages.forEach((serviceImage, imageIndex) => {
+                // Remover clase active de la imagen actual
+                serviceImage.classList.remove('active');
 
-            if (categoryData.type === 'slideshow' && categoryData.products[0].images) {
-                // Para categorías tipo slideshow, usar imágenes del array
-                const images = categoryData.products[0].images;
-                randomImage = images[Math.floor(Math.random() * images.length)];
-            } else if (categoryData.type === 'sections' && categoryData.sections) {
-                // Para categorías tipo sections, obtener productos de todas las secciones
-                const allProducts = categoryData.sections.flatMap(section => section.products);
-                if (allProducts.length > 0) {
-                    const randomProduct = allProducts[Math.floor(Math.random() * allProducts.length)];
-                    randomImage = randomProduct.image;
-                }
-            } else if (categoryData.products && categoryData.products.length > 0) {
-                // Para categorías normales, usar la imagen del producto
-                const randomProduct = categoryData.products[Math.floor(Math.random() * categoryData.products.length)];
-                randomImage = randomProduct.image;
-            }
+                // Obtener un índice aleatorio diferente al actual
+                const currentIndex = serviceCurrentImageIndices[category][imageIndex];
+                const nextIndex = getServiceRandomImageIndex(images.length, currentIndex);
+                serviceCurrentImageIndices[category][imageIndex] = nextIndex;
 
-            if (randomImage) {
-                const serviceImage = document.getElementById(`${category}-service-image`);
-                if (serviceImage) {
-                    // Agregar efecto de transición
-                    serviceImage.style.opacity = '0';
-                    serviceImage.style.transition = 'opacity 0.5s ease';
+                // Cambiar la imagen
+                serviceImage.src = images[nextIndex];
 
-                    setTimeout(() => {
-                        serviceImage.src = randomImage;
-                        serviceImage.style.opacity = '1';
-                    }, 500);
-                }
-            }
-        }, 5000); // Cambiar cada 5 segundos
+                // Agregar clase active después de un breve retraso para suavizar la transición
+                setTimeout(() => {
+                    serviceImage.classList.add('active');
+                }, 50);
+            });
+        }, 4000); // Cambiar cada 4 segundos (igual que el hero)
     });
 }
 
