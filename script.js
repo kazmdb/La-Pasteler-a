@@ -87,50 +87,6 @@ document.querySelectorAll('.service-card, .price-card, .testimonial-card, .shipp
     });
 });
 
-// Dynamic background animation
-const createFloatingElement = () => {
-    const hero = document.querySelector('.hero');
-    if (!hero) return;
-
-    const element = document.createElement('div');
-    element.className = 'floating-element';
-    element.innerHTML = ['🎂', '🍰', '🧁', '🎉', '✨'][Math.floor(Math.random() * 5)];
-    element.style.cssText = `
-        position: absolute;
-        font-size: ${20 + Math.random() * 30}px;
-        left: ${Math.random() * 100}%;
-        top: 100%;
-        opacity: 0.6;
-        pointer-events: none;
-        animation: floatUp ${5 + Math.random() * 5}s linear forwards;
-    `;
-
-    hero.appendChild(element);
-
-    setTimeout(() => {
-        element.remove();
-    }, 10000);
-};
-
-// Create floating elements periodically
-setInterval(createFloatingElement, 2000);
-
-// Add CSS for floating animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes floatUp {
-        0% {
-            transform: translateY(0) rotate(0deg);
-            opacity: 0.6;
-        }
-        100% {
-            transform: translateY(-100vh) rotate(360deg);
-            opacity: 0;
-        }
-    }
-`;
-document.head.appendChild(style);
-
 // Counter animation for single prices
 const animateCounter = (element, target, duration = 2000) => {
     let start = 0;
@@ -615,7 +571,7 @@ function updateProductQuantity(productName, change, isRange = false) {
     updateCartTotal();
     updateCartCount();
 
-    // Actualizar el mostrador de cantidad en el botón
+    // Actualizar el mostrador de cantidad en el botón (catálogo)
     updateQuantityDisplay(productName, item.quantity);
 
     // Si el carrito está abierto, re-renderizar
@@ -680,6 +636,18 @@ function restoreOriginalButton(productName) {
     }
 }
 
+// Función para restaurar todos los botones en el catálogo
+function restoreAllCatalogButtons() {
+    // Recorrer todos los contenedores de controles de cantidad
+    document.querySelectorAll('.quantity-controls-container').forEach(container => {
+        const productName = container.dataset.productName;
+        restoreOriginalButton(productName);
+    });
+
+    // Limpiar todas las referencias a botones
+    productButtons = {};
+}
+
 // Función para abrir el carrito
 function openCart() {
     const cartModal = document.getElementById('cart-modal');
@@ -691,6 +659,29 @@ function openCart() {
 function closeCart() {
     const cartModal = document.getElementById('cart-modal');
     cartModal.classList.add('hidden');
+
+    // Actualizar todas las cantidades en el catálogo al cerrar el carrito
+    updateAllCatalogQuantities();
+}
+
+// Función para actualizar todas las cantidades en el catálogo
+function updateAllCatalogQuantities() {
+    // Primero, eliminar todos los controles de cantidad del catálogo
+    document.querySelectorAll('.quantity-controls-container').forEach(container => {
+        const productName = container.dataset.productName;
+        const item = cart.items.find(item => item.name === productName);
+
+        if (item) {
+            // Si el producto está en el carrito, actualizar la cantidad
+            const quantitySpan = container.querySelector('.quantity');
+            if (quantitySpan) {
+                quantitySpan.textContent = item.quantity;
+            }
+        } else {
+            // Si el producto no está en el carrito, restaurar el botón original
+            restoreOriginalButton(productName);
+        }
+    });
 }
 
 // Función para renderizar los items del carrito
@@ -832,6 +823,9 @@ function checkout() {
         cart.total = 0;
         updateCartTotal();
         updateCartCount();
+
+        // Restaurar todos los botones en el catálogo
+        restoreAllCatalogButtons();
 
         // Mostrar notificación de éxito
         showNotification('✅ Pedido enviado a WhatsApp');
