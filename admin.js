@@ -40,10 +40,17 @@ class AdminPanel {
             this.handleLogout();
         });
 
-        // Navigation
+        // Navigation (desktop sidebar)
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 this.handleNavigation(e.target.closest('.nav-btn').dataset.section);
+            });
+        });
+
+        // Navigation (mobile bottom nav)
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                this.handleNavigation(e.target.closest('.nav-item').dataset.section);
             });
         });
 
@@ -68,6 +75,11 @@ class AdminPanel {
 
         document.getElementById('product-image-url').addEventListener('input', (e) => {
             this.handleUrlInput(e);
+        });
+
+        // File input for image upload
+        document.getElementById('product-image-file').addEventListener('change', (e) => {
+            this.handleFileSelect(e);
         });
 
         // Category management
@@ -120,6 +132,24 @@ class AdminPanel {
                 }
             });
         });
+
+        // Close FAB menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const fabContainer = document.getElementById('fab-container');
+            if (fabContainer && !fabContainer.contains(e.target)) {
+                this.closeFabMenu();
+            }
+        });
+
+        // Close fullscreen image modal when clicking outside
+        const imageFullscreenModal = document.getElementById('image-fullscreen-modal');
+        if (imageFullscreenModal) {
+            imageFullscreenModal.addEventListener('click', (e) => {
+                if (e.target === imageFullscreenModal) {
+                    this.closeImageFullscreen();
+                }
+            });
+        }
     }
 
     // Authentication
@@ -188,17 +218,41 @@ class AdminPanel {
     showDashboard() {
         document.getElementById('login-section').classList.add('hidden');
         document.getElementById('admin-dashboard').classList.remove('hidden');
+
+        // Set default section to home
+        this.handleNavigation('home');
     }
 
     // Navigation
     handleNavigation(section) {
-        // Update nav buttons
+        // Update nav buttons (desktop sidebar)
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('active');
             if (btn.dataset.section === section) {
                 btn.classList.add('active');
             }
         });
+
+        // Update nav items (mobile bottom nav)
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.classList.remove('active');
+            if (item.dataset.section === section) {
+                item.classList.add('active');
+            }
+        });
+
+        // Update section title for mobile
+        const sectionTitle = document.getElementById('section-title');
+        if (sectionTitle) {
+            const titles = {
+                'home': 'Inicio',
+                'products': 'Productos',
+                'categories': 'Categorías',
+                'offers': 'Ofertas',
+                'settings': 'Ajustes'
+            };
+            sectionTitle.textContent = titles[section] || 'Panel';
+        }
 
         // Update content sections
         document.querySelectorAll('.content-section').forEach(sec => {
@@ -212,17 +266,104 @@ class AdminPanel {
     // Data Loading
     async loadData() {
         try {
+            this.showLoadingSkeletons();
             await Promise.all([
                 this.loadProducts(),
                 this.loadCategories(),
                 this.loadOffers(),
                 this.loadSettings()
             ]);
+            this.hideLoadingSkeletons();
             this.updateUI();
         } catch (error) {
             console.error('Error loading data:', error);
+            this.hideLoadingSkeletons();
             this.showToast('Error al cargar los datos', 'error');
         }
+    }
+
+    showLoadingSkeletons() {
+        // Show skeleton for products list
+        const productsList = document.getElementById('products-list');
+        if (productsList) {
+            productsList.innerHTML = this.generateProductSkeletons();
+        }
+
+        // Show skeleton for offers list
+        const offersList = document.getElementById('offers-list');
+        if (offersList) {
+            offersList.innerHTML = this.generateOfferSkeletons();
+        }
+
+        // Show skeleton for dashboard summary
+        const dashboardSummary = document.querySelector('.dashboard-summary');
+        if (dashboardSummary) {
+            dashboardSummary.innerHTML = this.generateSummarySkeletons();
+        }
+    }
+
+    hideLoadingSkeletons() {
+        // Skeletons will be replaced by actual content when updateUI() is called
+    }
+
+    generateProductSkeletons() {
+        let skeletons = '';
+        for (let i = 0; i < 5; i++) {
+            skeletons += `
+                <div class="skeleton-card">
+                    <div class="skeleton-card-main">
+                        <div class="skeleton skeleton-image"></div>
+                        <div class="skeleton-content">
+                            <div class="skeleton skeleton-title"></div>
+                            <div class="skeleton skeleton-text"></div>
+                            <div class="skeleton skeleton-text-sm"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        return skeletons;
+    }
+
+    generateOfferSkeletons() {
+        let skeletons = '';
+        for (let i = 0; i < 3; i++) {
+            skeletons += `
+                <div class="skeleton-list-item">
+                    <div class="skeleton-list-header">
+                        <div class="skeleton skeleton-list-title"></div>
+                        <div class="skeleton skeleton-list-badge"></div>
+                    </div>
+                    <div class="skeleton-list-body">
+                        <div class="skeleton-list-row">
+                            <div class="skeleton skeleton-list-value"></div>
+                            <div class="skeleton skeleton-list-value"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        return skeletons;
+    }
+
+    generateSummarySkeletons() {
+        return `
+            <div class="skeleton-summary-card">
+                <div class="skeleton skeleton-icon"></div>
+                <div class="skeleton skeleton-value"></div>
+                <div class="skeleton skeleton-label"></div>
+            </div>
+            <div class="skeleton-summary-card">
+                <div class="skeleton skeleton-icon"></div>
+                <div class="skeleton skeleton-value"></div>
+                <div class="skeleton skeleton-label"></div>
+            </div>
+            <div class="skeleton-summary-card">
+                <div class="skeleton skeleton-icon"></div>
+                <div class="skeleton skeleton-value"></div>
+                <div class="skeleton skeleton-label"></div>
+            </div>
+        `;
     }
 
     async loadProducts() {
@@ -297,6 +438,9 @@ class AdminPanel {
         this.updateOffersSummary();
         this.populateCategorySelects();
         this.populateCategoryFilter();
+        this.renderMobileProducts();
+        this.renderMobileOffers();
+        this.updateDashboardSummary();
     }
 
     renderProducts(categoryFilter = '') {
@@ -515,10 +659,13 @@ class AdminPanel {
 
     filterProductsByCategory(categoryId) {
         this.renderProducts(categoryId);
+        this.renderMobileProducts(categoryId);
     }
 
     // Product Management
     openProductModal(productId = null) {
+        this.closeFabMenu(); // Close FAB menu when opening modal
+
         const modal = document.getElementById('product-modal');
         const form = document.getElementById('product-form');
         const title = document.getElementById('product-modal-title');
@@ -603,13 +750,17 @@ class AdminPanel {
         // Reset file input
         const fileInput = document.getElementById('product-image-file');
         fileInput.value = '';
-        document.getElementById('file-preview').classList.add('hidden');
+        const filePreview = document.getElementById('file-preview');
+        filePreview.classList.add('hidden');
         document.getElementById('file-preview-img').src = '';
+        filePreview.onclick = null; // Remove click handler
 
         // Reset URL input
         document.getElementById('product-image-url').value = '';
-        document.getElementById('url-preview').classList.add('hidden');
+        const urlPreview = document.getElementById('url-preview');
+        urlPreview.classList.add('hidden');
         document.getElementById('url-preview-img').src = '';
+        urlPreview.onclick = null; // Remove click handler
     }
 
     handleFileSelect(event) {
@@ -622,8 +773,14 @@ class AdminPanel {
             // Show file preview
             const reader = new FileReader();
             reader.onload = (e) => {
-                document.getElementById('file-preview-img').src = e.target.result;
-                document.getElementById('file-preview').classList.remove('hidden');
+                const filePreview = document.getElementById('file-preview');
+                const filePreviewImg = document.getElementById('file-preview-img');
+
+                filePreviewImg.src = e.target.result;
+                filePreview.classList.remove('hidden');
+
+                // Make preview clickable for fullscreen view
+                filePreview.onclick = () => this.openImageFullscreen(e.target.result);
             };
             reader.readAsDataURL(file);
         }
@@ -637,8 +794,14 @@ class AdminPanel {
             document.getElementById('file-preview').classList.add('hidden');
 
             // Show URL preview
-            document.getElementById('url-preview-img').src = url;
-            document.getElementById('url-preview').classList.remove('hidden');
+            const urlPreview = document.getElementById('url-preview');
+            const urlPreviewImg = document.getElementById('url-preview-img');
+
+            urlPreviewImg.src = url;
+            urlPreview.classList.remove('hidden');
+
+            // Make preview clickable for fullscreen view
+            urlPreview.onclick = () => this.openImageFullscreen(url);
         } else {
             document.getElementById('url-preview').classList.add('hidden');
         }
@@ -658,9 +821,41 @@ class AdminPanel {
 
     showUrlPreview(url) {
         if (url) {
-            document.getElementById('url-preview-img').src = url;
-            document.getElementById('url-preview').classList.remove('hidden');
+            const urlPreview = document.getElementById('url-preview');
+            const urlPreviewImg = document.getElementById('url-preview-img');
+
+            urlPreviewImg.src = url;
+            urlPreview.classList.remove('hidden');
+
+            // Make preview clickable for fullscreen view
+            urlPreview.onclick = () => this.openImageFullscreen(url);
         }
+    }
+
+    // Full-screen image preview methods
+    openImageFullscreen(imageUrl) {
+        const modal = document.getElementById('image-fullscreen-modal');
+        const img = document.getElementById('image-fullscreen-img');
+
+        if (modal && img && imageUrl) {
+            img.src = imageUrl;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+    }
+
+    closeImageFullscreen() {
+        const modal = document.getElementById('image-fullscreen-modal');
+        if (modal) {
+            modal.classList.remove('active');
+            document.body.style.overflow = ''; // Restore scrolling
+        }
+    }
+
+    confirmImageSelection() {
+        // Just close the modal - the image is already selected
+        this.closeImageFullscreen();
+        this.showToast('Imagen confirmada', 'success');
     }
 
     toggleOfferFields(show) {
@@ -841,6 +1036,8 @@ class AdminPanel {
 
     // Category Management
     openCategoryModal(categoryId = null) {
+        this.closeFabMenu(); // Close FAB menu when opening modal
+
         const modal = document.getElementById('category-modal');
         const form = document.getElementById('category-form');
         const title = document.getElementById('category-modal-title');
@@ -928,6 +1125,8 @@ class AdminPanel {
 
     // Offer Management
     openOfferModal(offerId = null) {
+        this.closeFabMenu(); // Close FAB menu when opening modal
+
         const modal = document.getElementById('offer-modal');
         const form = document.getElementById('offer-form');
         const title = document.getElementById('offer-modal-title');
@@ -1206,6 +1405,7 @@ class AdminPanel {
         document.querySelectorAll('.modal').forEach(modal => {
             modal.classList.add('hidden');
         });
+        this.closeFabMenu(); // Also close FAB menu when closing modals
     }
 
     showToast(message, type = 'info') {
@@ -1216,9 +1416,176 @@ class AdminPanel {
 
         container.appendChild(toast);
 
+        // Auto remove with animation
         setTimeout(() => {
-            toast.remove();
+            toast.style.animation = 'slideOut 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+            setTimeout(() => {
+                toast.remove();
+            }, 400);
         }, 3000);
+    }
+
+    // Mobile UI Methods
+    renderMobileProducts(categoryFilter = '') {
+        const container = document.getElementById('products-list');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        const filteredProducts = categoryFilter
+            ? this.products.filter(product => product.category === categoryFilter)
+            : this.products;
+
+        if (filteredProducts.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state-mobile">
+                    <div class="empty-state-mobile-icon">📦</div>
+                    <h3>No hay productos</h3>
+                    <p>${categoryFilter ? 'No hay productos en esta categoría' : 'Comienza agregando tu primer producto'}</p>
+                </div>
+            `;
+            return;
+        }
+
+        filteredProducts.forEach(product => {
+            const offer = this.getProductOffer(product);
+            const card = document.createElement('div');
+            card.className = 'product-card';
+
+            // Get product image
+            const productImage = product.images && product.images.length > 0
+                ? product.images[0]
+                : 'assets/images/placeholder.webp';
+
+            card.innerHTML = `
+                <div class="product-card-main">
+                    <div class="product-card-image">
+                        <img src="${productImage}" alt="${product.name}" class="product-thumbnail">
+                    </div>
+                    <div class="product-card-info">
+                        <div class="product-card-title">${product.name}</div>
+                        <div class="product-card-category">${this.getCategoryName(product.category)}</div>
+                        <div class="product-card-price">
+                            ${offer ? `
+                                <span class="original">$${product.basePrice}</span>
+                                <span class="current">$${product.currentPrice}</span>
+                            ` : `
+                                <span class="current">$${product.currentPrice}</span>
+                            `}
+                        </div>
+                    </div>
+                    <div class="product-card-quick-actions">
+                        <button class="quick-action-btn" onclick="adminPanel.toggleProductActions('${product.id}')">
+                            <span class="quick-action-icon">⋮</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="product-card-expanded" id="product-actions-${product.id}">
+                    <div class="product-card-actions">
+                        <button class="action-btn edit" onclick="adminPanel.editProduct('${product.id}')">
+                            <span>✏️</span> Editar
+                        </button>
+                        <button class="action-btn toggle" onclick="adminPanel.toggleProduct('${product.id}')">
+                            <span>${product.isActive ? '🔴' : '🟢'}</span> ${product.isActive ? 'Desactivar' : 'Activar'}
+                        </button>
+                        <button class="action-btn delete" onclick="adminPanel.deleteProduct('${product.id}')">
+                            <span>🗑️</span> Eliminar
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    renderMobileOffers() {
+        const container = document.getElementById('offers-list');
+        if (!container) return;
+
+        container.innerHTML = '';
+
+        if (this.offers.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state-mobile">
+                    <div class="empty-state-mobile-icon">🏷️</div>
+                    <h3>No hay ofertas</h3>
+                    <p>Crea tu primera oferta para comenzar</p>
+                </div>
+            `;
+            return;
+        }
+
+        this.offers.forEach(offer => {
+            const targetName = this.getTargetName(offer.targetType, offer.targetId);
+            const isActive = this.isOfferActive(offer);
+
+            const card = document.createElement('div');
+            card.className = 'offer-card';
+            card.innerHTML = `
+                <div class="offer-card-header">
+                    <div class="offer-card-title">${offer.name}</div>
+                    <span class="offer-card-type">${offer.type === 'percentage' ? '%' : '$'}</span>
+                </div>
+                <div class="offer-card-value">
+                    ${offer.type === 'percentage' ? offer.value + '%' : '$' + offer.value}
+                </div>
+                <div class="offer-card-target">
+                    ${offer.targetType === 'product' ? 'Producto' : 'Categoría'}: ${targetName}
+                </div>
+                <div class="offer-card-dates">
+                    ${new Date(offer.startDate).toLocaleDateString()} - ${new Date(offer.endDate).toLocaleDateString()}
+                </div>
+                <div class="offer-card-footer">
+                    <span class="offer-card-status ${isActive ? 'active' : 'inactive'}">
+                        ${isActive ? 'Activa' : 'Inactiva'}
+                    </span>
+                    <div class="product-card-actions">
+                        <button class="action-btn edit" onclick="adminPanel.editOffer('${offer.id}')">Editar</button>
+                        <button class="action-btn delete" onclick="adminPanel.deleteOffer('${offer.id}')">Eliminar</button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    updateDashboardSummary() {
+        // Update total counts
+        const totalProducts = document.getElementById('total-products');
+        const totalCategories = document.getElementById('total-categories');
+        const totalOffers = document.getElementById('total-offers');
+
+        if (totalProducts) totalProducts.textContent = this.products.length;
+        if (totalCategories) totalCategories.textContent = this.categories.length;
+        if (totalOffers) totalOffers.textContent = this.offers.length;
+    }
+
+    toggleProductActions(productId) {
+        const actionsElement = document.getElementById(`product-actions-${productId}`);
+        if (actionsElement) {
+            actionsElement.classList.toggle('expanded');
+        }
+    }
+
+    // FAB Menu Management
+    toggleFabMenu() {
+        const fabMain = document.getElementById('fab-main');
+        const fabMenu = document.getElementById('fab-menu');
+
+        if (fabMain && fabMenu) {
+            fabMain.classList.toggle('active');
+            fabMenu.classList.toggle('active');
+        }
+    }
+
+    closeFabMenu() {
+        const fabMain = document.getElementById('fab-main');
+        const fabMenu = document.getElementById('fab-menu');
+
+        if (fabMain && fabMenu) {
+            fabMain.classList.remove('active');
+            fabMenu.classList.remove('active');
+        }
     }
 
     async saveData() {

@@ -6,11 +6,93 @@
     <title>Panel de Administración - La Pastelería</title>
     <link rel="icon" type="image/webp" href="assets/images/icon.webp">
     <link rel="stylesheet" href="admin.css">
+    <!-- Modern Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <style>
+        /* Mobile-specific styles that override desktop styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none !important;
+            }
+
+            .main-content {
+                margin-left: 0 !important;
+                padding-bottom: 80px !important;
+            }
+
+            .bottom-nav {
+                display: flex !important;
+            }
+
+            .app-header {
+                display: flex !important;
+            }
+
+            .dashboard-summary,
+            .quick-actions,
+            .recent-activity,
+            .products-list,
+            .offers-list,
+            .settings-list,
+            .offers-summary-mobile {
+                display: block !important;
+            }
+
+            .products-table-container,
+            .offers-container,
+            .settings-container {
+                display: none !important;
+            }
+
+            .section-header h1 {
+                display: none !important;
+            }
+
+            .section-header .btn {
+                display: none !important;
+            }
+
+            /* Hide add buttons in sections on mobile since FAB handles this */
+            #add-product-btn,
+            #add-category-btn,
+            #add-offer-btn {
+                display: none !important;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .bottom-nav {
+                display: none !important;
+            }
+
+            .app-header {
+                display: none !important;
+            }
+
+            .dashboard-summary,
+            .quick-actions,
+            .recent-activity,
+            .products-list,
+            .offers-list,
+            .settings-list,
+            .offers-summary-mobile {
+                display: none !important;
+            }
+
+            .products-table-container,
+            .offers-container,
+            .settings-container {
+                display: block !important;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Login Section -->
@@ -40,7 +122,10 @@
                 <p>La Pastelería</p>
             </div>
             <nav class="sidebar-nav">
-                <button class="nav-btn active" data-section="products">
+                <button class="nav-btn active" data-section="home">
+                    <span>🏠</span> Inicio
+                </button>
+                <button class="nav-btn" data-section="products">
                     <span>📦</span> Productos
                 </button>
                 <button class="nav-btn" data-section="categories">
@@ -58,8 +143,82 @@
             </div>
         </aside>
 
+        <!-- Mobile Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1 id="section-title" class="section-title">Inicio</h1>
+                <div class="header-actions">
+                    <button class="header-btn notification-btn">
+                        <span class="notification-icon">🔔</span>
+                        <span class="notification-badge hidden">3</span>
+                    </button>
+                    <button class="header-btn profile-btn">
+                        <span class="profile-icon">👤</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Home Section (Mobile) -->
+            <section id="home-section" class="content-section">
+                <div class="dashboard-summary">
+                    <div class="summary-card">
+                        <div class="summary-icon">📦</div>
+                        <div class="summary-info">
+                            <span class="summary-label">Productos</span>
+                            <span class="summary-value" id="total-products">0</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">📁</div>
+                        <div class="summary-info">
+                            <span class="summary-label">Categorías</span>
+                            <span class="summary-value" id="total-categories">0</span>
+                        </div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-icon">🏷️</div>
+                        <div class="summary-info">
+                            <span class="summary-label">Ofertas</span>
+                            <span class="summary-value" id="total-offers">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <h2>Acciones Rápidas</h2>
+                    <div class="quick-actions-grid">
+                        <button class="quick-action-btn" onclick="adminPanel.openProductModal()">
+                            <span class="action-icon">➕</span>
+                            <span>Nuevo Producto</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="adminPanel.openCategoryModal()">
+                            <span class="action-icon">📁</span>
+                            <span>Nueva Categoría</span>
+                        </button>
+                        <button class="quick-action-btn" onclick="adminPanel.openOfferModal()">
+                            <span class="action-icon">🏷️</span>
+                            <span>Nueva Oferta</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="recent-activity">
+                    <h2>Actividad Reciente</h2>
+                    <div class="activity-list" id="activity-list">
+                        <div class="activity-item">
+                            <span class="activity-icon">✅</span>
+                            <div class="activity-content">
+                                <span class="activity-text">Sistema iniciado correctamente</span>
+                                <span class="activity-time">Ahora</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Products Section -->
             <section id="products-section" class="content-section active">
                 <div class="section-header">
@@ -94,6 +253,11 @@
                             <!-- Products will be loaded dynamically -->
                         </tbody>
                     </table>
+                </div>
+
+                <!-- Mobile Products List -->
+                <div class="products-list" id="products-list">
+                    <!-- Products will be loaded dynamically -->
                 </div>
             </section>
 
@@ -149,6 +313,26 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Mobile Offers List -->
+                <div class="offers-summary-mobile">
+                    <div class="offer-stat">
+                        <span class="stat-label">Activas</span>
+                        <span class="stat-value" id="active-offers-count">0</span>
+                    </div>
+                    <div class="offer-stat">
+                        <span class="stat-label">Productos</span>
+                        <span class="stat-value" id="products-on-offer-count">0</span>
+                    </div>
+                    <div class="offer-stat">
+                        <span class="stat-label">Descuento</span>
+                        <span class="stat-value" id="average-discount">0%</span>
+                    </div>
+                </div>
+
+                <div class="offers-list" id="offers-list">
+                    <!-- Offers will be loaded dynamically -->
+                </div>
             </section>
 
             <!-- Settings Section -->
@@ -201,9 +385,104 @@
                             <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
                         </form>
                     </div>
+
+                    <!-- Mobile Settings List -->
+                    <div class="settings-list">
+                        <div class="settings-group">
+                            <h3>Configuración</h3>
+                            <div class="settings-item">
+                                <div class="settings-item-content">
+                                    <span class="settings-icon">💰</span>
+                                    <div class="settings-item-info">
+                                        <span class="settings-item-title">Precios</span>
+                                        <span class="settings-item-subtitle">Moneda y redondeo</span>
+                                    </div>
+                                </div>
+                                <span class="settings-arrow">›</span>
+                            </div>
+                            <div class="settings-item">
+                                <div class="settings-item-content">
+                                    <span class="settings-icon">🔐</span>
+                                    <div class="settings-item-info">
+                                        <span class="settings-item-title">Seguridad</span>
+                                        <span class="settings-item-subtitle">Cambiar contraseña</span>
+                                    </div>
+                                </div>
+                                <span class="settings-arrow">›</span>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Cuenta</h3>
+                            <div class="settings-item" onclick="adminPanel.handleLogout()">
+                                <div class="settings-item-content">
+                                    <span class="settings-icon">🚪</span>
+                                    <div class="settings-item-info">
+                                        <span class="settings-item-title">Cerrar Sesión</span>
+                                        <span class="settings-item-subtitle">Salir del panel</span>
+                                    </div>
+                                </div>
+                                <span class="settings-arrow">›</span>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <h3>Información</h3>
+                            <div class="settings-item">
+                                <div class="settings-item-content">
+                                    <span class="settings-icon">ℹ️</span>
+                                    <div class="settings-item-info">
+                                        <span class="settings-item-title">Versión</span>
+                                        <span class="settings-item-subtitle">1.0.0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
         </main>
+
+        <!-- Mobile Bottom Navigation -->
+        <nav class="bottom-nav">
+            <button class="nav-item active" data-section="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Inicio</span>
+            </button>
+            <button class="nav-item" data-section="products">
+                <span class="nav-icon">📦</span>
+                <span class="nav-label">Productos</span>
+            </button>
+            <button class="nav-item" data-section="offers">
+                <span class="nav-icon">🏷️</span>
+                <span class="nav-label">Ofertas</span>
+            </button>
+            <button class="nav-item" data-section="settings">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">Ajustes</span>
+            </button>
+        </nav>
+
+        <!-- Floating Action Button (FAB) -->
+        <div class="fab-container" id="fab-container">
+            <button class="fab-main" id="fab-main" onclick="adminPanel.toggleFabMenu()">
+                <span class="fab-icon">+</span>
+            </button>
+            <div class="fab-menu" id="fab-menu">
+                <button class="fab-item" onclick="adminPanel.openProductModal(); adminPanel.toggleFabMenu();">
+                    <span class="fab-item-icon">📦</span>
+                    <span class="fab-item-label">Producto</span>
+                </button>
+                <button class="fab-item" onclick="adminPanel.openCategoryModal(); adminPanel.toggleFabMenu();">
+                    <span class="fab-item-icon">📁</span>
+                    <span class="fab-item-label">Categoría</span>
+                </button>
+                <button class="fab-item" onclick="adminPanel.openOfferModal(); adminPanel.toggleFabMenu();">
+                    <span class="fab-item-icon">🏷️</span>
+                    <span class="fab-item-label">Oferta</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Product Modal -->
@@ -244,33 +523,6 @@
                             <option value="true">Activo</option>
                             <option value="false">Inactivo</option>
                         </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Imagen del Producto</label>
-                    <div class="image-upload-container">
-                        <div class="image-upload-methods">
-                            <div class="upload-method">
-                                <label class="upload-label">
-                                    <span>📱 Subir desde dispositivo</span>
-                                    <input type="file" id="product-image-file" name="imageFile" accept="image/*" class="file-input">
-                                </label>
-                                <div id="file-preview" class="image-preview hidden">
-                                    <img id="file-preview-img" src="" alt="Vista previa">
-                                    <button type="button" class="remove-image-btn" onclick="adminPanel.removeFileImage()">✕</button>
-                                </div>
-                            </div>
-                            <div class="upload-divider">o</div>
-                            <div class="upload-method">
-                                <label for="product-image-url" class="url-label">🔗 URL de imagen</label>
-                                <input type="text" id="product-image-url" name="imageUrl" placeholder="https://ejemplo.com/imagen.jpg">
-                                <div id="url-preview" class="image-preview hidden">
-                                    <img id="url-preview-img" src="" alt="Vista previa">
-                                    <button type="button" class="remove-image-btn" onclick="adminPanel.removeUrlImage()">✕</button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -316,6 +568,33 @@
                                 <option value="true">Activa</option>
                                 <option value="false">Inactiva</option>
                             </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Imagen del Producto</label>
+                    <div class="image-upload-container">
+                        <div class="image-upload-methods">
+                            <div class="upload-method">
+                                <label class="upload-label">
+                                    <span>📱 Subir desde dispositivo</span>
+                                    <input type="file" id="product-image-file" name="imageFile" accept="image/*" class="file-input">
+                                </label>
+                                <div id="file-preview" class="image-preview hidden">
+                                    <img id="file-preview-img" src="" alt="Vista previa">
+                                    <button type="button" class="remove-image-btn" onclick="adminPanel.removeFileImage()">✕</button>
+                                </div>
+                            </div>
+                            <div class="upload-divider">o</div>
+                            <div class="upload-method">
+                                <label for="product-image-url" class="url-label">🔗 URL de imagen</label>
+                                <input type="text" id="product-image-url" name="imageUrl" placeholder="https://ejemplo.com/imagen.jpg">
+                                <div id="url-preview" class="image-preview hidden">
+                                    <img id="url-preview-img" src="" alt="Vista previa">
+                                    <button type="button" class="remove-image-btn" onclick="adminPanel.removeUrlImage()">✕</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -452,6 +731,22 @@
 
     <!-- Toast Notifications -->
     <div id="toast-container" class="toast-container"></div>
+
+    <!-- Full-screen Image Preview Modal -->
+    <div id="image-fullscreen-modal" class="image-fullscreen-modal">
+        <button class="image-fullscreen-close" onclick="adminPanel.closeImageFullscreen()">&times;</button>
+        <div class="image-fullscreen-content">
+            <img id="image-fullscreen-img" src="" alt="Vista previa a pantalla completa" class="image-fullscreen-img">
+            <div class="image-fullscreen-actions">
+                <button class="image-fullscreen-btn cancel" onclick="adminPanel.closeImageFullscreen()">
+                    <span>✕</span> Cancelar
+                </button>
+                <button class="image-fullscreen-btn confirm" onclick="adminPanel.confirmImageSelection()">
+                    <span>✓</span> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script src="firebase-config.js"></script>
     <script src="admin.js"></script>
