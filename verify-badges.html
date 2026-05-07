@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Badges de Oferta</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #e91e63;
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        .category-info {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #e91e63;
+        }
+        .badge-preview {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            background-image: url('assets/images/oferta.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            margin-left: 10px;
+        }
+        .badge-preview .discount-text {
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        button {
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #c2185b;
+        }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Verificar Badges de Oferta</h1>
+
+        <div id="status" class="status info">Cargando configuración...</div>
+
+        <button onclick="checkBadges()">🔍 Verificar Badges</button>
+        <button onclick="window.location.href='index.html'">🏠 Ir al Sitio Principal</button>
+        <button onclick="window.location.href='create-test-offer.html'">➕ Crear Oferta de Prueba</button>
+
+        <div id="results"></div>
+        <div id="log" class="log"></div>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script>
+        let db = null;
+        let catalogData = {};
+        let offers = [];
+
+        // Initialize Firebase
+        window.addEventListener('load', async () => {
+            try {
+                if (typeof firebase !== 'undefined') {
+                    firebase.initializeApp(firebaseConfig);
+                    db = firebase.firestore();
+                    showStatus('Firebase configurado correctamente', 'success');
+                    addLog('✅ Firebase inicializado');
+                } else {
+                    showStatus('Error: Firebase no está disponible', 'error');
+                    addLog('❌ Firebase no disponible');
+                }
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+                addLog(`❌ Error: ${error.message}`);
+            }
+        });
+
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function addLog(message) {
+            const log = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        async function checkBadges() {
+            if (!db) {
+                showStatus('Error: Firebase no está inicializado', 'error');
+                return;
+            }
+
+            showStatus('Verificando badges...', 'info');
+            addLog('🔍 Iniciando verificación de badges...');
+
+            try {
+                // Cargar catálogo
+                addLog('📦 Cargando catálogo...');
+                const categoriesSnapshot = await db.collection('categories').get();
+                const categories = {};
+
+                categoriesSnapshot.forEach(doc => {
+                    const category = doc.data();
+                    categories[category.id] = {
+                        title: category.name,
+                        type: category.type || 'slideshow',
+                        products: []
+                    };
+                });
+
+                const productsSnapshot = await db.collection('products').get();
+                productsSnapshot.forEach(doc => {
+                    const product = doc.data();
+                    const categoryId = product.category || product.categoryId;
+                    if (categories[categoryId]) {
+                        const productData = {
+                            id: product.id,
+                            name: product.name,
+                            basePrice: product.basePrice,
+                            currentPrice: product.currentPrice,
+                            category: categoryId
+                        };
+
+                        if (categories[categoryId].type === 'sections' && !categories[categoryId].sections) {
+                            categories[categoryId].sections = [];
+                        }
+
+                        if (categories[categoryId].type === 'sections' && product.section) {
+                            let section = categories[categoryId].sections.find(s => s.title === product.section);
+                            if (!section) {
+                                section = { title: product.section, products: [] };
+                                categories[categoryId].sections.push(section);
+                            }
+                            section.products.push(productData);
+                        } else {
+                            categories[categoryId].products.push(productData);
+                        }
+                    }
+                });
+
+                catalogData = categories;
+                addLog(`✅ Catálogo cargado: ${Object.keys(categories).length} categorías`);
+
+                // Cargar ofertas
+                addLog('🏷️ Cargando ofertas...');
+                const offersSnapshot = await db.collection('offers').get();
+                offers = offersSnapshot.docs.map(doc => doc.data());
+                addLog(`✅ ${offers.length} ofertas cargadas`);
+
+                // Calcular descuentos por categoría
+                addLog('📊 Calculando descuentos por categoría...');
+                const categoryDiscounts = {};
+
+                Object.keys(catalogData).forEach(categoryId => {
+                    const category = catalogData[categoryId];
+                    let maxDiscount = 0;
+
+                    // Verificar productos directos
+                    category.products.forEach(product => {
+                        const discount = calculateProductDiscount(product);
+                        if (discount > maxDiscount) {
+                            maxDiscount = discount;
+                        }
+                    });
+
+                    // Verificar productos en secciones
+                    if (category.sections) {
+                        category.sections.forEach(section => {
+                            section.products.forEach(product => {
+                                const discount = calculateProductDiscount(product);
+                                if (discount > maxDiscount) {
+                                    maxDiscount = discount;
+                                }
+                            });
+                        });
+                    }
+
+                    categoryDiscounts[categoryId] = maxDiscount;
+                    addLog(`   ${categoryId}: ${maxDiscount}% descuento máximo`);
+                });
+
+                // Mostrar resultados
+                displayResults(categoryDiscounts);
+
+                showStatus('✅ Verificación completada', 'success');
+                addLog('✅ Verificación completada');
+
+            } catch (error) {
+                showStatus(`Error: ${error.message}`, 'error');
+                addLog(`❌ Error: ${error.message}`);
+                console.error('Error:', error);
+            }
+        }
+
+        function calculateProductDiscount(product) {
+            const basePrice = product.basePrice || product.currentPrice;
+            let maxDiscount = 0;
+
+            // Buscar ofertas de producto
+            const productOffers = offers.filter(offer =>
+                offer.targetType === 'product' &&
+                offer.targetId === product.id &&
+                offer.isActive &&
+                isOfferValid(offer)
+            );
+
+            // Buscar ofertas de categoría
+            const categoryOffers = offers.filter(offer =>
+                offer.targetType === 'category' &&
+                offer.targetId === product.category &&
+                offer.isActive &&
+                isOfferValid(offer)
+            );
+
+            // Calcular descuento máximo
+            const allOffers = [...productOffers, ...categoryOffers];
+            allOffers.forEach(offer => {
+                let discount = 0;
+                switch (offer.type) {
+                    case 'percentage':
+                        discount = offer.value;
+                        break;
+                    case 'fixed':
+                        discount = (offer.value / basePrice) * 100;
+                        break;
+                    case 'price':
+                        discount = ((basePrice - offer.value) / basePrice) * 100;
+                        break;
+                }
+                if (discount > maxDiscount) {
+                    maxDiscount = discount;
+                }
+            });
+
+            return Math.round(maxDiscount);
+        }
+
+        function isOfferValid(offer) {
+            const now = new Date();
+            const startDate = offer.startDate ? new Date(offer.startDate) : null;
+            const endDate = offer.endDate ? new Date(offer.endDate) : null;
+
+            if (startDate && now < startDate) return false;
+            if (endDate && now > endDate) return false;
+
+            return true;
+        }
+
+        function displayResults(categoryDiscounts) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>Resultados:</h2>';
+
+            Object.keys(categoryDiscounts).forEach(categoryId => {
+                const discount = categoryDiscounts[categoryId];
+                const categoryInfo = document.createElement('div');
+                categoryInfo.className = 'category-info';
+
+                const badgeHTML = discount > 0
+                    ? `<span class="badge-preview"><span class="discount-text">-${discount}%</span></span>`
+                    : '<span style="color: #999; margin-left: 10px;">Sin ofertas</span>';
+
+                categoryInfo.innerHTML = `
+                    <strong>${categoryId}:</strong> ${badgeHTML}
+                `;
+                resultsDiv.appendChild(categoryInfo);
+            });
+        }
+    </script>
+</body>
+</html>

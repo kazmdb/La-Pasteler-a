@@ -421,6 +421,7 @@ section {
 
 .catalog-section .container {
     padding: 0 15px;
+    max-width: 1600px;
 }
 
 .back-button {
@@ -456,8 +457,8 @@ section {
 
 .catalog-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
     margin-top: 40px;
     align-items: stretch;
     justify-items: stretch;
@@ -583,8 +584,8 @@ section {
 }
 
 .slideshow-grid {
-    grid-template-columns: 1fr !important;
-    max-width: 800px;
+    grid-template-columns: repeat(3, 1fr) !important;
+    max-width: 1600px;
     margin: 0 auto;
     align-items: stretch;
 }
@@ -723,6 +724,7 @@ section {
     }
 
     .slideshow-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         max-width: 100%;
         align-items: stretch;
     }
@@ -870,6 +872,7 @@ section {
     }
 
     .slideshow-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         max-width: 100%;
         align-items: stretch;
     }
@@ -1463,6 +1466,7 @@ section {
     cursor: pointer;
     -webkit-user-select: none;
     user-select: none;
+    position: relative;
 }
 
 .service-card.visible {
@@ -1554,38 +1558,67 @@ section {
     transform: translateX(5px);
 }
 
-/* Día de la madre service card with golden border and "Nuevo" label */
-.service-card[data-category="diadelamadre"] {
-    position: relative;
-    border: 2px solid var(--accent-color);
-    box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+/* Sold Out State */
+.service-card.sold-out {
+    opacity: 0.6;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
-.service-card[data-category="diadelamadre"]::before {
-    content: 'Nuevo';
+.service-card.sold-out .service-cta {
+    color: #999;
+    cursor: not-allowed;
+}
+
+.service-card.sold-out::after {
+    content: 'AGOTADO';
     position: absolute;
-    top: -12px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, var(--accent-color) 0%, #FFD700 100%);
-    color: var(--text-dark);
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-weight: 700;
-    font-size: 0.9rem;
-    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+    transform: translate(-50%, -50%) rotate(-15deg);
+    font-size: 2rem;
+    font-weight: 800;
+    color: rgba(255, 0, 0, 0.7);
+    border: 4px solid rgba(255, 0, 0, 0.7);
+    padding: 10px 30px;
+    border-radius: 10px;
     z-index: 10;
-    animation: pulse 2s ease-in-out infinite;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Category Offer Badge */
+.category-offer-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 60px;
+    height: 60px;
+    background-image: url('assets/images/oferta.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    animation: pulse 3s infinite;
+}
+
+.category-offer-badge .discount-text {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes pulse {
     0%, 100% {
-        transform: translateX(-50%) scale(1);
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.5);
+        transform: scale(1);
     }
     50% {
-        transform: translateX(-50%) scale(1.05);
-        box-shadow: 0 6px 20px rgba(255, 215, 0, 0.7);
+        transform: scale(1.1);
     }
 }
 
@@ -2634,4 +2667,51 @@ html {
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary-color);
+}
+
+/* Loading message */
+.loading-message {
+    text-align: center;
+    padding: 50px 20px;
+    font-size: 1.2rem;
+    color: var(--text-light);
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Discount pricing styles */
+.product-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.original-price {
+    text-decoration: line-through;
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.discounted-price {
+    color: var(--primary-color);
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.discount-badge {
+    background: var(--accent-color);
+    color: var(--text-dark);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
 }

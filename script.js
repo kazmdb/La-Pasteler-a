@@ -1,3 +1,388 @@
+// Firebase SDK
+const firebaseScript = document.createElement('script');
+firebaseScript.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
+document.head.appendChild(firebaseScript);
+
+const firestoreScript = document.createElement('script');
+firestoreScript.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
+document.head.appendChild(firestoreScript);
+
+// Firebase Configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyBo5jBsKvQTP7rTy8GYXbs7YlA1nD_7A3s",
+  authDomain: "la-pasteleria-b2b83.firebaseapp.com",
+  projectId: "la-pasteleria-b2b83",
+  storageBucket: "la-pasteleria-b2b83.firebasestorage.app",
+  messagingSenderId: "747582851026",
+  appId: "1:747582851026:web:caf908805814fc82492a0b",
+  measurementId: "G-6FZ21G8Q6X"
+};
+
+// Initialize Firebase
+let db = null;
+let catalogData = {};
+let offers = [];
+
+// Initialize Firebase when scripts are loaded
+function initializeFirebase() {
+  if (typeof firebase !== 'undefined' && !db) {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    loadCatalogData();
+    loadOffers();
+  }
+}
+
+// Load offers from Firebase
+async function loadOffers() {
+  try {
+    console.log('🔄 Cargando ofertas desde Firebase...');
+    const offersSnapshot = await db.collection('offers').get();
+    offers = offersSnapshot.docs.map(doc => doc.data());
+    console.log(`✅ ${offers.length} ofertas cargadas desde Firebase`);
+
+    // Mostrar detalles de las ofertas cargadas
+    offers.forEach(offer => {
+      console.log(`   - ${offer.name}:`);
+      console.log(`     ID: ${offer.id}`);
+      console.log(`     Tipo: ${offer.targetType}, Target: ${offer.targetId}`);
+      console.log(`     Descuento: ${offer.type} - ${offer.value}`); // Cambiado a type y value
+      console.log(`     Activa: ${offer.isActive}`);
+      console.log(`     Fechas: ${offer.startDate} - ${offer.endDate}`);
+    });
+
+    // Aplicar ofertas a los productos cargados
+    if (Object.keys(catalogData).length > 0) {
+      applyOffersToProducts();
+    }
+  } catch (error) {
+    console.error('❌ Error cargando ofertas:', error);
+    offers = [];
+  }
+}
+
+// Apply offers to products
+function applyOffersToProducts() {
+  console.log('🏷️ Aplicando ofertas a productos...');
+
+  Object.keys(catalogData).forEach(categoryId => {
+    const category = catalogData[categoryId];
+
+    // Aplicar a productos directos
+    category.products.forEach(product => {
+      const pricing = calculateProductPrice(product);
+      product.price = pricing.finalPrice;
+      product.appliedOffer = pricing.appliedOffer;
+      product.discountPercentage = pricing.discountPercentage;
+    });
+
+    // Aplicar a productos en secciones
+    if (category.sections) {
+      category.sections.forEach(section => {
+        section.products.forEach(product => {
+          const pricing = calculateProductPrice(product);
+          product.price = pricing.finalPrice;
+          product.appliedOffer = pricing.appliedOffer;
+          product.discountPercentage = pricing.discountPercentage;
+        });
+      });
+    }
+  });
+
+  console.log('✅ Ofertas aplicadas');
+
+  // Actualizar badges de categorías después de aplicar ofertas
+  updateCategoryBadges();
+}
+
+// Calculate product price with offers
+function calculateProductPrice(product) {
+  // Usar siempre basePrice como precio original
+  const basePrice = product.basePrice || product.price;
+  let finalPrice = basePrice;
+  let appliedOffer = null;
+
+  console.log(`🔍 Calculando precio para ${product.name}:`);
+  console.log(`   Base: $${basePrice}, Category: ${product.category}, ID: ${product.id}`);
+
+  // Get active offers for this product
+  const productOffers = offers.filter(offer =>
+    offer.targetType === 'product' &&
+    offer.targetId === product.id &&
+    offer.isActive &&
+    isOfferValid(offer)
+  );
+
+  const categoryOffers = offers.filter(offer =>
+    offer.targetType === 'category' &&
+    offer.targetId === product.category &&
+    offer.isActive &&
+    isOfferValid(offer)
+  );
+
+  console.log(`   Ofertas de producto: ${productOffers.length}`);
+  console.log(`   Ofertas de categoría: ${categoryOffers.length}`);
+
+  // Apply offer with highest priority
+  if (productOffers.length > 0) {
+    // Individual offers have priority
+    appliedOffer = productOffers.sort((a, b) => b.priority - a.priority)[0];
+    finalPrice = applyOfferToPrice(basePrice, appliedOffer);
+    console.log(`   ✅ Oferta de producto aplicada: ${appliedOffer.name}`);
+  } else if (categoryOffers.length > 0) {
+    // Category offers
+    appliedOffer = categoryOffers.sort((a, b) => b.priority - a.priority)[0];
+    finalPrice = applyOfferToPrice(basePrice, appliedOffer);
+    console.log(`   ✅ Oferta de categoría aplicada: ${appliedOffer.name}`);
+  } else {
+    console.log(`   ❌ No se aplicaron ofertas`);
+  }
+
+  // Round price
+  finalPrice = Math.round(finalPrice);
+
+  const result = {
+    finalPrice: finalPrice,
+    appliedOffer: appliedOffer,
+    basePrice: basePrice,
+    discountPercentage: appliedOffer ? calculateDiscountPercentage(basePrice, finalPrice) : 0
+  };
+
+  console.log(`   Resultado: $${result.finalPrice} (descuento: ${result.discountPercentage}%)`);
+
+  return result;
+}
+
+// Apply offer to price
+function applyOfferToPrice(basePrice, offer) {
+  switch (offer.type) { // Cambiado de discountType a type
+    case 'percentage':
+      return basePrice * (1 - offer.value / 100); // Cambiado de discountValue a value
+    case 'fixed':
+      return Math.max(0, basePrice - offer.value); // Cambiado de discountValue a value
+    case 'price':
+      return offer.value; // Cambiado de discountValue a value
+    default:
+      return basePrice;
+  }
+}
+
+// Check if offer is valid (date range)
+function isOfferValid(offer) {
+  const now = new Date();
+  const startDate = offer.startDate ? new Date(offer.startDate) : null;
+  const endDate = offer.endDate ? new Date(offer.endDate) : null;
+
+  if (startDate && now < startDate) return false;
+  if (endDate && now > endDate) return false;
+
+  return true;
+}
+
+// Calculate discount percentage
+function calculateDiscountPercentage(basePrice, finalPrice) {
+  if (basePrice <= 0) return 0;
+  return Math.round(((basePrice - finalPrice) / basePrice) * 100);
+}
+
+// Calculate highest discount for each category
+function calculateCategoryDiscounts() {
+  const categoryDiscounts = {};
+
+  Object.keys(catalogData).forEach(categoryId => {
+    const category = catalogData[categoryId];
+    let maxDiscount = 0;
+
+    // Check products in main category
+    category.products.forEach(product => {
+      if (product.appliedOffer && product.discountPercentage > maxDiscount) {
+        maxDiscount = product.discountPercentage;
+      }
+    });
+
+    // Check products in sections
+    if (category.sections) {
+      category.sections.forEach(section => {
+        section.products.forEach(product => {
+          if (product.appliedOffer && product.discountPercentage > maxDiscount) {
+            maxDiscount = product.discountPercentage;
+          }
+        });
+      });
+    }
+
+    categoryDiscounts[categoryId] = maxDiscount;
+  });
+
+  return categoryDiscounts;
+}
+
+// Update category badges with discount information
+function updateCategoryBadges() {
+  const categoryDiscounts = calculateCategoryDiscounts();
+
+  Object.keys(categoryDiscounts).forEach(categoryId => {
+    const discount = categoryDiscounts[categoryId];
+    const serviceCard = document.querySelector(`.service-card[data-category="${categoryId}"]`);
+
+    if (serviceCard && discount > 0) {
+      // Remove existing badge if any
+      const existingBadge = serviceCard.querySelector('.category-offer-badge');
+      if (existingBadge) {
+        existingBadge.remove();
+      }
+
+      // Create and add new badge
+      const badge = document.createElement('div');
+      badge.className = 'category-offer-badge';
+      badge.innerHTML = `<span class="discount-text">-${discount}%</span>`;
+      serviceCard.appendChild(badge);
+    }
+  });
+}
+
+// Función de prueba para verificar el sistema de precios
+function testPricingSystem() {
+  console.log('🧪 Probando sistema de precios...');
+
+  if (Object.keys(catalogData).length === 0) {
+    console.log('❌ No hay datos cargados');
+    return;
+  }
+
+  console.log(`📦 Catálogo cargado: ${Object.keys(catalogData).length} categorías`);
+  console.log(`🏷️ Ofertas cargadas: ${offers.length}`);
+
+  // Mostrar ofertas disponibles
+  if (offers.length > 0) {
+    console.log('\n📋 Ofertas disponibles:');
+    offers.forEach(offer => {
+      console.log(`   - ${offer.name} (${offer.targetType}: ${offer.targetId})`);
+      console.log(`     Tipo: ${offer.type}, Valor: ${offer.value}`); // Cambiado a type y value
+      console.log(`     Activa: ${offer.isActive}, Válida: ${isOfferValid(offer)}`);
+    });
+  }
+
+  // Mostrar productos con precios
+  Object.keys(catalogData).forEach(categoryId => {
+    const category = catalogData[categoryId];
+    console.log(`\n📂 ${categoryId} (${category.title}):`);
+
+    category.products.forEach(product => {
+      const hasDiscount = product.appliedOffer !== null;
+      console.log(`   ${hasDiscount ? '🏷️' : '💰'} ${product.name}:`);
+      console.log(`      ID: ${product.id}`);
+      console.log(`      Categoría: ${product.category}`);
+      console.log(`      Precio base: $${product.basePrice}`);
+      console.log(`      Precio final: $${product.price}`);
+      if (hasDiscount) {
+        console.log(`      Descuento: ${product.discountPercentage}% (${product.appliedOffer.name})`);
+        console.log(`      Oferta aplicada:`, product.appliedOffer);
+      } else {
+        console.log(`      Sin descuento aplicado`);
+      }
+    });
+  });
+
+  console.log('\n✅ Prueba completada');
+}
+
+// Hacer la función disponible globalmente para pruebas
+window.testPricingSystem = testPricingSystem;
+
+// Load catalog data from Firebase
+async function loadCatalogData() {
+  try {
+    console.log('🔄 Cargando catálogo desde Firebase...');
+
+    // Load categories
+    const categoriesSnapshot = await db.collection('categories').get();
+    const categories = {};
+
+    categoriesSnapshot.forEach(doc => {
+      const category = doc.data();
+      categories[category.id] = {
+        title: category.name,
+        type: category.type || 'slideshow',
+        products: []
+      };
+    });
+
+    // Load products
+    const productsSnapshot = await db.collection('products').get();
+    productsSnapshot.forEach(doc => {
+      const product = doc.data();
+      // Usar 'category' en lugar de 'categoryId' según la estructura de migración
+      const categoryId = product.category || product.categoryId;
+      if (categories[categoryId]) {
+        // Para categorías tipo sections, necesitamos organizar por secciones
+        if (categories[categoryId].type === 'sections' && !categories[categoryId].sections) {
+          // Inicializar estructura de secciones si no existe
+          categories[categoryId].sections = [];
+        }
+
+        const productData = {
+          id: product.id,
+          name: product.name,
+          description: product.description,
+          price: product.currentPrice,
+          basePrice: product.basePrice,
+          category: categoryId, // Agregar categoría para ofertas
+          image: product.images && product.images.length > 0 ? product.images[0] : product.image,
+          images: product.images || (product.image ? [product.image] : [])
+        };
+
+        console.log(`📦 Producto cargado: ${product.name} - Base: $${product.basePrice}, Current: $${product.currentPrice}, Category: ${categoryId}`);
+
+        // Si es tipo sections y el producto tiene sección, agregar a la sección correspondiente
+        if (categories[categoryId].type === 'sections' && product.section) {
+          let section = categories[categoryId].sections.find(s => s.title === product.section);
+          if (!section) {
+            section = { title: product.section, products: [] };
+            categories[categoryId].sections.push(section);
+          }
+          section.products.push(productData);
+        } else {
+          // Agregar directamente a products
+          categories[categoryId].products.push(productData);
+        }
+      }
+    });
+
+    catalogData = categories;
+    console.log('✅ Catálogo cargado desde Firebase:', Object.keys(catalogData));
+
+    // Log de precios para verificar
+    Object.keys(catalogData).forEach(categoryId => {
+      const category = categories[categoryId];
+      console.log(`📦 ${categoryId}: ${category.products.length} productos`);
+      category.products.forEach(product => {
+        console.log(`   - ${product.name}: $${product.price} (base: $${product.basePrice})`);
+      });
+    });
+
+    // Aplicar ofertas si ya están cargadas
+    if (offers.length > 0) {
+      applyOffersToProducts();
+    }
+
+    // Actualizar badges de categorías con ofertas
+    updateCategoryBadges();
+
+    // Actualizar imágenes de servicios después de cargar datos
+    if (typeof setRandomServiceImages === 'function') {
+      setRandomServiceImages();
+    }
+  } catch (error) {
+    console.error('❌ Error cargando catálogo:', error);
+  }
+}
+
+// Wait for Firebase scripts to load
+firebaseScript.onload = () => {
+  firestoreScript.onload = initializeFirebase;
+};
+
 // Scroll Animation Observer
 const observerOptions = {
     threshold: 0.1,
@@ -302,8 +687,26 @@ function startHeroSlideshow() {
 // Iniciar el slideshow cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', () => {
     startHeroSlideshow();
-    setRandomServiceImages(); // Establecer imágenes iniciales
-    startServiceImagesRotation(); // Iniciar rotación continua
+
+    // Esperar a que Firebase cargue antes de inicializar las imágenes de servicios
+    const checkFirebaseReady = setInterval(() => {
+        if (db && Object.keys(catalogData).length > 0) {
+            clearInterval(checkFirebaseReady);
+            console.log('✅ Firebase listo, inicializando imágenes de servicios...');
+            setRandomServiceImages();
+            startServiceImagesRotation();
+        }
+    }, 500);
+
+    // Timeout después de 10 segundos
+    setTimeout(() => {
+        clearInterval(checkFirebaseReady);
+        if (Object.keys(catalogData).length === 0) {
+            console.log('⚠️ Timeout esperando Firebase, usando fallback...');
+            setRandomServiceImages();
+            startServiceImagesRotation();
+        }
+    }, 10000);
 });
 
 // ==================== IMÁGENES ALEATORIAS DE SERVICIOS ====================
@@ -323,6 +726,12 @@ function getServiceRandomImageIndex(totalImages, currentIndex) {
 
 // Función para obtener todas las imágenes de una categoría
 function getCategoryImages(category) {
+    // Verificar si hay datos cargados
+    if (!catalogData || Object.keys(catalogData).length === 0) {
+        console.log('⏳ Esperando datos de Firebase para getCategoryImages');
+        return [];
+    }
+
     const categoryData = catalogData[category];
     if (!categoryData) return [];
 
@@ -833,393 +1242,8 @@ function checkout() {
 }
 
 // Catálogo dinámico
-const catalogData = {
-    cumpleanos: {
-        title: 'Tortas de Cumpleaños',
-        type: 'slideshow',
-        products: [
-            {
-                id: 1,
-                name: 'Torta Personalizada de 1kg',
-                description: 'Torta personalizada ideal para 12-15 personas. Diseño único con el tema que elijas.',
-                price: '790',
-                priceRange: true,
-                images: [
-                    'assets/images/personalizada2.webp',
-                    'assets/images/personalizada1.webp',
-                    'assets/images/personalizada3.webp',
-                    'assets/images/personalizada4.webp',
-                    'assets/images/personalizada5.webp',
-                    'assets/images/personalizada6.webp',
-                    'assets/images/personalizada7.webp',
-                    'assets/images/personalizada8.webp',
-                    'assets/images/personalizada9.webp',
-                    'assets/images/flores1.webp',
-                    'assets/images/flores2.webp',
-                    'assets/images/flores3.webp',
-                    'assets/images/flores4.webp',
-                    'assets/images/flores5.webp',
-                    'assets/images/mariposas1.webp',
-                    'assets/images/mariposas2.webp',
-                    'assets/images/mariposas3.webp',
-                    'assets/images/mariposas4.webp',
-                    'assets/images/mariposas5.webp'
-                ]
-            }
-        ]
-    },
-    postres: {
-        title: 'Postres Enteros',
-        products: [
-            {
-                id: 1,
-                name: 'Cheesecake',
-                description: 'Cheesecake con base de galleta, cubierto de mermelada de frutilla.',
-                price: 1800,
-                image: 'assets/images/postres/cheesecake.webp'
-            },
-            {
-                id: 2,
-                name: 'Chajá',
-                description: 'Chajá con merengue, crema y durazno. Dulce de leche opcional.',
-                price: 1500,
-                image: 'assets/images/postres/chaja.webp'
-            },
-            {
-                id: 3,
-                name: 'Rogel',
-                description: 'Rogel con capas de masa hojaldrada y dulce de leche.',
-                price: 1700,
-                image: 'assets/images/postres/rogel.webp'
-            },
-            {
-                id: 4,
-                name: 'Red velvet',
-                description: 'Red velvet con frosting de queso crema.',
-                price: 2000,
-                image: 'assets/images/postres/redvelvetentero.webp'
-            },
-            {
-                id: 5,
-                name: 'Matilda',
-                description: 'Torta matilda de chocolate rellena de ganache de chocolate.',
-                price: 1600,
-                image: 'assets/images/postres/matildaentero.webp'
-            },
-            {
-                id: 6,
-                name: 'Selva negra',
-                description: 'Selva negra con chocolate, cerezas y crema batida.',
-                price: 2000,
-                image: 'assets/images/postres/selvanegra.webp'
-            },
-            {
-                id: 7,
-                name: 'Bombón de maní',
-                description: 'Torta de chocolate rellena de crema de maní y ganache de chocolate.',
-                price: 1400,
-                image: 'assets/images/postres/bombondemani.webp'
-            },
-            {
-                id: 8,
-                name: 'Chocotorta',
-                description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
-                price: 1200,
-                image: 'assets/images/postres/chocotorta.webp'
-            },
-            {
-                id: 9,
-                name: 'Oreo',
-                description: 'Postre de oreo con crema y galletas trituradas.',
-                price: 1300,
-                image: 'assets/images/postres/oreo.webp'
-            },
-            {
-                id: 10,
-                name: 'Lemon Pie',
-                description: 'Lemon pie con base de galleta, relleno de limón y merengue italiano.',
-                price: 1900,
-                image: 'assets/images/postres/lemonpie.webp'
-            },
-            {
-                id: 11,
-                name: 'Torta de limón',
-                description: 'Torta de limón con crema de limón y merenguitos.',
-                price: 1900,
-                image: 'assets/images/postres/tortalimon.webp'
-            },
-            {
-                id: 12,
-                name: 'Pasta Frola',
-                description: 'Pasta Frola de membrillo o dulce de leche.',
-                price: 1200,
-                image: 'assets/images/postres/pastafrola.webp'
-            }
-        ]
-    },
-    individuales: {
-        title: 'Postres Individuales',
-        type: 'sections',
-        sections: [
-            {
-                title: 'Postres en vasito',
-                products: [
-                    {
-                        id: 1,
-                        name: 'Cheesecake en vasito',
-                        description: 'Cheesecake con base de galleta y topping de frutos rojos.',
-                        price: 150,
-                        image: 'assets/images/postres/cheesecakevaso.webp'
-                    },
-                    {
-                        id: 2,
-                        name: 'Chajá en vasito',
-                        description: 'Clásico chajá uruguayo con merengue, crema y durazno. Dulce de leche opcional.',
-                        price: 150,
-                        image: 'assets/images/postres/chajavaso.webp'
-                    },
-                    {
-                        id: 3,
-                        name: 'Red velvet en vasito',
-                        description: 'Suave red velvet con frosting de queso crema.',
-                        price: 150,
-                        image: 'assets/images/postres/redvelvetvaso.webp'
-                    },
-                    {
-                        id: 4,
-                        name: 'Matilda en vasito',
-                        description: 'Torta matilda de chocolate con mousse de chocolate.',
-                        price: 150,
-                        image: 'assets/images/postres/matildavaso.webp'
-                    },
-                    {
-                        id: 5,
-                        name: 'Selva negra en vasito',
-                        description: 'Selva negra con chocolate, cerezas y crema batida.',
-                        price: 150,
-                        image: 'assets/images/postres/selvanegravaso.webp'
-                    },
-                    {
-                        id: 6,
-                        name: 'Bombón de maní en vasito',
-                        description: 'Torta de chocolate con crema de maní y ganache de chocolate.',
-                        price: 150,
-                        image: 'assets/images/postres/bombondemanivaso.webp'
-                    },
-                    {
-                        id: 7,
-                        name: 'Chocotorta en vasito',
-                        description: 'Clásica chocotorta con galletitas, queso y dulce de leche.',
-                        price: 150,
-                        image: 'assets/images/postres/chocotortavaso.webp'
-                    },
-                    {
-                        id: 8,
-                        name: 'Oreo en vasito',
-                        description: 'Postre de oreo con crema y galletas trituradas.',
-                        price: 150,
-                        image: 'assets/images/postres/oreovaso.webp'
-                    },
-                    {
-                        id: 9,
-                        name: 'Banana split en vasito',
-                        description: 'Banana split con banana, dulce de leche, crema y salsa de frutilla.',
-                        price: 150,
-                        image: 'assets/images/postres/bananasplitvaso.webp'
-                    },
-                    {
-                        id: 10,
-                        name: 'Lemon Pie en vasito',
-                        description: 'Lemon pie con base de galleta, relleno de limón y merengue italiano.',
-                        price: 150,
-                        image: 'assets/images/postres/lemonpievaso.webp'
-                    }
-                ]
-            },
-            {
-                title: 'Porciones y alfajores',
-                products: [
-                    {
-                        id: 11,
-                        name: 'Porción de Red velvet',
-                        description: 'Porción de red velvet con frosting de queso crema.',
-                        price: 150,
-                        image: 'assets/images/postres/redvelvet.webp'
-                    },
-                    {
-                        id: 12,
-                        name: 'Porción de Matilda',
-                        description: 'Porción de torta matilda de chocolate rellena de ganache de chocolate.',
-                        price: 150,
-                        image: 'assets/images/postres/matilda.webp'
-                    },
-                    {
-                        id: 13,
-                        name: 'Porción de Carrot Cake',
-                        description: 'Porción de torta de zanahoria con crema de queso y nueces.',
-                        price: 150,
-                        image: 'assets/images/postres/carrotcake.webp'
-                    },
-                    {
-                        id: 14,
-                        name: 'Alfajores de chocolate',
-                        description: '5 Alfajores de chocolate con relleno de dulce de leche.',
-                        price: 150,
-                        image: 'assets/images/postres/alfajoreschocolate.webp'
-                    },
-                    {
-                        id: 15,
-                        name: 'Alfajores de maicena',
-                        description: '5 Alfajores de maicena con relleno de dulce de leche.',
-                        price: 150,
-                        image: 'assets/images/postres/alfajoresmaicena.webp'
-                    }
-                ]
-            }
-        ]
-    },
-    budines: {
-        title: 'Budines',
-        products: [
-            {
-                id: 1,
-                name: 'Budín de Limón',
-                description: 'Budín de limón con glaseado de limón.',
-                price: 350,
-                image: 'assets/images/budines/budinlimon.webp'
-            },
-            {
-                id: 2,
-                name: 'Budín de Naranja',
-                description: 'Budín de naranja cítrico con ralladura de naranja.',
-                price: 250,
-                image: 'assets/images/budines/budinnaranja.webp'
-            },
-            {
-                id: 3,
-                name: 'Budín Marmolado',
-                description: 'Budín marmolado de vainilla y chocolate.',
-                price: 250,
-                image: 'assets/images/budines/budinmarmolado.webp'
-            },
-            {
-                id: 4,
-                name: 'Budín de Banana con Nuez',
-                description: 'Budín de banana con nueces crujientes.',
-                price: 350,
-                image: 'assets/images/budines/budinbananaconnuez.webp'
-            },
-            {
-                id: 5,
-                name: 'Budín Carrot Cake',
-                description: 'Budín de zanahoria con frosting de queso crema.',
-                price: 350,
-                image: 'assets/images/budines/budincarrotcake.webp'
-            },
-            {
-                id: 6,
-                name: 'Budín de Vainilla con Chispas de Chocolate',
-                description: 'Budín de vainilla con chispas de chocolate.',
-                price: 350,
-                image: 'assets/images/budines/budinvainillaconchips.webp'
-            },
-            {
-                id: 7,
-                name: 'Budín de Vainilla con Nuez y Pasas',
-                description: 'Budín de vainilla con nueces y pasas de uva.',
-                price: 350,
-                image: 'assets/images/budines/budinvainillaconnuezyapasas.webp'
-            },
-            {
-                id: 8,
-                name: 'Budín de Chocolate.',
-                description: 'Budín de Chocolate.',
-                price: 250,
-                image: 'assets/images/budines/budinchocolate.webp'
-            },
-            {
-                id: 9,
-                name: 'Budín de Vainilla',
-                description: 'Budín de Vainilla.',
-                price: 250,
-                image: 'assets/images/budines/budinvainilla.webp'
-            }
-        ]
-    },
-    salados: {
-        title: 'Salados',
-        products: [
-            {
-                id: 1,
-                name: 'Tarta de zapallitos',
-                description: 'Tarta de zapallitos con queso y cebolla. Ideal para acompañar.',
-                price: 800,
-                image: 'assets/images/salados/tartazapallitos.webp'
-            },
-            {
-                id: 2,
-                name: 'Torta de fiambre',
-                description: 'Torta de fiambre con mayonesa y vegetales. Perfecta para compartir.',
-                price: 900,
-                image: 'assets/images/salados/tortafiambre.webp'
-            },
-            {
-                id: 3,
-                name: 'Pascualina',
-                description: 'Pascualina rellena de acelga, espinaca y huevo.',
-                price: 700,
-                image: 'assets/images/salados/pascualina.webp'
-            },
-            {
-                id: 4,
-                name: 'Pre-Pizza',
-                description: 'Pizzas congeladas listas para hornear.',
-                price: 150,
-                image: 'assets/images/salados/prepizza.webp'
-            }
-        ]
-    },
-    diadelamadre: {
-        title: 'Día de la Madre',
-        products: [
-            {
-                id: 1,
-                name: 'Desayuno Opción 1',
-                description: 'Porción de Red Velvet, 2 mini budines, 5 galletas de avena y naranja, 3 sandwiches de jamón y queso, bombones, bebida a elección: jugo o capuccino y Tarjeta con mensaje personalizado.',
-                price: 650,
-                image: 'assets/images/festivos/desayuno1.webp'
-            },
-            {
-                id: 2,
-                name: 'Desayuno Opción 2',
-                description: 'Mini torta rellena de dulce de leche, Scons de queso y orégano, Taza + capuccino y tarjeta con mensaje personalizado.',
-                price: 750,
-                image: 'assets/images/festivos/desayuno2.webp'
-            },
-            {
-                id: 3,
-                name: 'Desayuno Opción 3',
-                description: 'Mini torta rellena de dulce de leche, 2 postres en vasito, bolsita de bombones, taza, sobre de capuccino y tarjeta con mensaje personalizado.',
-                price: 790,
-                image: 'assets/images/festivos/desayuno3.webp'
-            },
-            {
-                id: 4,
-                name: 'Desayuno Opción 4',
-                description: 'Torta delicada y riquísima, elegí tu diseño favorito. Incluye topper con el mensaje que quieras.',
-                price: 500,
-                image: 'assets/images/festivos/desayuno4.webp'
-            },
-            {
-                id: 5,
-                name: 'Desayuno Opción 5',
-                description: '4 cuadrados de pasta frola, 4 cuadrados de tarta de coco y dulce de leche, 4 cuadrados de limón, 4 galletas de avena y naranja, taza + sobre de capuccino.',
-                price: 450,
-                image: 'assets/images/festivos/desayuno5.webp'
-            }
-        ]
-    }
-};
+// NOTA: catalogData ahora se carga dinámicamente desde Firebase
+// Ver función loadCatalogData() arriba en el archivo
 
 // Variables globales para controlar los intervalos de slideshow
 let slideshowIntervals = [];
@@ -1229,6 +1253,27 @@ let currentSubCategory = null;
 
 // Función para mostrar el catálogo
 function showCatalog(category, subCategory = null) {
+    // Verificar si Firebase está inicializado y los datos están cargados
+    if (!db || Object.keys(catalogData).length === 0) {
+        console.log('⏳ Esperando carga de datos de Firebase...');
+        // Mostrar mensaje de carga
+        const catalogSection = document.getElementById('catalogo');
+        const catalogGrid = document.getElementById('catalog-grid');
+        catalogSection.classList.remove('hidden');
+        catalogGrid.innerHTML = '<div class="loading-message">🔄 Cargando productos desde Firebase...</div>';
+
+        // Intentar cargar datos nuevamente
+        if (db) {
+            loadCatalogData().then(() => {
+                showCatalog(category, subCategory);
+            });
+        } else {
+            // Esperar a que Firebase se inicialice
+            setTimeout(() => showCatalog(category, subCategory), 1000);
+        }
+        return;
+    }
+
     const catalogSection = document.getElementById('catalogo');
     const catalogTitle = document.getElementById('catalog-title');
     const catalogGrid = document.getElementById('catalog-grid');
@@ -1313,7 +1358,13 @@ function showCatalog(category, subCategory = null) {
                 <div class="product-info">
                     <h3 class="product-name">${product.name}</h3>
                     <p class="product-description">${product.description}</p>
-                    <div class="product-price">$${product.price}</div>
+                    <div class="product-price">
+                        ${product.appliedOffer ? `
+                            <span class="original-price">$${product.basePrice}</span>
+                            <span class="discounted-price">$${product.price}</span>
+                            <span class="discount-badge">-${product.discountPercentage}%</span>
+                        ` : `$${product.price}`}
+                    </div>
                     <button class="add-to-cart-button" onclick="addToCartWithRange(this, '${product.name}', '${product.price}')">
                         Añadir al Carrito
                     </button>
@@ -1383,7 +1434,13 @@ function showCatalog(category, subCategory = null) {
                     <div class="product-info">
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>
-                        <div class="product-price">$${product.price}</div>
+                        <div class="product-price">
+                            ${product.appliedOffer ? `
+                                <span class="original-price">$${product.basePrice}</span>
+                                <span class="discounted-price">$${product.price}</span>
+                                <span class="discount-badge">-${product.discountPercentage}%</span>
+                            ` : `$${product.price}`}
+                        </div>
                         <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
                             Añadir al Carrito
                         </button>
@@ -1442,7 +1499,13 @@ function showCatalog(category, subCategory = null) {
                     <div class="product-info">
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>
-                        <div class="product-price">$${product.price}</div>
+                        <div class="product-price">
+                            ${product.appliedOffer ? `
+                                <span class="original-price">$${product.basePrice}</span>
+                                <span class="discounted-price">$${product.price}</span>
+                                <span class="discount-badge">-${product.discountPercentage}%</span>
+                            ` : `$${product.price}`}
+                        </div>
                         <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
                             Añadir al Carrito
                         </button>
