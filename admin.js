@@ -615,32 +615,16 @@ class AdminPanel {
 
     async uploadImageToStorage(file) {
         try {
-            const storage = firebase.storage();
-            const fileName = `products/${Date.now()}_${file.name}`;
-            const storageRef = storage.ref(fileName);
-            const uploadTask = storageRef.put(file);
-
+            // Convert image to Base64 as fallback for CORS issues
             return new Promise((resolve, reject) => {
-                uploadTask.on('state_changed',
-                    (snapshot) => {
-                        // Progress tracking (optional)
-                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        console.log('Upload progress:', progress + '%');
-                    },
-                    (error) => {
-                        console.error('Error uploading image:', error);
-                        reject(error);
-                    },
-                    async () => {
-                        try {
-                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                            resolve(downloadURL);
-                        } catch (error) {
-                            console.error('Error getting download URL:', error);
-                            reject(error);
-                        }
-                    }
-                );
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    resolve(e.target.result);
+                };
+                reader.onerror = (error) => {
+                    reject(error);
+                };
+                reader.readAsDataURL(file);
             });
         } catch (error) {
             console.error('Error in uploadImageToStorage:', error);

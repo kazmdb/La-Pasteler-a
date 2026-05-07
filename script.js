@@ -733,22 +733,36 @@ function getCategoryImages(category) {
     }
 
     const categoryData = catalogData[category];
-    if (!categoryData) return [];
+    if (!categoryData) {
+        console.log(`❌ Categoría ${category} no encontrada`);
+        return [];
+    }
+
+    console.log(`🔍 Analizando categoría ${category}:`);
+    console.log(`   Tipo: ${categoryData.type}`);
+    console.log(`   Productos directos: ${categoryData.products ? categoryData.products.length : 0}`);
+    console.log(`   Secciones: ${categoryData.sections ? categoryData.sections.length : 0}`);
 
     let images = [];
 
-    if (categoryData.type === 'slideshow' && categoryData.products[0].images) {
-        // Para categorías tipo slideshow (cumpleanos), usar imágenes del array
-        images = categoryData.products[0].images;
-    } else if (categoryData.type === 'sections' && categoryData.sections) {
+    if (categoryData.type === 'sections' && categoryData.sections) {
         // Para categorías tipo sections (individuales), obtener productos de todas las secciones
         const allProducts = categoryData.sections.flatMap(section => section.products);
-        images = allProducts.map(product => product.image);
+        images = allProducts
+            .filter(product => product.images && product.images.length > 0)
+            .map(product => product.images[0]);
+        console.log(`   ✅ Usando imágenes de secciones: ${images.length} imágenes de ${allProducts.length} productos`);
     } else if (categoryData.products && categoryData.products.length > 0) {
-        // Para categorías normales, usar las imágenes de los productos
-        images = categoryData.products.map(product => product.image);
+        // Para categorías normales y slideshow, usar las imágenes de todos los productos
+        images = categoryData.products
+            .filter(product => product.images && product.images.length > 0)
+            .flatMap(product => product.images); // Usar flatMap para obtener todas las imágenes de cada producto
+        console.log(`   ✅ Usando imágenes de productos: ${images.length} imágenes de ${categoryData.products.length} productos`);
+    } else {
+        console.log(`   ❌ No se encontraron imágenes para esta categoría`);
     }
 
+    console.log(`   📷 Total de imágenes: ${images.length}`);
     return images;
 }
 
@@ -1429,7 +1443,7 @@ function showCatalog(category, subCategory = null) {
 
                 productCard.innerHTML = `
                     <div class="product-image">
-                        <img src="${product.image}" alt="${product.name}" class="product-image-img">
+                        <img src="${product.images && product.images.length > 0 ? product.images[0] : ''}" alt="${product.name}" class="product-image-img">
                     </div>
                     <div class="product-info">
                         <h3 class="product-name">${product.name}</h3>
@@ -1488,8 +1502,8 @@ function showCatalog(category, subCategory = null) {
                 productCard.className = 'product-card';
                 productCard.style.transitionDelay = `${globalIndex * 0.1}s`;
 
-                const imageContent = product.image
-                    ? `<img src="${product.image}" alt="${product.name}" class="product-image-img">`
+                const imageContent = product.images && product.images.length > 0
+                    ? `<img src="${product.images[0]}" alt="${product.name}" class="product-image-img">`
                     : `<span>${product.emoji}</span>`;
 
                 productCard.innerHTML = `
@@ -1539,8 +1553,8 @@ function showCatalog(category, subCategory = null) {
             productCard.style.transitionDelay = `${index * 0.1}s`;
 
             // Usar imagen si está disponible, si no usar emoji
-            const imageContent = product.image
-                ? `<img src="${product.image}" alt="${product.name}" class="product-image-img">`
+            const imageContent = product.images && product.images.length > 0
+                ? `<img src="${product.images[0]}" alt="${product.name}" class="product-image-img">`
                 : `<span>${product.emoji}</span>`;
 
             productCard.innerHTML = `
