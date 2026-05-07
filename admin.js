@@ -56,6 +56,11 @@ class AdminPanel {
             this.filterProductsByCategory(e.target.value);
         });
 
+        // Offer toggle in product form
+        document.getElementById('product-has-offer').addEventListener('change', (e) => {
+            this.toggleOfferFields(e.target.checked);
+        });
+
         document.getElementById('product-form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleProductSubmit();
@@ -541,12 +546,57 @@ class AdminPanel {
                     document.getElementById('product-image-url').value = imageUrl;
                     this.showUrlPreview(imageUrl);
                 }
+
+                // Load existing offer
+                this.loadProductOffer(productId);
             }
         } else {
             title.textContent = 'Nuevo Producto';
+            // Reset offer fields
+            this.resetOfferFields();
         }
 
         modal.classList.remove('hidden');
+    }
+
+    resetOfferFields() {
+        document.getElementById('product-has-offer').checked = false;
+        this.toggleOfferFields(false);
+        document.getElementById('offer-type').value = 'percentage';
+        document.getElementById('offer-value').value = '';
+        document.getElementById('offer-status').value = 'true';
+
+        // Set default dates (now and 7 days later)
+        const now = new Date();
+        const weekLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        document.getElementById('offer-start-date').value = this.formatDateTimeLocal(now);
+        document.getElementById('offer-end-date').value = this.formatDateTimeLocal(weekLater);
+    }
+
+    loadProductOffer(productId) {
+        // Reset offer fields first
+        this.resetOfferFields();
+
+        // Find existing offer for this product
+        const existingOffer = this.offers.find(offer =>
+            offer.targetType === 'product' &&
+            offer.targetId === productId
+        );
+
+        if (existingOffer) {
+            document.getElementById('product-has-offer').checked = true;
+            this.toggleOfferFields(true);
+            document.getElementById('offer-type').value = existingOffer.type;
+            document.getElementById('offer-value').value = existingOffer.value;
+            document.getElementById('offer-status').value = existingOffer.isActive.toString();
+
+            if (existingOffer.startDate) {
+                document.getElementById('offer-start-date').value = this.formatDateTimeLocal(new Date(existingOffer.startDate));
+            }
+            if (existingOffer.endDate) {
+                document.getElementById('offer-end-date').value = this.formatDateTimeLocal(new Date(existingOffer.endDate));
+            }
+        }
     }
 
     resetImageInputs() {
@@ -610,6 +660,15 @@ class AdminPanel {
         if (url) {
             document.getElementById('url-preview-img').src = url;
             document.getElementById('url-preview').classList.remove('hidden');
+        }
+    }
+
+    toggleOfferFields(show) {
+        const offerFields = document.getElementById('product-offer-fields');
+        if (show) {
+            offerFields.classList.remove('hidden');
+        } else {
+            offerFields.classList.add('hidden');
         }
     }
 
@@ -683,6 +742,9 @@ class AdminPanel {
                     this.products[index] = { ...this.products[index], ...productData };
                     await db.collection('products').doc(productId).update(productData);
                     this.showToast('Producto actualizado correctamente', 'success');
+
+                    // Handle offer update for existing product
+                    await this.handleProductOffer(productId, formData);
                 }
             } else {
                 // Create new product in Firebase
@@ -695,6 +757,9 @@ class AdminPanel {
                 this.products.push(newProduct);
                 await db.collection('products').doc(newProduct.id).set(newProduct);
                 this.showToast('Producto creado correctamente', 'success');
+
+                // Handle offer creation for new product
+                await this.handleProductOffer(newProduct.id, formData);
             }
 
             this.closeAllModals();
@@ -702,6 +767,48 @@ class AdminPanel {
         } catch (error) {
             console.error('Error saving product:', error);
             this.showToast('Error al guardar el producto', 'error');
+        }
+    }
+
+    async handleProductOffer(productId, formData) {
+        const hasOffer = formData.get('hasOffer') === 'on';
+
+        // Remove existing offer for this product
+        const existingOfferIndex = this.offers.findIndex(offer =>
+            offer.targetType === 'product' &&
+            offer.targetId === productId
+        );
+
+        if (existingOfferIndex !== -1) {
+            const existingOfferId = this.offers[existingOfferIndex].id;
+            await db.collection('offers').doc(existingOfferId).delete();
+            this.offers = this.offers.filter(o => o.id !== existingOfferId);
+
+            // Recalculate prices after removing offer
+            await this.recalculatePrices();
+        }
+
+        // Create new offer if checkbox is checked
+        if (hasOffer) {
+            const offerData = {
+                id: 'offer' + Date.now(),
+                name: `Oferta: ${formData.get('name')}`,
+                type: formData.get('offerType'),
+                value: parseFloat(formData.get('offerValue')),
+                targetType: 'product',
+                targetId: productId,
+                startDate: new Date(formData.get('offerStartDate')).toISOString(),
+                endDate: new Date(formData.get('offerEndDate')).toISOString(),
+                priority: 2, // High priority for individual product offers
+                isActive: formData.get('offerStatus') === 'true',
+                createdAt: new Date().toISOString()
+            };
+
+            this.offers.push(offerData);
+            await db.collection('offers').doc(offerData.id).set(offerData);
+
+            // Recalculate prices
+            await this.recalculatePrices();
         }
     }
 
