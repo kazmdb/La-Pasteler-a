@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel de Administración - La Pastelería</title>
+    <link rel="icon" type="image/webp" href="assets/images/icon.webp">
     <link rel="stylesheet" href="admin.css">
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -64,6 +65,16 @@
                 <div class="section-header">
                     <h1>Gestión de Productos</h1>
                     <button id="add-product-btn" class="btn btn-primary">+ Nuevo Producto</button>
+                </div>
+
+                <div class="products-filter-container">
+                    <div class="filter-group">
+                        <label for="category-filter">Filtrar por Categoría:</label>
+                        <select id="category-filter" name="categoryFilter">
+                            <option value="">Todas las categorías</option>
+                            <!-- Categories will be loaded dynamically -->
+                        </select>
+                    </div>
                 </div>
 
                 <div class="products-table-container">
@@ -237,11 +248,30 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Imágenes (URLs)</label>
-                    <div id="product-images-container">
-                        <input type="text" class="product-image-input" name="images[]" placeholder="URL de imagen">
+                    <label>Imagen del Producto</label>
+                    <div class="image-upload-container">
+                        <div class="image-upload-methods">
+                            <div class="upload-method">
+                                <label class="upload-label">
+                                    <span>📱 Subir desde dispositivo</span>
+                                    <input type="file" id="product-image-file" name="imageFile" accept="image/*" class="file-input">
+                                </label>
+                                <div id="file-preview" class="image-preview hidden">
+                                    <img id="file-preview-img" src="" alt="Vista previa">
+                                    <button type="button" class="remove-image-btn" onclick="adminPanel.removeFileImage()">✕</button>
+                                </div>
+                            </div>
+                            <div class="upload-divider">o</div>
+                            <div class="upload-method">
+                                <label for="product-image-url" class="url-label">🔗 URL de imagen</label>
+                                <input type="text" id="product-image-url" name="imageUrl" placeholder="https://ejemplo.com/imagen.jpg">
+                                <div id="url-preview" class="image-preview hidden">
+                                    <img id="url-preview-img" src="" alt="Vista previa">
+                                    <button type="button" class="remove-image-btn" onclick="adminPanel.removeUrlImage()">✕</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <button type="button" id="add-image-btn" class="btn btn-secondary">+ Agregar Imagen</button>
                 </div>
 
                 <div class="modal-footer">

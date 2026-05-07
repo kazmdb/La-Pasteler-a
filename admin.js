@@ -52,13 +52,17 @@ class AdminPanel {
             this.openProductModal();
         });
 
+        document.getElementById('category-filter').addEventListener('change', (e) => {
+            this.filterProductsByCategory(e.target.value);
+        });
+
         document.getElementById('product-form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleProductSubmit();
         });
 
-        document.getElementById('add-image-btn').addEventListener('click', () => {
-            this.addImageInput();
+        document.getElementById('product-image-url').addEventListener('input', (e) => {
+            this.handleUrlInput(e);
         });
 
         // Category management
@@ -287,13 +291,18 @@ class AdminPanel {
         this.renderOffers();
         this.updateOffersSummary();
         this.populateCategorySelects();
+        this.populateCategoryFilter();
     }
 
-    renderProducts() {
+    renderProducts(categoryFilter = '') {
         const tbody = document.getElementById('products-table-body');
         tbody.innerHTML = '';
 
-        this.products.forEach(product => {
+        const filteredProducts = categoryFilter
+            ? this.products.filter(product => product.category === categoryFilter)
+            : this.products;
+
+        filteredProducts.forEach(product => {
             const offer = this.getProductOffer(product);
             const row = document.createElement('tr');
 
@@ -335,6 +344,17 @@ class AdminPanel {
 
             tbody.appendChild(row);
         });
+
+        // Mostrar mensaje si no hay productos
+        if (filteredProducts.length === 0) {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td colspan="7" style="text-align: center; padding: 20px; color: #666;">
+                    ${categoryFilter ? 'No hay productos en esta categoría' : 'No hay productos registrados'}
+                </td>
+            `;
+            tbody.appendChild(row);
+        }
     }
 
     renderCategories() {
@@ -469,6 +489,29 @@ class AdminPanel {
         });
     }
 
+    populateCategoryFilter() {
+        const filterSelect = document.getElementById('category-filter');
+        if (filterSelect) {
+            const currentValue = filterSelect.value;
+            filterSelect.innerHTML = '<option value="">Todas las categorías</option>';
+
+            this.categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.id;
+                option.textContent = category.name;
+                filterSelect.appendChild(option);
+            });
+
+            if (currentValue) {
+                filterSelect.value = currentValue;
+            }
+        }
+    }
+
+    filterProductsByCategory(categoryId) {
+        this.renderProducts(categoryId);
+    }
+
     // Product Management
     openProductModal(productId = null) {
         const modal = document.getElementById('product-modal');
@@ -478,9 +521,8 @@ class AdminPanel {
         form.reset();
         document.getElementById('product-id').value = '';
 
-        // Reset images container
-        const imagesContainer = document.getElementById('product-images-container');
-        imagesContainer.innerHTML = '<input type="text" class="product-image-input" name="images[]" placeholder="URL de imagen">';
+        // Reset image inputs
+        this.resetImageInputs();
 
         if (productId) {
             const product = this.products.find(p => p.id === productId);
@@ -493,11 +535,12 @@ class AdminPanel {
                 document.getElementById('product-base-price').value = product.basePrice;
                 document.getElementById('product-status').value = product.isActive.toString();
 
-                // Load images
-                imagesContainer.innerHTML = '';
-                product.images.forEach(image => {
-                    this.addImageInput(image);
-                });
+                // Load existing image
+                if (product.images && product.images.length > 0) {
+                    const imageUrl = product.images[0];
+                    document.getElementById('product-image-url').value = imageUrl;
+                    this.showUrlPreview(imageUrl);
+                }
             }
         } else {
             title.textContent = 'Nuevo Producto';
@@ -506,15 +549,103 @@ class AdminPanel {
         modal.classList.remove('hidden');
     }
 
-    addImageInput(value = '') {
-        const container = document.getElementById('product-images-container');
-        const input = document.createElement('input');
-        input.type = 'text';
-        input.className = 'product-image-input';
-        input.name = 'images[]';
-        input.placeholder = 'URL de imagen';
-        input.value = value;
-        container.appendChild(input);
+    resetImageInputs() {
+        // Reset file input
+        const fileInput = document.getElementById('product-image-file');
+        fileInput.value = '';
+        document.getElementById('file-preview').classList.add('hidden');
+        document.getElementById('file-preview-img').src = '';
+
+        // Reset URL input
+        document.getElementById('product-image-url').value = '';
+        document.getElementById('url-preview').classList.add('hidden');
+        document.getElementById('url-preview-img').src = '';
+    }
+
+    handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (file) {
+            // Clear URL input when file is selected
+            document.getElementById('product-image-url').value = '';
+            document.getElementById('url-preview').classList.add('hidden');
+
+            // Show file preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('file-preview-img').src = e.target.result;
+                document.getElementById('file-preview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    handleUrlInput(event) {
+        const url = event.target.value;
+        if (url) {
+            // Clear file input when URL is entered
+            document.getElementById('product-image-file').value = '';
+            document.getElementById('file-preview').classList.add('hidden');
+
+            // Show URL preview
+            document.getElementById('url-preview-img').src = url;
+            document.getElementById('url-preview').classList.remove('hidden');
+        } else {
+            document.getElementById('url-preview').classList.add('hidden');
+        }
+    }
+
+    removeFileImage() {
+        document.getElementById('product-image-file').value = '';
+        document.getElementById('file-preview').classList.add('hidden');
+        document.getElementById('file-preview-img').src = '';
+    }
+
+    removeUrlImage() {
+        document.getElementById('product-image-url').value = '';
+        document.getElementById('url-preview').classList.add('hidden');
+        document.getElementById('url-preview-img').src = '';
+    }
+
+    showUrlPreview(url) {
+        if (url) {
+            document.getElementById('url-preview-img').src = url;
+            document.getElementById('url-preview').classList.remove('hidden');
+        }
+    }
+
+    async uploadImageToStorage(file) {
+        try {
+            const storage = firebase.storage();
+            const fileName = `products/${Date.now()}_${file.name}`;
+            const storageRef = storage.ref(fileName);
+            const uploadTask = storageRef.put(file);
+
+            return new Promise((resolve, reject) => {
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        // Progress tracking (optional)
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        console.log('Upload progress:', progress + '%');
+                    },
+                    (error) => {
+                        console.error('Error uploading image:', error);
+                        reject(error);
+                    },
+                    async () => {
+                        try {
+                            const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                            resolve(downloadURL);
+                        } catch (error) {
+                            console.error('Error getting download URL:', error);
+                            reject(error);
+                        }
+                    }
+                );
+            });
+        } catch (error) {
+            console.error('Error in uploadImageToStorage:', error);
+            throw error;
+        }
     }
 
     async handleProductSubmit() {
@@ -522,9 +653,33 @@ class AdminPanel {
         const formData = new FormData(form);
 
         const productId = document.getElementById('product-id').value;
-        const images = Array.from(document.querySelectorAll('.product-image-input'))
-            .map(input => input.value)
-            .filter(url => url.trim() !== '');
+
+        // Handle image upload
+        let imageUrl = null;
+        const fileInput = document.getElementById('product-image-file');
+        const urlInput = document.getElementById('product-image-url');
+
+        if (fileInput.files.length > 0) {
+            // Check if running from file:// protocol
+            if (window.location.protocol === 'file:') {
+                this.showToast('Error: Debes ejecutar el sitio desde un servidor HTTP para subir archivos. Usa Live Server o http-server.', 'error');
+                return;
+            }
+
+            // Upload file to Firebase Storage
+            try {
+                this.showToast('Subiendo imagen...', 'info');
+                imageUrl = await this.uploadImageToStorage(fileInput.files[0]);
+                this.showToast('Imagen subida correctamente', 'success');
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                this.showToast('Error al subir la imagen: ' + error.message, 'error');
+                return;
+            }
+        } else if (urlInput.value.trim() !== '') {
+            // Use URL input
+            imageUrl = urlInput.value.trim();
+        }
 
         const productData = {
             name: formData.get('name'),
@@ -532,7 +687,7 @@ class AdminPanel {
             category: formData.get('category'),
             basePrice: parseFloat(formData.get('basePrice')),
             isActive: formData.get('isActive') === 'true',
-            images: images,
+            images: imageUrl ? [imageUrl] : [],
             updatedAt: new Date().toISOString()
         };
 
