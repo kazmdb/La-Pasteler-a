@@ -45,6 +45,12 @@
                 display: block !important;
             }
 
+            /* Fix: Ensure dashboard-summary uses grid layout */
+            .dashboard-summary {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+
             .products-table-container,
             .offers-container,
             .settings-container {
@@ -76,14 +82,25 @@
                 display: none !important;
             }
 
-            .dashboard-summary,
-            .quick-actions,
-            .recent-activity,
+            /* Only hide mobile-specific elements on PC */
             .products-list,
             .offers-list,
             .settings-list,
             .offers-summary-mobile {
                 display: none !important;
+            }
+
+            /* Keep home section elements visible on PC */
+            .dashboard-summary,
+            .quick-actions,
+            .recent-activity {
+                display: block !important;
+            }
+
+            /* Ensure dashboard-summary uses grid layout on PC too */
+            .dashboard-summary {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
             }
 
             .products-table-container,
@@ -139,6 +156,9 @@
                 </button>
             </nav>
             <div class="sidebar-footer">
+                <button id="theme-toggle" class="btn btn-secondary" title="Cambiar tema">
+                    <span id="theme-icon">🌙</span> Modo Oscuro
+                </button>
                 <button id="logout-btn" class="btn btn-danger">Cerrar Sesión</button>
             </div>
         </aside>
@@ -148,6 +168,9 @@
             <div class="header-content">
                 <h1 id="section-title" class="section-title">Inicio</h1>
                 <div class="header-actions">
+                    <button class="header-btn theme-toggle-btn" id="mobile-theme-toggle" title="Cambiar tema">
+                        <span class="theme-icon">🌙</span>
+                    </button>
                     <button class="header-btn notification-btn">
                         <span class="notification-icon">🔔</span>
                         <span class="notification-badge hidden">3</span>
@@ -162,7 +185,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <!-- Home Section (Mobile) -->
-            <section id="home-section" class="content-section">
+            <section id="home-section" class="content-section active">
                 <div class="dashboard-summary">
                     <div class="summary-card">
                         <div class="summary-icon">📦</div>
@@ -220,7 +243,7 @@
             </section>
 
             <!-- Products Section -->
-            <section id="products-section" class="content-section active">
+            <section id="products-section" class="content-section">
                 <div class="section-header">
                     <h1>Gestión de Productos</h1>
                     <button id="add-product-btn" class="btn btn-primary">+ Nuevo Producto</button>

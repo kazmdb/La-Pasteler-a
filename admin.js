@@ -133,6 +133,25 @@ class AdminPanel {
             });
         });
 
+        // Theme toggle (desktop)
+        const themeToggle = document.getElementById('theme-toggle');
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                this.toggleTheme();
+            });
+        }
+
+        // Theme toggle (mobile)
+        const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
+        if (mobileThemeToggle) {
+            mobileThemeToggle.addEventListener('click', () => {
+                this.toggleTheme();
+            });
+        }
+
+        // Initialize theme
+        this.initTheme();
+
         // Close FAB menu when clicking outside
         document.addEventListener('click', (e) => {
             const fabContainer = document.getElementById('fab-container');
@@ -210,6 +229,57 @@ class AdminPanel {
         this.showToast('Sesión cerrada', 'info');
     }
 
+    // Theme Management
+    initTheme() {
+        // Check for saved theme preference or default to light
+        const savedTheme = localStorage.getItem('adminTheme') || 'light';
+        this.setTheme(savedTheme);
+    }
+
+    toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        this.setTheme(newTheme);
+    }
+
+    setTheme(theme) {
+        // Set theme attribute
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // Save preference to localStorage
+        localStorage.setItem('adminTheme', theme);
+
+        // Update theme icons
+        this.updateThemeIcons(theme);
+
+        // Show toast notification
+        const themeName = theme === 'dark' ? 'Modo oscuro' : 'Modo claro';
+        this.showToast(`${themeName} activado`, 'info');
+    }
+
+    updateThemeIcons(theme) {
+        // Update desktop theme toggle
+        const desktopThemeIcon = document.getElementById('theme-icon');
+        if (desktopThemeIcon) {
+            desktopThemeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Update mobile theme toggle
+        const mobileThemeIcon = document.querySelector('.theme-icon');
+        if (mobileThemeIcon) {
+            mobileThemeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Update desktop theme toggle button text
+        const desktopThemeToggle = document.getElementById('theme-toggle');
+        if (desktopThemeToggle) {
+            const buttonText = desktopThemeToggle.querySelector('span:last-child');
+            if (buttonText) {
+                buttonText.textContent = theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro';
+            }
+        }
+    }
+
     showLogin() {
         document.getElementById('login-section').classList.remove('hidden');
         document.getElementById('admin-dashboard').classList.add('hidden');
@@ -274,6 +344,10 @@ class AdminPanel {
                 this.loadSettings()
             ]);
             this.hideLoadingSkeletons();
+
+            // Small delay to ensure DOM is ready
+            await new Promise(resolve => setTimeout(resolve, 100));
+
             this.updateUI();
         } catch (error) {
             console.error('Error loading data:', error);
@@ -295,15 +369,44 @@ class AdminPanel {
             offersList.innerHTML = this.generateOfferSkeletons();
         }
 
-        // Show skeleton for dashboard summary
-        const dashboardSummary = document.querySelector('.dashboard-summary');
-        if (dashboardSummary) {
-            dashboardSummary.innerHTML = this.generateSummarySkeletons();
-        }
+        // Don't show skeleton for dashboard summary - it loads too fast
+        // Just show loading state on the values
+        const totalProducts = document.getElementById('total-products');
+        const totalCategories = document.getElementById('total-categories');
+        const totalOffers = document.getElementById('total-offers');
+
+        if (totalProducts) totalProducts.innerHTML = '<span class="skeleton" style="display:inline-block;width:40px;height:32px;"></span>';
+        if (totalCategories) totalCategories.innerHTML = '<span class="skeleton" style="display:inline-block;width:40px;height:32px;"></span>';
+        if (totalOffers) totalOffers.innerHTML = '<span class="skeleton" style="display:inline-block;width:40px;height:32px;"></span>';
     }
 
     hideLoadingSkeletons() {
-        // Skeletons will be replaced by actual content when updateUI() is called
+        // Remove skeletons from products list
+        const productsList = document.getElementById('products-list');
+        if (productsList && productsList.innerHTML.includes('skeleton')) {
+            productsList.innerHTML = '';
+        }
+
+        // Remove skeletons from offers list
+        const offersList = document.getElementById('offers-list');
+        if (offersList && offersList.innerHTML.includes('skeleton')) {
+            offersList.innerHTML = '';
+        }
+
+        // Remove skeletons from dashboard summary values
+        const totalProducts = document.getElementById('total-products');
+        const totalCategories = document.getElementById('total-categories');
+        const totalOffers = document.getElementById('total-offers');
+
+        if (totalProducts && totalProducts.innerHTML.includes('skeleton')) {
+            totalProducts.innerHTML = '';
+        }
+        if (totalCategories && totalCategories.innerHTML.includes('skeleton')) {
+            totalCategories.innerHTML = '';
+        }
+        if (totalOffers && totalOffers.innerHTML.includes('skeleton')) {
+            totalOffers.innerHTML = '';
+        }
     }
 
     generateProductSkeletons() {
@@ -1555,9 +1658,44 @@ class AdminPanel {
         const totalCategories = document.getElementById('total-categories');
         const totalOffers = document.getElementById('total-offers');
 
-        if (totalProducts) totalProducts.textContent = this.products.length;
-        if (totalCategories) totalCategories.textContent = this.categories.length;
-        if (totalOffers) totalOffers.textContent = this.offers.length;
+        console.log('=== DASHBOARD SUMMARY UPDATE ===');
+        console.log('Data loaded:', {
+            products: this.products.length,
+            categories: this.categories.length,
+            offers: this.offers.length
+        });
+
+        console.log('DOM Elements found:', {
+            totalProducts: !!totalProducts,
+            totalCategories: !!totalCategories,
+            totalOffers: !!totalOffers
+        });
+
+        if (totalProducts) {
+            console.log('Before update - Products value:', totalProducts.textContent);
+            totalProducts.textContent = this.products.length;
+            console.log('After update - Products value:', totalProducts.textContent);
+        } else {
+            console.warn('total-products element not found!');
+        }
+
+        if (totalCategories) {
+            console.log('Before update - Categories value:', totalCategories.textContent);
+            totalCategories.textContent = this.categories.length;
+            console.log('After update - Categories value:', totalCategories.textContent);
+        } else {
+            console.warn('total-categories element not found!');
+        }
+
+        if (totalOffers) {
+            console.log('Before update - Offers value:', totalOffers.textContent);
+            totalOffers.textContent = this.offers.length;
+            console.log('After update - Offers value:', totalOffers.textContent);
+        } else {
+            console.warn('total-offers element not found!');
+        }
+
+        console.log('=== END DASHBOARD SUMMARY UPDATE ===');
     }
 
     toggleProductActions(productId) {
