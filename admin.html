@@ -96,9 +96,13 @@
 
             /* Keep home section elements visible on PC */
             .dashboard-summary,
-            .quick-actions,
             .orders-section {
                 display: block !important;
+            }
+
+            /* Hide quick actions on PC */
+            .quick-actions {
+                display: none !important;
             }
 
             /* Ensure dashboard-summary uses grid layout on PC too */
@@ -339,31 +343,6 @@
 
                 <div class="settings-container">
                     <div class="settings-card">
-                        <h3>Configuración de Precios</h3>
-                        <form id="pricing-settings-form">
-                            <div class="form-group">
-                                <label for="default-priority">Prioridad por Defecto</label>
-                                <select id="default-priority" name="defaultPriority">
-                                    <option value="individual">Individual (Producto)</option>
-                                    <option value="category">Categoría</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="currency">Moneda</label>
-                                <select id="currency" name="currency">
-                                    <option value="UYU">Pesos Uruguayos (UYU)</option>
-                                    <option value="USD">Dólares (USD)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="round-to">Redondear a</label>
-                                <input type="number" id="round-to" name="roundTo" value="10" min="1">
-                            </div>
-                            <button type="submit" class="btn btn-primary">Guardar Configuración</button>
-                        </form>
-                    </div>
-
-                    <div class="settings-card">
                         <h3>Cambiar Contraseña</h3>
                         <form id="password-settings-form">
                             <div class="form-group">
@@ -386,16 +365,6 @@
                     <div class="settings-list">
                         <div class="settings-group">
                             <h3>Configuración</h3>
-                            <div class="settings-item">
-                                <div class="settings-item-content">
-                                    <span class="settings-icon">💰</span>
-                                    <div class="settings-item-info">
-                                        <span class="settings-item-title">Precios</span>
-                                        <span class="settings-item-subtitle">Moneda y redondeo</span>
-                                    </div>
-                                </div>
-                                <span class="settings-arrow">›</span>
-                            </div>
                             <div class="settings-item">
                                 <div class="settings-item-content">
                                     <span class="settings-icon">🔐</span>
@@ -680,6 +649,7 @@
                         <select id="offer-target-type" name="targetType" required>
                             <option value="product">Producto Específico</option>
                             <option value="category">Categoría Completa</option>
+                            <option value="catalog">Catálogo Completo</option>
                         </select>
                     </div>
                     <div class="form-group">

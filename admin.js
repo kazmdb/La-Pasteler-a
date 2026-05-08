@@ -108,11 +108,6 @@ class AdminPanel {
         });
 
         // Settings
-        document.getElementById('pricing-settings-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            this.handlePricingSettings();
-        });
-
         document.getElementById('password-settings-form').addEventListener('submit', (e) => {
             e.preventDefault();
             this.handlePasswordChange();
@@ -1366,22 +1361,33 @@ class AdminPanel {
 
     updateTargetOptions(targetType) {
         const select = document.getElementById('offer-target-id');
+        const selectGroup = select.closest('.form-group');
+
         select.innerHTML = '<option value="">Seleccionar...</option>';
 
-        if (targetType === 'product') {
-            this.products.forEach(product => {
-                const option = document.createElement('option');
-                option.value = product.id;
-                option.textContent = product.name;
-                select.appendChild(option);
-            });
-        } else if (targetType === 'category') {
-            this.categories.forEach(category => {
-                const option = document.createElement('option');
-                option.value = category.id;
-                option.textContent = category.name;
-                select.appendChild(option);
-            });
+        if (targetType === 'catalog') {
+            // Para catálogo completo, ocultar el campo de ID del objetivo
+            selectGroup.style.display = 'none';
+            select.value = 'all';
+        } else {
+            // Mostrar el campo para otros tipos
+            selectGroup.style.display = 'block';
+
+            if (targetType === 'product') {
+                this.products.forEach(product => {
+                    const option = document.createElement('option');
+                    option.value = product.id;
+                    option.textContent = product.name;
+                    select.appendChild(option);
+                });
+            } else if (targetType === 'category') {
+                this.categories.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    select.appendChild(option);
+                });
+            }
         }
     }
 
@@ -1570,6 +1576,12 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
             this.isOfferValid(offer)
         );
 
+        const catalogOffers = this.offers.filter(offer =>
+            offer.targetType === 'catalog' &&
+            offer.isActive &&
+            this.isOfferValid(offer)
+        );
+
         // Apply offer with highest priority
         if (productOffers.length > 0) {
             // Individual offers have priority
@@ -1578,6 +1590,10 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         } else if (categoryOffers.length > 0) {
             // Category offers
             appliedOffer = categoryOffers.sort((a, b) => b.priority - a.priority)[0];
+            finalPrice = this.applyOfferToPrice(product.basePrice, appliedOffer);
+        } else if (catalogOffers.length > 0) {
+            // Catalog offers (lowest priority)
+            appliedOffer = catalogOffers.sort((a, b) => b.priority - a.priority)[0];
             finalPrice = this.applyOfferToPrice(product.basePrice, appliedOffer);
         }
 
@@ -1616,7 +1632,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
     }
 
     roundPrice(price) {
-        const roundTo = this.settings.pricing.roundTo || 10;
+        const roundTo = 10; // Valor por defecto para redondeo
         return Math.round(price / roundTo) * roundTo;
     }
 
@@ -1626,20 +1642,6 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
     }
 
     // Settings Management
-    async handlePricingSettings() {
-        const form = document.getElementById('pricing-settings-form');
-        const formData = new FormData(form);
-
-        this.settings.pricing = {
-            defaultPriority: formData.get('defaultPriority'),
-            currency: formData.get('currency'),
-            roundTo: parseInt(formData.get('roundTo'))
-        };
-
-        localStorage.setItem('adminSettings', JSON.stringify(this.settings));
-        this.showToast('Configuración guardada correctamente', 'success');
-    }
-
     async handlePasswordChange() {
         const form = document.getElementById('password-settings-form');
         const formData = new FormData(form);
