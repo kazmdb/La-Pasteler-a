@@ -1199,7 +1199,7 @@ function removeFromCart(index) {
 }
 
 // Función para realizar el pedido (checkout)
-function checkout() {
+async function checkout() {
     // 1. Validar que el carrito no esté vacío
     if (cart.items.length === 0) {
         showNotification('❌ Tu carrito está vacío');
@@ -1233,25 +1233,66 @@ function checkout() {
     // 5. Crear el enlace completo de WhatsApp
     const whatsappLink = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
 
-    // Mostrar confirmación antes de redirigir
-    if (confirm(`¿Confirmar pedido por $${total}?\n\nSerás redirigido a WhatsApp para enviar tu pedido.`)) {
-        // Redirigir a WhatsApp
-        window.open(whatsappLink, '_blank');
+    // 6. Guardar pedido en Firebase
+    try {
+        showNotification('🔄 Procesando pedido...');
 
-        // Cerrar el carrito
-        closeCart();
+        // Preparar datos del pedido para Firebase
+        const orderData = {
+            cliente: {
+                nombre: 'Cliente Web', // Se puede personalizar más adelante
+                telefono: phoneNumber,
+                email: 'cliente@web.com' // Se puede personalizar más adelante
+            },
+            direccion: 'A coordinar', // Se puede personalizar más adelante
+            metodoPago: 'a_coordinar', // Se puede personalizar más adelante
+            notas: 'Pedido realizado desde la web',
+            items: cart.items.map(item => ({
+                productoId: 'web_' + item.name.replace(/\s+/g, '_').toLowerCase(),
+                nombre: item.name,
+                cantidad: item.quantity,
+                precio: item.price,
+                subtotal: item.price * item.quantity
+            })),
+            total: total,
+            fuente: 'web' // Indica que el pedido viene de la web
+        };
 
-        // Limpiar el carrito después de enviar el pedido
-        cart.items = [];
-        cart.total = 0;
-        updateCartTotal();
-        updateCartCount();
+        // Crear pedido en Firebase
+        const orderId = 'order_' + Date.now();
+        await db.collection('orders').doc(orderId).set({
+            id: orderId,
+            ...orderData,
+            fecha: new Date().toISOString(),
+            estado: 'pendiente'
+        });
 
-        // Restaurar todos los botones en el catálogo
-        restoreAllCatalogButtons();
+        console.log('✅ Pedido guardado en Firebase:', orderId);
 
-        // Mostrar notificación de éxito
-        showNotification('✅ Pedido enviado a WhatsApp');
+        // Mostrar confirmación antes de redirigir
+        if (confirm(`¿Confirmar pedido por $${total}?\n\nSerás redirigido a WhatsApp para enviar tu pedido.\n\n✅ Pedido registrado en el sistema.`)) {
+            // Redirigir a WhatsApp
+            window.open(whatsappLink, '_blank');
+
+            // Cerrar el carrito
+            closeCart();
+
+            // Limpiar el carrito después de enviar el pedido
+            cart.items = [];
+            cart.total = 0;
+            updateCartTotal();
+            updateCartCount();
+
+            // Restaurar todos los botones en el catálogo
+            restoreAllCatalogButtons();
+
+            // Mostrar notificación de éxito
+            showNotification('✅ Pedido enviado a WhatsApp y registrado en el sistema');
+        }
+
+    } catch (error) {
+        console.error('Error al guardar pedido en Firebase:', error);
+        showNotification('❌ Error al procesar el pedido. Por favor, intenta nuevamente.');
     }
 }
 

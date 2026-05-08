@@ -13,6 +13,7 @@ class AdminPanel {
         this.products = [];
         this.categories = [];
         this.offers = [];
+        this.orders = [];
         this.settings = {
             pricing: {
                 defaultPriority: 'individual',
@@ -341,6 +342,7 @@ class AdminPanel {
                 this.loadProducts(),
                 this.loadCategories(),
                 this.loadOffers(),
+                this.loadOrders(),
                 this.loadSettings()
             ]);
             this.hideLoadingSkeletons();
@@ -500,6 +502,24 @@ class AdminPanel {
         } catch (error) {
             console.error('Error loading offers from Firebase:', error);
             this.offers = [];
+        }
+    }
+
+    async loadOrders() {
+        try {
+            const snapshot = await db.collection('orders')
+                .orderBy('fecha', 'desc')
+                .get();
+            this.orders = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }));
+            console.log(`📦 ${this.orders.length} pedidos cargados desde Firebase`);
+            this.renderOrders();
+        } catch (error) {
+            console.error('Error loading orders from Firebase:', error);
+            this.orders = [];
+            this.renderOrders();
         }
     }
 
@@ -689,31 +709,106 @@ class AdminPanel {
     }
 
     updateOffersSummary() {
-        const activeOffers = this.offers.filter(o => this.isOfferActive(o));
-        const productsOnOffer = new Set();
+        // No summary cards to update
+    }
 
-        activeOffers.forEach(offer => {
-            if (offer.targetType === 'product') {
-                productsOnOffer.add(offer.targetId);
-            } else if (offer.targetType === 'category') {
-                this.products
-                    .filter(p => p.category === offer.targetId)
-                    .forEach(p => productsOnOffer.add(p.id));
-            }
+    renderOrders() {
+        const ordersList = document.getElementById('orders-list');
+
+        if (this.orders.length === 0) {
+            ordersList.innerHTML = `
+                <div class="empty-state-orders">
+                    <span class="empty-state-icon">📦</span>
+                    <h3>No hay pedidos registrados</h3>
+                    <p>Los pedidos realizados en la web aparecerán aquí</p>
+                </div>
+            `;
+            return;
+        }
+
+        ordersList.innerHTML = '';
+
+        this.orders.forEach(order => {
+            const orderCard = document.createElement('div');
+            orderCard.className = 'order-card';
+            orderCard.innerHTML = `
+                <div class="order-card-header">
+                    <div class="order-card-id">#${order.id}</div>
+                    <div class="order-card-date">${this.formatOrderDate(order.fecha)}</div>
+                </div>
+
+                <div class="order-card-customer">
+                    <div class="order-card-customer-name">${order.cliente.nombre}</div>
+                    <div class="order-card-customer-contact">
+                        📞 ${order.cliente.telefono} | 📧 ${order.cliente.email}
+                    </div>
+                </div>
+
+                <div class="order-card-items">
+                    ${order.items.map(item => `
+                        <div class="order-card-item">
+                            <span class="order-card-item-name">${item.nombre}</span>
+                            <span class="order-card-item-quantity">x${item.cantidad}</span>
+                            <span class="order-card-item-price">$${item.subtotal}</span>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div class="order-card-total">
+                    Total: $${order.total}
+                </div>
+
+                <div class="order-card-footer">
+                    <span class="order-card-status ${this.getOrderStatusClass(order.estado)}">
+                        ${this.getOrderStatusLabel(order.estado)}
+                    </span>
+                    <div class="order-card-actions">
+                        <button class="action-btn edit" onclick="adminPanel.viewOrderDetails('${order.id}')">
+                            <span>👁️</span> Ver
+                        </button>
+                        <button class="action-btn toggle" onclick="adminPanel.updateOrderStatus('${order.id}')">
+                            <span>🔄</span> Estado
+                        </button>
+                        <button class="action-btn delete" onclick="adminPanel.deleteOrder('${order.id}')">
+                            <span>🗑️</span> Eliminar
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            ordersList.appendChild(orderCard);
         });
+    }
 
-        const totalDiscount = activeOffers.reduce((sum, offer) => {
-            if (offer.type === 'percentage') {
-                return sum + offer.value;
-            }
-            return sum;
-        }, 0);
+    formatOrderDate(dateString) {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('es-UY', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
 
-        const avgDiscount = activeOffers.length > 0 ? totalDiscount / activeOffers.length : 0;
+    getOrderStatusClass(status) {
+        const statusMap = {
+            'pendiente': 'pending',
+            'en_preparacion': 'in_preparation',
+            'entregado': 'delivered',
+            'cancelado': 'cancelled'
+        };
+        return statusMap[status] || 'pending';
+    }
 
-        document.getElementById('active-offers-count').textContent = activeOffers.length;
-        document.getElementById('products-on-offer-count').textContent = productsOnOffer.size;
-        document.getElementById('average-discount').textContent = avgDiscount.toFixed(1) + '%';
+    getOrderStatusLabel(status) {
+        const labelMap = {
+            'pendiente': 'Pendiente',
+            'en_preparacion': 'En Preparación',
+            'entregado': 'Entregado',
+            'cancelado': 'Cancelado'
+        };
+        return labelMap[status] || status;
     }
 
     populateCategorySelects() {
@@ -1363,6 +1458,86 @@ class AdminPanel {
         }
     }
 
+    // Order Management Methods
+    viewOrderDetails(orderId) {
+        const order = this.orders.find(o => o.id === orderId);
+        if (order) {
+            const details = `
+📦 Pedido #${order.id}
+👤 Cliente: ${order.cliente.nombre}
+📞 Teléfono: ${order.cliente.telefono}
+📧 Email: ${order.cliente.email}
+📍 Dirección: ${order.direccion}
+
+🛒 Productos:
+${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtotal}`).join('\n')}
+
+💰 Total: $${order.total}
+📅 Fecha: ${this.formatOrderDate(order.fecha)}
+📝 Notas: ${order.notas || 'Sin notas'}
+🔄 Estado: ${this.getOrderStatusLabel(order.estado)}
+💳 Método de pago: ${order.metodoPago}
+            `;
+            alert(details);
+        }
+    }
+
+    async updateOrderStatus(orderId) {
+        const order = this.orders.find(o => o.id === orderId);
+        if (order) {
+            const statusOptions = ['pendiente', 'en_preparacion', 'entregado', 'cancelado'];
+            const currentStatusIndex = statusOptions.indexOf(order.estado);
+            const nextStatusIndex = (currentStatusIndex + 1) % statusOptions.length;
+            const newStatus = statusOptions[nextStatusIndex];
+
+            if (confirm(`¿Cambiar estado de "${this.getOrderStatusLabel(order.estado)}" a "${this.getOrderStatusLabel(newStatus)}"?`)) {
+                try {
+                    await db.collection('orders').doc(orderId).update({ estado: newStatus });
+                    order.estado = newStatus;
+                    this.renderOrders();
+                    this.showToast(`Estado actualizado a "${this.getOrderStatusLabel(newStatus)}"`, 'success');
+                } catch (error) {
+                    console.error('Error updating order status:', error);
+                    this.showToast('Error al actualizar estado', 'error');
+                }
+            }
+        }
+    }
+
+    async deleteOrder(orderId) {
+        if (confirm('¿Estás seguro de que deseas eliminar este pedido? Esta acción no se puede deshacer.')) {
+            try {
+                await db.collection('orders').doc(orderId).delete();
+                this.orders = this.orders.filter(o => o.id !== orderId);
+                this.renderOrders();
+                this.showToast('Pedido eliminado correctamente', 'success');
+            } catch (error) {
+                console.error('Error deleting order:', error);
+                this.showToast('Error al eliminar pedido', 'error');
+            }
+        }
+    }
+
+    // Method to create order from web (can be called from main website)
+    static async createOrder(orderData) {
+        try {
+            const orderId = 'order_' + Date.now();
+            const orderWithId = {
+                id: orderId,
+                ...orderData,
+                fecha: new Date().toISOString(),
+                estado: 'pendiente'
+            };
+
+            await db.collection('orders').doc(orderId).set(orderWithId);
+            console.log('✅ Pedido creado:', orderId);
+            return { success: true, orderId };
+        } catch (error) {
+            console.error('Error creating order:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
     // Price Calculation Logic
     async recalculatePrices() {
         const batch = db.batch();
@@ -1437,7 +1612,7 @@ class AdminPanel {
     }
 
     isOfferActive(offer) {
-        return offer.isActive && this.isOfferValid(offer);
+        return offer.isActive === true || offer.isActive === 'true';
     }
 
     roundPrice(price) {

@@ -2039,73 +2039,90 @@ body {
     letter-spacing: -0.01em;
 }
 
-/* Recent Activity */
-.recent-activity {
+/* Orders Section */
+.orders-section {
     display: none;
     margin-bottom: 25px;
     padding: 0 20px;
 }
 
-/* PC styles for recent activity */
+/* PC styles for orders section */
 @media (min-width: 769px) {
-    .recent-activity {
+    .orders-section {
         display: block;
         padding: 0 30px;
     }
 
-    .recent-activity h2 {
+    .orders-section h2 {
         text-align: left;
     }
 
-    .activity-list {
-        text-align: left;
-    }
-
-    .activity-item {
-        justify-content: flex-start;
-    }
-
-    .activity-content {
+    .orders-list {
         text-align: left;
     }
 }
 
 @media (max-width: 768px) {
-    .recent-activity {
+    .orders-section {
         padding: 0 12px !important;
         margin-bottom: 20px !important;
         text-align: center !important;
     }
 
-    .recent-activity h2 {
+    .orders-section h2 {
         text-align: center !important;
     }
 
-    .activity-list {
+    .orders-list {
         padding: 12px !important;
         border-radius: 12px !important;
     }
 
-    .activity-item {
-        padding: 10px 0 !important;
+    .order-card {
+        padding: 12px !important;
+        margin-bottom: 12px !important;
+        border-radius: 12px !important;
     }
 
-    .activity-icon {
-        font-size: 1.3rem !important;
-        width: 36px !important;
-        height: 36px !important;
+    .order-card-header {
+        margin-bottom: 10px !important;
     }
 
-    .activity-text {
-        font-size: 0.9rem !important;
+    .order-card-id {
+        font-size: 0.85rem !important;
     }
 
-    .activity-time {
+    .order-card-date {
         font-size: 0.75rem !important;
+    }
+
+    .order-card-customer {
+        font-size: 0.9rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .order-card-items {
+        font-size: 0.8rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .order-card-total {
+        font-size: 1.1rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .order-card-actions {
+        gap: 6px !important;
+    }
+
+    .order-card-actions .action-btn {
+        min-width: 70px !important;
+        padding: 8px 12px !important;
+        font-size: 0.8rem !important;
     }
 }
 
-.recent-activity h2 {
+.orders-section h2 {
     font-size: 1.1rem;
     color: var(--text-dark);
     margin-bottom: 15px;
@@ -2115,7 +2132,7 @@ body {
     text-align: center;
 }
 
-.activity-list {
+.orders-list {
     background: var(--bg-white);
     border-radius: 12px;
     padding: 15px;
@@ -2123,51 +2140,215 @@ body {
     text-align: center;
 }
 
-.activity-item {
+/* Order Card */
+.order-card {
+    background: var(--bg-white);
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border-color);
+    transition: var(--transition);
+}
+
+.order-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.order-card-header {
     display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-color);
-    justify-content: center;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
 }
 
-.activity-item:last-child {
-    border-bottom: none;
-}
-
-.activity-icon {
-    font-size: 1.5rem;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-light);
-    border-radius: 50%;
-}
-
-.activity-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-align: center;
-}
-
-.activity-text {
+.order-card-id {
+    font-weight: 700;
+    color: var(--primary-color);
     font-size: 0.95rem;
-    color: var(--text-dark);
-    font-weight: 500;
-    font-family: var(--font-primary);
+    font-family: var(--font-display);
     letter-spacing: -0.01em;
 }
 
-.activity-time {
+.order-card-date {
     font-size: 0.8rem;
     color: var(--text-muted);
     font-family: var(--font-primary);
     font-weight: 400;
+}
+
+.order-card-customer {
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    font-weight: 500;
+    font-family: var(--font-primary);
+}
+
+.order-card-customer-name {
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.order-card-customer-contact {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 4px;
+}
+
+.order-card-items {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 10px;
+    font-family: var(--font-primary);
+    font-weight: 400;
+}
+
+.order-card-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.order-card-item:last-child {
+    border-bottom: none;
+}
+
+.order-card-item-name {
+    flex: 1;
+    color: var(--text-dark);
+}
+
+.order-card-item-quantity {
+    color: var(--text-muted);
+    margin: 0 8px;
+}
+
+.order-card-item-price {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.order-card-total {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+}
+
+.order-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+.order-card-status {
+    font-size: 0.85rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.order-card-status.pending {
+    background: rgba(255, 152, 0, 0.1);
+    color: var(--warning-color);
+    border: 1px solid var(--warning-color);
+}
+
+.order-card-status.in_preparation {
+    background: rgba(33, 150, 243, 0.1);
+    color: var(--info-color);
+    border: 1px solid var(--info-color);
+}
+
+.order-card-status.delivered {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--success-color);
+    border: 1px solid var(--success-color);
+}
+
+.order-card-status.cancelled {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--danger-color);
+    border: 1px solid var(--danger-color);
+}
+
+.order-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.order-card-actions .action-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.order-card-actions .action-btn span {
+    font-size: 1rem;
+}
+
+/* Empty State for Orders */
+.empty-state-orders {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-light);
+}
+
+.empty-state-orders-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.empty-state-orders h3 {
+    color: var(--text-dark);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
+}
+
+.empty-state-orders p {
+    font-size: 0.9rem;
+    font-family: var(--font-primary);
+    font-weight: 400;
+}
+
+/* Mobile Empty State */
+@media (max-width: 768px) {
+    .empty-state-orders {
+        padding: 30px 12px !important;
+    }
+
+    .empty-state-orders-icon {
+        font-size: 2.5rem !important;
+        margin-bottom: 12px !important;
+    }
+
+    .empty-state-orders h3 {
+        font-size: 1rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    .empty-state-orders p {
+        font-size: 0.85rem !important;
+    }
 }
 
 /* Mobile Products List */
@@ -3308,25 +3489,99 @@ body {
 }
 
 /* Recent Activity - Dark Mode */
-[data-theme="dark"] .activity-list {
+[data-theme="dark"] .orders-list {
     background: var(--bg-white);
     border: 1px solid var(--border-color);
 }
 
-[data-theme="dark"] .activity-item {
-    border-bottom-color: var(--border-color);
+[data-theme="dark"] .order-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-color);
 }
 
-[data-theme="dark"] .activity-icon {
-    background: var(--bg-light);
+[data-theme="dark"] .order-card:hover {
+    box-shadow: var(--shadow-md);
 }
 
-[data-theme="dark"] .activity-text {
+[data-theme="dark"] .order-card-id {
+    color: var(--primary-color);
+}
+
+[data-theme="dark"] .order-card-date {
+    color: var(--text-muted);
+}
+
+[data-theme="dark"] .order-card-customer {
     color: var(--text-dark);
 }
 
-[data-theme="dark"] .activity-time {
+[data-theme="dark"] .order-card-customer-name {
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .order-card-customer-contact {
+    color: var(--text-light);
+}
+
+[data-theme="dark"] .order-card-items {
+    color: var(--text-light);
+}
+
+[data-theme="dark"] .order-card-item-name {
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .order-card-item-quantity {
     color: var(--text-muted);
+}
+
+[data-theme="dark"] .order-card-item-price {
+    color: #ff6b9d;
+}
+
+[data-theme="dark"] .order-card-total {
+    color: #ff6b9d;
+    text-shadow: 0 0 10px rgba(255, 107, 157, 0.3);
+}
+
+[data-theme="dark"] .order-card-footer {
+    border-top-color: var(--border-color);
+}
+
+[data-theme="dark"] .order-card-status.pending {
+    background: rgba(255, 167, 38, 0.2);
+    color: #ffa726;
+    border: 1px solid #ffa726;
+}
+
+[data-theme="dark"] .order-card-status.in_preparation {
+    background: rgba(66, 165, 245, 0.2);
+    color: #42a5f5;
+    border: 1px solid #42a5f5;
+}
+
+[data-theme="dark"] .order-card-status.delivered {
+    background: rgba(102, 187, 106, 0.2);
+    color: #66bb6a;
+    border: 1px solid #66bb6a;
+}
+
+[data-theme="dark"] .order-card-status.cancelled {
+    background: rgba(239, 83, 80, 0.2);
+    color: #ef5350;
+    border: 1px solid #ef5350;
+}
+
+[data-theme="dark"] .orders-section h2 {
+    color: var(--text-dark);
+}
+
+[data-theme="dark"] .empty-state-orders {
+    color: var(--text-light);
+}
+
+[data-theme="dark"] .empty-state-orders h3 {
+    color: var(--text-dark);
 }
 
 /* Product Cards - Dark Mode */
@@ -3724,7 +3979,7 @@ body {
 }
 
 [data-theme="dark"] .quick-actions h2,
-[data-theme="dark"] .recent-activity h2 {
+[data-theme="dark"] .orders-section h2 {
     color: var(--text-dark);
 }
 

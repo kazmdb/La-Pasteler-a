@@ -36,13 +36,17 @@
             }
 
             .dashboard-summary,
-            .quick-actions,
-            .recent-activity,
+            .orders-section,
             .products-list,
             .offers-list,
             .settings-list,
             .offers-summary-mobile {
                 display: block !important;
+            }
+
+            /* Hide quick actions on mobile since FAB handles this */
+            .quick-actions {
+                display: none !important;
             }
 
             /* Fix: Ensure dashboard-summary uses grid layout */
@@ -93,7 +97,7 @@
             /* Keep home section elements visible on PC */
             .dashboard-summary,
             .quick-actions,
-            .recent-activity {
+            .orders-section {
                 display: block !important;
             }
 
@@ -228,15 +232,14 @@
                     </div>
                 </div>
 
-                <div class="recent-activity">
-                    <h2>Actividad Reciente</h2>
-                    <div class="activity-list" id="activity-list">
-                        <div class="activity-item">
-                            <span class="activity-icon">✅</span>
-                            <div class="activity-content">
-                                <span class="activity-text">Sistema iniciado correctamente</span>
-                                <span class="activity-time">Ahora</span>
-                            </div>
+                <div class="orders-section">
+                    <h2>Pedidos</h2>
+                    <div class="orders-list" id="orders-list">
+                        <!-- Orders will be loaded dynamically -->
+                        <div class="empty-state-orders">
+                            <span class="empty-state-icon">📦</span>
+                            <h3>No hay pedidos registrados</h3>
+                            <p>Los pedidos realizados en la web aparecerán aquí</p>
                         </div>
                     </div>
                 </div>
@@ -304,21 +307,6 @@
                 </div>
 
                 <div class="offers-container">
-                    <div class="offers-summary">
-                        <div class="summary-card">
-                            <h3>Ofertas Activas</h3>
-                            <p id="active-offers-count">0</p>
-                        </div>
-                        <div class="summary-card">
-                            <h3>Productos en Oferta</h3>
-                            <p id="products-on-offer-count">0</p>
-                        </div>
-                        <div class="summary-card">
-                            <h3>Descuento Promedio</h3>
-                            <p id="average-discount">0%</p>
-                        </div>
-                    </div>
-
                     <table class="data-table">
                         <thead>
                             <tr>
@@ -338,21 +326,6 @@
                 </div>
 
                 <!-- Mobile Offers List -->
-                <div class="offers-summary-mobile">
-                    <div class="offer-stat">
-                        <span class="stat-label">Activas</span>
-                        <span class="stat-value" id="active-offers-count">0</span>
-                    </div>
-                    <div class="offer-stat">
-                        <span class="stat-label">Productos</span>
-                        <span class="stat-value" id="products-on-offer-count">0</span>
-                    </div>
-                    <div class="offer-stat">
-                        <span class="stat-label">Descuento</span>
-                        <span class="stat-value" id="average-discount">0%</span>
-                    </div>
-                </div>
-
                 <div class="offers-list" id="offers-list">
                     <!-- Offers will be loaded dynamically -->
                 </div>
