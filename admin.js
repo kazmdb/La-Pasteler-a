@@ -113,6 +113,11 @@ class AdminPanel {
             this.handlePasswordChange();
         });
 
+        // Password change modal (mobile)
+        document.getElementById('password-modal-form').addEventListener('submit', (e) => {
+            this.handlePasswordChangeModal(e);
+        });
+
         // Modal close buttons
         document.querySelectorAll('.close-modal, .close-modal-btn').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -129,18 +134,18 @@ class AdminPanel {
             });
         });
 
-        // Theme toggle (desktop)
-        const themeToggle = document.getElementById('theme-toggle');
-        if (themeToggle) {
-            themeToggle.addEventListener('click', () => {
+        // Theme toggle (settings)
+        const settingsThemeToggle = document.getElementById('settings-theme-toggle');
+        if (settingsThemeToggle) {
+            settingsThemeToggle.addEventListener('change', () => {
                 this.toggleTheme();
             });
         }
 
-        // Theme toggle (mobile)
-        const mobileThemeToggle = document.getElementById('mobile-theme-toggle');
-        if (mobileThemeToggle) {
-            mobileThemeToggle.addEventListener('click', () => {
+        // Theme toggle (mobile settings)
+        const mobileSettingsThemeToggle = document.getElementById('mobile-settings-theme-toggle');
+        if (mobileSettingsThemeToggle) {
+            mobileSettingsThemeToggle.addEventListener('change', () => {
                 this.toggleTheme();
             });
         }
@@ -254,25 +259,22 @@ class AdminPanel {
     }
 
     updateThemeIcons(theme) {
-        // Update desktop theme toggle
-        const desktopThemeIcon = document.getElementById('theme-icon');
-        if (desktopThemeIcon) {
-            desktopThemeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        // Update settings theme toggle (PC)
+        const settingsThemeToggle = document.getElementById('settings-theme-toggle');
+        if (settingsThemeToggle) {
+            settingsThemeToggle.checked = theme === 'dark';
         }
 
-        // Update mobile theme toggle
-        const mobileThemeIcon = document.querySelector('.theme-icon');
-        if (mobileThemeIcon) {
-            mobileThemeIcon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        // Update settings theme label (PC)
+        const settingsThemeLabel = document.getElementById('settings-theme-label');
+        if (settingsThemeLabel) {
+            settingsThemeLabel.textContent = theme === 'dark' ? 'Activado' : 'Desactivado';
         }
 
-        // Update desktop theme toggle button text
-        const desktopThemeToggle = document.getElementById('theme-toggle');
-        if (desktopThemeToggle) {
-            const buttonText = desktopThemeToggle.querySelector('span:last-child');
-            if (buttonText) {
-                buttonText.textContent = theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro';
-            }
+        // Update mobile settings theme toggle
+        const mobileSettingsThemeToggle = document.getElementById('mobile-settings-theme-toggle');
+        if (mobileSettingsThemeToggle) {
+            mobileSettingsThemeToggle.checked = theme === 'dark';
         }
     }
 
@@ -1658,6 +1660,35 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         // En producción, esto debería validarse contra Firebase Auth
         // Por ahora, solo mostramos un mensaje
         this.showToast('Funcionalidad de cambio de contraseña no implementada en demo', 'warning');
+    }
+
+    openPasswordChangeModal() {
+        const modal = document.getElementById('password-modal');
+        modal.classList.remove('hidden');
+    }
+
+    async handlePasswordChangeModal(e) {
+        e.preventDefault();
+        const form = document.getElementById('password-modal-form');
+        const formData = new FormData(form);
+
+        const currentPassword = formData.get('currentPassword');
+        const newPassword = formData.get('newPassword');
+        const confirmPassword = formData.get('confirmPassword');
+
+        if (newPassword !== confirmPassword) {
+            this.showToast('Las contraseñas no coinciden', 'error');
+            return;
+        }
+
+        // En producción, esto debería validarse contra Firebase Auth
+        // Por ahora, solo mostramos un mensaje
+        this.showToast('Funcionalidad de cambio de contraseña no implementada en demo', 'warning');
+
+        // Cerrar el modal
+        const modal = document.getElementById('password-modal');
+        modal.classList.add('hidden');
+        form.reset();
     }
 
     // Utility Functions

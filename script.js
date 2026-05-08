@@ -1365,7 +1365,6 @@ function showCatalog(category, subCategory = null) {
         orderNoticeClone.className = 'order-notice catalog-order-notice';
         orderNoticeClone.innerHTML = `
             <div class="order-notice-content">
-                <span class="order-notice-icon">⚠️</span>
                 <p class="order-notice-text">Pedidos limitados, recomendamos reservar con tiempo para asegurar disponibilidad.</p>
             </div>
         `;
