@@ -148,6 +148,7 @@ header {
   gap: 4px;
   position: relative;
   top: 12px;
+  z-index: 500;
   cursor: pointer;
   text-decoration: none;
 }
@@ -897,6 +898,7 @@ footer {
 
   .hero { height: 52vmax; min-height: 320px; }
   .hero-bg-image { transform: scale(1.15); }
+  .wave-bottom { bottom: -1px; }
   .hero-content { padding: 0 24px; }
   .eyebrow { font-size: 7.5px; letter-spacing: 3px; margin-bottom: 8px; }
   .hero-flourish { width: 32px; margin-bottom: 6px; }
@@ -1736,7 +1738,7 @@ section.hero, section.shop-section { padding: 0 !important; }
     <svg xmlns="http://www.w3.org/2000/svg" style="display:block;width:100%;height:44px;">
       <defs>
         <pattern id="hw" x="0" y="0" width="44" height="44" patternUnits="userSpaceOnUse">
-          <path d="M0,0 C6,0 16,18 22,18 C28,18 38,0 44,0 L44,0 L0,0 Z" fill="rgba(254,252,249,0.97)"/>
+          <path d="M0,0 C6,0 16,18 22,18 C28,18 38,0 44,0 L44,0 L0,0 Z" fill="#fefcf9"/>
         </pattern>
       </defs>
       <rect width="100%" height="44" fill="url(#hw)"/>
