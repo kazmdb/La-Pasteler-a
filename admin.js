@@ -201,7 +201,7 @@ class AdminPanel {
         try {
             // En producción, esto debería validar contra Firebase Auth
             // Por ahora, usamos una validación simple
-            const ADMIN_PASSWORD = 'admin123'; // Cambiar esto en producción
+            const ADMIN_PASSWORD = 'ines89'; // Cambiar esto en producción
 
             if (password === ADMIN_PASSWORD) {
                 const sessionData = {
@@ -1777,10 +1777,10 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
                         <div class="product-card-title">${product.name}</div>
                         <div class="product-card-category">${this.getCategoryName(product.category)}</div>
                         <div class="product-card-price">
-                            <span id="price-mob-${product.id}" class="price-editable" onclick="adminPanel.startInlinePriceEdit('${product.id}')" title="Toca para editar precio">
+                            <span id="price-mob-${product.id}" class="price-editable" onclick="adminPanel.startInlinePriceEdit('${product.id}', this)" title="Toca para editar precio">
                                 ${offer ? `<span class="price-crossed">$${product.basePrice}</span>&nbsp;$${product.currentPrice}` : `$${product.basePrice}`}
                             </span>
-                            <span id="offer-mob-${product.id}" class="offer-chip${offer ? '' : ' offer-chip-empty'}" onclick="adminPanel.startInlineOfferEdit('${product.id}'); event.stopPropagation();" title="${offer ? 'Editar oferta' : 'Agregar oferta'}">
+                            <span id="offer-mob-${product.id}" class="offer-chip${offer ? '' : ' offer-chip-empty'}" onclick="adminPanel.startInlineOfferEdit('${product.id}', this); event.stopPropagation();" title="${offer ? 'Editar oferta' : 'Agregar oferta'}">
                                 ${offer ? (offer.type === 'percentage' ? `−${offer.value}%` : `−$${offer.value}`) : '+ oferta'}
                             </span>
                         </div>
@@ -1939,7 +1939,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
     startInlinePriceEdit(productId) {
         // Works for both desktop td and mobile span
         const el = document.getElementById(`price-td-${productId}`) ||
-                   document.getElementById(`price-mob-${productId}`);
+            document.getElementById(`price-mob-${productId}`);
         if (!el || el.querySelector('input')) return;
 
         const product = this.products.find(p => p.id === productId);
@@ -1969,7 +1969,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
 
         input.addEventListener('blur', save);
         input.addEventListener('keydown', e => {
-            if (e.key === 'Enter')  { e.preventDefault(); save(); }
+            if (e.key === 'Enter') { e.preventDefault(); save(); }
             if (e.key === 'Escape') { saved = true; el.innerHTML = originalHTML; }
         });
         input.addEventListener('click', e => e.stopPropagation());
@@ -2000,7 +2000,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
 
     startInlineOfferEdit(productId) {
         const el = document.getElementById(`offer-td-${productId}`) ||
-                   document.getElementById(`offer-mob-${productId}`);
+            document.getElementById(`offer-mob-${productId}`);
         if (!el || el.querySelector('input, select')) return;
 
         const offer = this.offers.find(o =>
@@ -2029,7 +2029,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         valueInput.select();
 
         const doSave = async () => {
-            const type  = form.querySelector('.inline-offer-type').value;
+            const type = form.querySelector('.inline-offer-type').value;
             const value = parseFloat(valueInput.value);
             if (!isNaN(value) && value > 0) {
                 await this.saveInlineOffer(productId, type, value, offer);
@@ -2051,7 +2051,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         }
 
         valueInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter')  { e.preventDefault(); doSave(); }
+            if (e.key === 'Enter') { e.preventDefault(); doSave(); }
             if (e.key === 'Escape') { el.innerHTML = originalHTML; }
         });
 
