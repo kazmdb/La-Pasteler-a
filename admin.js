@@ -1936,9 +1936,10 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
 
     // ── Inline editing ──────────────────────────────────────
 
-    startInlinePriceEdit(productId) {
-        // Works for both desktop td and mobile span
-        const el = document.getElementById(`price-td-${productId}`) ||
+    startInlinePriceEdit(productId, targetEl) {
+        // Use the passed element directly (avoids editing a hidden desktop element on mobile)
+        const el = targetEl ||
+            document.getElementById(`price-td-${productId}`) ||
             document.getElementById(`price-mob-${productId}`);
         if (!el || el.querySelector('input')) return;
 
@@ -1949,17 +1950,16 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         el.innerHTML = '';
 
         const input = document.createElement('input');
-        input.type = 'number';
+        input.type = 'text';           // 'text' avoids mobile spinner arrows
+        input.inputMode = 'decimal';   // shows numeric keyboard on mobile
         input.value = product.basePrice;
         input.className = 'inline-price-input';
-        input.min = '0';
-        input.step = '1';
 
         let saved = false;
         const save = async () => {
             if (saved) return;
             saved = true;
-            const newPrice = parseFloat(input.value);
+            const newPrice = parseFloat(input.value.replace(',', '.'));
             if (!isNaN(newPrice) && newPrice >= 0 && newPrice !== product.basePrice) {
                 await this.saveInlinePrice(productId, newPrice);
             } else {
@@ -1969,14 +1969,18 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
 
         input.addEventListener('blur', save);
         input.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); save(); }
+            if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
             if (e.key === 'Escape') { saved = true; el.innerHTML = originalHTML; }
         });
         input.addEventListener('click', e => e.stopPropagation());
+        input.addEventListener('touchend', e => e.stopPropagation());
 
         el.appendChild(input);
-        input.focus();
-        input.select();
+        // Small delay so the tap event fully resolves before we steal focus
+        requestAnimationFrame(() => {
+            input.focus();
+            input.setSelectionRange(0, input.value.length);
+        });
     }
 
     async saveInlinePrice(productId, newPrice) {
@@ -1998,8 +2002,10 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         }
     }
 
-    startInlineOfferEdit(productId) {
-        const el = document.getElementById(`offer-td-${productId}`) ||
+    startInlineOfferEdit(productId, targetEl) {
+        // Use the passed element directly (avoids editing a hidden desktop element on mobile)
+        const el = targetEl ||
+            document.getElementById(`offer-td-${productId}`) ||
             document.getElementById(`offer-mob-${productId}`);
         if (!el || el.querySelector('input, select')) return;
 
@@ -2016,7 +2022,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
                 <option value="percentage" ${!offer || offer.type === 'percentage' ? 'selected' : ''}>%</option>
                 <option value="fixed" ${offer && offer.type === 'fixed' ? 'selected' : ''}>$</option>
             </select>
-            <input type="number" class="inline-offer-value" value="${offer ? offer.value : ''}" min="0" placeholder="0">
+            <input type="text" inputmode="decimal" class="inline-offer-value" value="${offer ? offer.value : ''}" placeholder="0">
             <button class="inline-offer-save" type="button" title="Guardar">✓</button>
             ${offer ? `<button class="inline-offer-remove" type="button" title="Quitar oferta">✕</button>` : ''}
         `;
@@ -2025,12 +2031,10 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         el.appendChild(form);
 
         const valueInput = form.querySelector('.inline-offer-value');
-        valueInput.focus();
-        valueInput.select();
 
         const doSave = async () => {
             const type = form.querySelector('.inline-offer-type').value;
-            const value = parseFloat(valueInput.value);
+            const value = parseFloat(valueInput.value.replace(',', '.'));
             if (!isNaN(value) && value > 0) {
                 await this.saveInlineOffer(productId, type, value, offer);
             } else {
@@ -2041,6 +2045,9 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         form.querySelector('.inline-offer-save').addEventListener('click', e => {
             e.stopPropagation(); doSave();
         });
+        form.querySelector('.inline-offer-save').addEventListener('touchend', e => {
+            e.stopPropagation(); e.preventDefault(); doSave();
+        });
 
         const removeBtn = form.querySelector('.inline-offer-remove');
         if (removeBtn) {
@@ -2048,14 +2055,25 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
                 e.stopPropagation();
                 this.removeInlineOffer(productId, offer);
             });
+            removeBtn.addEventListener('touchend', e => {
+                e.stopPropagation(); e.preventDefault();
+                this.removeInlineOffer(productId, offer);
+            });
         }
 
         valueInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') { e.preventDefault(); doSave(); }
+            if (e.key === 'Enter') { e.preventDefault(); valueInput.blur(); doSave(); }
             if (e.key === 'Escape') { el.innerHTML = originalHTML; }
         });
 
         form.addEventListener('click', e => e.stopPropagation());
+        form.addEventListener('touchend', e => e.stopPropagation());
+
+        // Focus after tap resolves
+        requestAnimationFrame(() => {
+            valueInput.focus();
+            valueInput.setSelectionRange(0, valueInput.value.length);
+        });
     }
 
     async saveInlineOffer(productId, type, value, existingOffer) {
