@@ -765,13 +765,9 @@ section {
     }
 
     .product-description {
-        font-size: 1rem;
+        font-size: 0.95rem;
         margin-bottom: 6px;
-        line-height: 1.2;
-        display: -webkit-box;
-        -webkit-line-clamp: 9;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        line-height: 1.35;
     }
 
     .product-price {
@@ -834,19 +830,20 @@ section {
     .catalog-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 6px;
-        align-items: stretch;
+        align-items: start;
         justify-items: stretch;
     }
 
     .product-card {
         padding: 6px;
         border-radius: 10px;
-        min-height: 260px;
+        min-height: auto;
+        height: auto;
     }
 
     /* Día de la madre cards en móvil */
     .product-card.diadelamadre-card {
-        min-height: 800px;
+        min-height: auto;
         padding: 12px;
     }
 
@@ -913,13 +910,9 @@ section {
     }
 
     .product-description {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         margin-bottom: 5px;
-        line-height: 1.2;
-        display: -webkit-box;
-        -webkit-line-clamp: 9;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        line-height: 1.35;
     }
 
     .product-price {
@@ -995,11 +988,14 @@ section {
     margin-bottom: 10px;
     flex: 1;
     width: 100%;
-    display: -webkit-box;
-    -webkit-line-clamp: 9;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
+}
+
+@media (max-width: 576px) {
+    .product-description {
+        font-size: 0.9rem;
+        line-height: 1.35;
+        margin-bottom: 6px;
+    }
 }
 
 .product-price {
