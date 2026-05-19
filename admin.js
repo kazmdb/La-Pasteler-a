@@ -581,7 +581,7 @@ class AdminPanel {
                     <div style="font-size: 0.85rem; color: #666;">${product.description.substring(0, 50)}...</div>
                 </td>
                 <td>${this.getCategoryName(product.category)}</td>
-                <td>$${product.basePrice}</td>
+                <td id="price-td-${product.id}" class="inline-editable" onclick="adminPanel.startInlinePriceEdit('${product.id}')" title="Clic para editar precio">$${product.basePrice}</td>
                 <td>
                     ${offer ? `
                         <span class="price-display original">$${product.basePrice}</span>
@@ -590,10 +590,10 @@ class AdminPanel {
                         <span class="price-display">$${product.currentPrice}</span>
                     `}
                 </td>
-                <td>
+                <td id="offer-td-${product.id}" class="inline-editable" onclick="adminPanel.startInlineOfferEdit('${product.id}')" title="${offer ? 'Clic para editar oferta' : 'Clic para agregar oferta'}">
                     ${offer ? `
                         <span class="discount-badge">${offer.type === 'percentage' ? offer.value + '%' : '$' + offer.value}</span>
-                    ` : '-'}
+                    ` : '<span class="add-offer-hint">+ oferta</span>'}
                 </td>
                 <td>
                     <span class="status-badge ${product.isActive ? 'status-active' : 'status-inactive'}">
@@ -1777,12 +1777,12 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
                         <div class="product-card-title">${product.name}</div>
                         <div class="product-card-category">${this.getCategoryName(product.category)}</div>
                         <div class="product-card-price">
-                            ${offer ? `
-                                <span class="original">$${product.basePrice}</span>
-                                <span class="current">$${product.currentPrice}</span>
-                            ` : `
-                                <span class="current">$${product.currentPrice}</span>
-                            `}
+                            <span id="price-mob-${product.id}" class="price-editable" onclick="adminPanel.startInlinePriceEdit('${product.id}')" title="Toca para editar precio">
+                                ${offer ? `<span class="price-crossed">$${product.basePrice}</span>&nbsp;$${product.currentPrice}` : `$${product.basePrice}`}
+                            </span>
+                            <span id="offer-mob-${product.id}" class="offer-chip${offer ? '' : ' offer-chip-empty'}" onclick="adminPanel.startInlineOfferEdit('${product.id}'); event.stopPropagation();" title="${offer ? 'Editar oferta' : 'Agregar oferta'}">
+                                ${offer ? (offer.type === 'percentage' ? `−${offer.value}%` : `−$${offer.value}`) : '+ oferta'}
+                            </span>
                         </div>
                     </div>
                     <div class="product-card-quick-actions">
@@ -1931,6 +1931,182 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         if (fabMain && fabMenu) {
             fabMain.classList.remove('active');
             fabMenu.classList.remove('active');
+        }
+    }
+
+    // ── Inline editing ──────────────────────────────────────
+
+    startInlinePriceEdit(productId) {
+        // Works for both desktop td and mobile span
+        const el = document.getElementById(`price-td-${productId}`) ||
+                   document.getElementById(`price-mob-${productId}`);
+        if (!el || el.querySelector('input')) return;
+
+        const product = this.products.find(p => p.id === productId);
+        if (!product) return;
+
+        const originalHTML = el.innerHTML;
+        el.innerHTML = '';
+
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.value = product.basePrice;
+        input.className = 'inline-price-input';
+        input.min = '0';
+        input.step = '1';
+
+        let saved = false;
+        const save = async () => {
+            if (saved) return;
+            saved = true;
+            const newPrice = parseFloat(input.value);
+            if (!isNaN(newPrice) && newPrice >= 0 && newPrice !== product.basePrice) {
+                await this.saveInlinePrice(productId, newPrice);
+            } else {
+                el.innerHTML = originalHTML;
+            }
+        };
+
+        input.addEventListener('blur', save);
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter')  { e.preventDefault(); save(); }
+            if (e.key === 'Escape') { saved = true; el.innerHTML = originalHTML; }
+        });
+        input.addEventListener('click', e => e.stopPropagation());
+
+        el.appendChild(input);
+        input.focus();
+        input.select();
+    }
+
+    async saveInlinePrice(productId, newPrice) {
+        const product = this.products.find(p => p.id === productId);
+        if (!product) return;
+        try {
+            product.basePrice = newPrice;
+            await db.collection('products').doc(productId).update({
+                basePrice: newPrice,
+                updatedAt: new Date().toISOString()
+            });
+            await this.recalculatePrices();
+            this.updateUI();
+            this.showToast('Precio actualizado', 'success');
+        } catch (error) {
+            console.error('Error updating price:', error);
+            this.showToast('Error al actualizar precio', 'error');
+            this.updateUI();
+        }
+    }
+
+    startInlineOfferEdit(productId) {
+        const el = document.getElementById(`offer-td-${productId}`) ||
+                   document.getElementById(`offer-mob-${productId}`);
+        if (!el || el.querySelector('input, select')) return;
+
+        const offer = this.offers.find(o =>
+            o.targetType === 'product' && o.targetId === productId
+        );
+
+        const originalHTML = el.innerHTML;
+
+        const form = document.createElement('div');
+        form.className = 'inline-offer-form';
+        form.innerHTML = `
+            <select class="inline-offer-type">
+                <option value="percentage" ${!offer || offer.type === 'percentage' ? 'selected' : ''}>%</option>
+                <option value="fixed" ${offer && offer.type === 'fixed' ? 'selected' : ''}>$</option>
+            </select>
+            <input type="number" class="inline-offer-value" value="${offer ? offer.value : ''}" min="0" placeholder="0">
+            <button class="inline-offer-save" type="button" title="Guardar">✓</button>
+            ${offer ? `<button class="inline-offer-remove" type="button" title="Quitar oferta">✕</button>` : ''}
+        `;
+
+        el.innerHTML = '';
+        el.appendChild(form);
+
+        const valueInput = form.querySelector('.inline-offer-value');
+        valueInput.focus();
+        valueInput.select();
+
+        const doSave = async () => {
+            const type  = form.querySelector('.inline-offer-type').value;
+            const value = parseFloat(valueInput.value);
+            if (!isNaN(value) && value > 0) {
+                await this.saveInlineOffer(productId, type, value, offer);
+            } else {
+                el.innerHTML = originalHTML;
+            }
+        };
+
+        form.querySelector('.inline-offer-save').addEventListener('click', e => {
+            e.stopPropagation(); doSave();
+        });
+
+        const removeBtn = form.querySelector('.inline-offer-remove');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                this.removeInlineOffer(productId, offer);
+            });
+        }
+
+        valueInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter')  { e.preventDefault(); doSave(); }
+            if (e.key === 'Escape') { el.innerHTML = originalHTML; }
+        });
+
+        form.addEventListener('click', e => e.stopPropagation());
+    }
+
+    async saveInlineOffer(productId, type, value, existingOffer) {
+        try {
+            if (existingOffer) {
+                await db.collection('offers').doc(existingOffer.id).delete();
+                this.offers = this.offers.filter(o => o.id !== existingOffer.id);
+            }
+
+            const product = this.products.find(p => p.id === productId);
+            const now = new Date();
+            const endDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+            const newOffer = {
+                id: 'offer' + Date.now(),
+                name: `Oferta: ${product ? product.name : productId}`,
+                type,
+                value,
+                targetType: 'product',
+                targetId: productId,
+                startDate: now.toISOString(),
+                endDate: endDate.toISOString(),
+                priority: 2,
+                isActive: true,
+                createdAt: now.toISOString()
+            };
+
+            this.offers.push(newOffer);
+            await db.collection('offers').doc(newOffer.id).set(newOffer);
+            await this.recalculatePrices();
+            this.updateUI();
+            this.showToast('Oferta guardada', 'success');
+        } catch (error) {
+            console.error('Error saving offer:', error);
+            this.showToast('Error al guardar oferta', 'error');
+            this.updateUI();
+        }
+    }
+
+    async removeInlineOffer(productId, offer) {
+        if (!offer) return;
+        try {
+            await db.collection('offers').doc(offer.id).delete();
+            this.offers = this.offers.filter(o => o.id !== offer.id);
+            await this.recalculatePrices();
+            this.updateUI();
+            this.showToast('Oferta eliminada', 'success');
+        } catch (error) {
+            console.error('Error removing offer:', error);
+            this.showToast('Error al eliminar oferta', 'error');
+            this.updateUI();
         }
     }
 

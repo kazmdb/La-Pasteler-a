@@ -1,758 +1,731 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - La Pastelería</title>
-    <link rel="icon" type="image/webp" href="assets/images/icon.webp">
-    <link rel="stylesheet" href="admin.css">
-    <!-- Modern Premium Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    <style>
-        /* Mobile-specific styles that override desktop styles */
-        @media (max-width: 768px) {
-            .sidebar {
-                display: none !important;
-            }
-
-            .main-content {
-                margin-left: 0 !important;
-                padding-bottom: 80px !important;
-            }
-
-            .bottom-nav {
-                display: flex !important;
-            }
-
-            .app-header {
-                display: flex !important;
-            }
-
-            .dashboard-summary,
-            .orders-section,
-            .products-list,
-            .offers-list,
-            .settings-list,
-            .offers-summary-mobile {
-                display: block !important;
-            }
-
-            /* Hide quick actions on mobile since FAB handles this */
-            .quick-actions {
-                display: none !important;
-            }
-
-            /* Fix: Ensure dashboard-summary uses grid layout */
-            .dashboard-summary {
-                display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
-            }
-
-            .products-table-container,
-            .offers-container,
-            .settings-container {
-                display: none !important;
-            }
-
-            .section-header h1 {
-                display: none !important;
-            }
-
-            .section-header .btn {
-                display: none !important;
-            }
-
-            /* Hide add buttons in sections on mobile since FAB handles this */
-            #add-product-btn,
-            #add-category-btn,
-            #add-offer-btn {
-                display: none !important;
-            }
-        }
-
-        @media (min-width: 769px) {
-            .bottom-nav {
-                display: none !important;
-            }
-
-            .app-header {
-                display: none !important;
-            }
-
-            /* Only hide mobile-specific elements on PC */
-            .products-list,
-            .offers-list,
-            .settings-list,
-            .offers-summary-mobile {
-                display: none !important;
-            }
-
-            /* Keep home section elements visible on PC */
-            .dashboard-summary,
-            .orders-section {
-                display: block !important;
-            }
-
-            /* Hide quick actions on PC */
-            .quick-actions {
-                display: none !important;
-            }
-
-            /* Ensure dashboard-summary uses grid layout on PC too */
-            .dashboard-summary {
-                display: grid !important;
-                grid-template-columns: repeat(3, 1fr) !important;
-            }
-
-            .products-table-container,
-            .offers-container,
-            .settings-container {
-                display: block !important;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin · La Pastelería</title>
+  <link rel="icon" type="image/webp" href="assets/images/icon.webp">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-    <!-- Login Section -->
-    <div id="login-section" class="login-section">
-        <div class="login-container">
-            <div class="login-header">
-                <h1>🔐 Panel de Administración</h1>
-                <p>La Pastelería</p>
-            </div>
-            <form id="login-form" class="login-form">
-                <div class="form-group">
-                    <label for="password">Contraseña</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-                <p id="login-error" class="error-message"></p>
-            </form>
+
+<!-- ═══════════ LOGIN ═══════════ -->
+<div id="login-section" class="login-section">
+  <div class="login-deco"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-badge">
+        <span class="login-badge-name">La<br>Pastelería</span>
+        <span class="login-badge-tag">Artesanal</span>
+      </div>
+    </div>
+    <div class="login-body">
+      <span class="login-eyebrow">Panel de Administración</span>
+      <h1 class="login-title">Bienvenido</h1>
+      <form id="login-form" class="login-form" autocomplete="off">
+        <div class="lf-group">
+          <label class="lf-label" for="password">Contraseña</label>
+          <div class="lf-input-wrap">
+            <svg class="lf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="password" name="password" class="lf-input" placeholder="••••••••" required autocomplete="current-password">
+          </div>
         </div>
+        <p id="login-error" class="login-error"></p>
+        <button type="submit" class="login-btn">Ingresar al Panel</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ DASHBOARD ═══════════ -->
+<div id="admin-dashboard" class="admin-dashboard hidden">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-header">
+      <div class="sb-logo">
+        <span class="sb-logo-name">La Pastelería</span>
+        <span class="sb-logo-sub">Admin</span>
+      </div>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div id="admin-dashboard" class="admin-dashboard hidden">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <h2>🎂 Admin Panel</h2>
-                <p>La Pastelería</p>
-            </div>
-            <nav class="sidebar-nav">
-                <button class="nav-btn active" data-section="home">
-                    <span>🏠</span> Inicio
-                </button>
-                <button class="nav-btn" data-section="products">
-                    <span>📦</span> Productos
-                </button>
-                <button class="nav-btn" data-section="categories">
-                    <span>📁</span> Categorías
-                </button>
-                <button class="nav-btn" data-section="offers">
-                    <span>🏷️</span> Ofertas
-                </button>
-                <button class="nav-btn" data-section="settings">
-                    <span>⚙️</span> Configuración
-                </button>
-            </nav>
-            <div class="sidebar-footer">
-                <button id="logout-btn" class="btn btn-danger">Cerrar Sesión</button>
-            </div>
-        </aside>
+    <nav class="sb-nav">
+      <button class="nav-btn active" data-section="home">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+        <span>Inicio</span>
+      </button>
+      <button class="nav-btn" data-section="products">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        <span>Productos</span>
+      </button>
+      <button class="nav-btn" data-section="categories">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        <span>Categorías</span>
+      </button>
+      <button class="nav-btn" data-section="offers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l2.09 6.26L20 10l-5.91 4.74L16 21l-4-3-4 3 1.91-6.26L4 10l5.91-1.74z"/></svg>
+        <span>Ofertas</span>
+      </button>
+      <button class="nav-btn" data-section="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Ajustes</span>
+      </button>
+    </nav>
 
-        <!-- Mobile Header -->
-        <header class="app-header">
-            <div class="header-content">
-                <h1 id="section-title" class="section-title">Inicio</h1>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Home Section (Mobile) -->
-            <section id="home-section" class="content-section active">
-                <div class="dashboard-summary">
-                    <div class="summary-card">
-                        <div class="summary-icon">📦</div>
-                        <div class="summary-info">
-                            <span class="summary-label">Productos</span>
-                            <span class="summary-value" id="total-products">0</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon">📁</div>
-                        <div class="summary-info">
-                            <span class="summary-label">Categorías</span>
-                            <span class="summary-value" id="total-categories">0</span>
-                        </div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-icon">🏷️</div>
-                        <div class="summary-info">
-                            <span class="summary-label">Ofertas</span>
-                            <span class="summary-value" id="total-offers">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="quick-actions">
-                    <h2>Acciones Rápidas</h2>
-                    <div class="quick-actions-grid">
-                        <button class="quick-action-btn" onclick="adminPanel.openProductModal()">
-                            <span class="action-icon">➕</span>
-                            <span>Nuevo Producto</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="adminPanel.openCategoryModal()">
-                            <span class="action-icon">📁</span>
-                            <span>Nueva Categoría</span>
-                        </button>
-                        <button class="quick-action-btn" onclick="adminPanel.openOfferModal()">
-                            <span class="action-icon">🏷️</span>
-                            <span>Nueva Oferta</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="orders-section">
-                    <h2>Pedidos</h2>
-                    <div class="orders-list" id="orders-list">
-                        <!-- Orders will be loaded dynamically -->
-                        <div class="empty-state-orders">
-                            <span class="empty-state-icon">📦</span>
-                            <h3>No hay pedidos registrados</h3>
-                            <p>Los pedidos realizados en la web aparecerán aquí</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Products Section -->
-            <section id="products-section" class="content-section">
-                <div class="section-header">
-                    <h1>Gestión de Productos</h1>
-                    <button id="add-product-btn" class="btn btn-primary">+ Nuevo Producto</button>
-                </div>
-
-                <div class="products-filter-container">
-                    <div class="filter-group">
-                        <label for="category-filter">Filtrar por Categoría:</label>
-                        <select id="category-filter" name="categoryFilter">
-                            <option value="">Todas las categorías</option>
-                            <!-- Categories will be loaded dynamically -->
-                        </select>
-                    </div>
-                </div>
-
-                <div class="products-table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Producto</th>
-                                <th>Categoría</th>
-                                <th>Precio Base</th>
-                                <th>Precio Actual</th>
-                                <th>Oferta</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="products-table-body">
-                            <!-- Products will be loaded dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Mobile Products List -->
-                <div class="products-list" id="products-list">
-                    <!-- Products will be loaded dynamically -->
-                </div>
-            </section>
-
-            <!-- Categories Section -->
-            <section id="categories-section" class="content-section">
-                <div class="section-header">
-                    <h1>Gestión de Categorías</h1>
-                    <button id="add-category-btn" class="btn btn-primary">+ Nueva Categoría</button>
-                </div>
-
-                <div class="categories-grid" id="categories-grid">
-                    <!-- Categories will be loaded dynamically -->
-                </div>
-            </section>
-
-            <!-- Offers Section -->
-            <section id="offers-section" class="content-section">
-                <div class="section-header">
-                    <h1>Gestión de Ofertas</h1>
-                    <button id="add-offer-btn" class="btn btn-primary">+ Nueva Oferta</button>
-                </div>
-
-                <div class="offers-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Tipo</th>
-                                <th>Valor</th>
-                                <th>Objetivo</th>
-                                <th>Estado</th>
-                                <th>Fechas</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody id="offers-table-body">
-                            <!-- Offers will be loaded dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Mobile Offers List -->
-                <div class="offers-list" id="offers-list">
-                    <!-- Offers will be loaded dynamically -->
-                </div>
-            </section>
-
-            <!-- Settings Section -->
-            <section id="settings-section" class="content-section">
-                <div class="section-header">
-                    <h1>Configuración</h1>
-                </div>
-
-                <div class="settings-container">
-                    <div class="settings-card">
-                        <h3>Modo Oscuro</h3>
-                        <div class="theme-toggle-container">
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="settings-theme-toggle">
-                                <span class="toggle-slider"></span>
-                            </label>
-                            <span id="settings-theme-label">Desactivado</span>
-                        </div>
-                    </div>
-
-                    <div class="settings-card">
-                        <h3>Cambiar Contraseña</h3>
-                        <form id="password-settings-form">
-                            <div class="form-group">
-                                <label for="current-password">Contraseña Actual</label>
-                                <input type="password" id="current-password" name="currentPassword" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="new-password">Nueva Contraseña</label>
-                                <input type="password" id="new-password" name="newPassword" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="confirm-password">Confirmar Contraseña</label>
-                                <input type="password" id="confirm-password" name="confirmPassword" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Mobile Settings List -->
-                <div class="settings-list">
-                        <div class="settings-group">
-                            <h3>Configuración</h3>
-                            <div class="settings-item with-toggle">
-                                <div class="settings-item-content">
-                                    <span class="settings-icon">🌙</span>
-                                    <div class="settings-item-info">
-                                        <span class="settings-item-title">Modo Oscuro</span>
-                                        <span class="settings-item-subtitle">Cambiar tema</span>
-                                    </div>
-                                </div>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="mobile-settings-theme-toggle">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </div>
-                            <div class="settings-item" onclick="adminPanel.openPasswordChangeModal()">
-                                <div class="settings-item-content">
-                                    <span class="settings-icon">🔐</span>
-                                    <div class="settings-item-info">
-                                        <span class="settings-item-title">Seguridad</span>
-                                        <span class="settings-item-subtitle">Cambiar contraseña</span>
-                                    </div>
-                                </div>
-                                <span class="settings-arrow">›</span>
-                            </div>
-                        </div>
-
-                        <div class="settings-group">
-                            <h3>Cuenta</h3>
-                            <div class="settings-item" onclick="adminPanel.handleLogout()">
-                                <div class="settings-item-content">
-                                    <span class="settings-icon">🚪</span>
-                                    <div class="settings-item-info">
-                                        <span class="settings-item-title">Cerrar Sesión</span>
-                                        <span class="settings-item-subtitle">Salir del panel</span>
-                                    </div>
-                                </div>
-                                <span class="settings-arrow">›</span>
-                            </div>
-                        </div>
-
-                        <div class="settings-group">
-                            <h3>Información</h3>
-                            <div class="settings-item">
-                                <div class="settings-item-content">
-                                    <span class="settings-icon">ℹ️</span>
-                                    <div class="settings-item-info">
-                                        <span class="settings-item-title">Versión</span>
-                                        <span class="settings-item-subtitle">1.0.0</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- Mobile Bottom Navigation -->
-        <nav class="bottom-nav">
-            <button class="nav-item active" data-section="home">
-                <span class="nav-icon">🏠</span>
-                <span class="nav-label">Inicio</span>
-            </button>
-            <button class="nav-item" data-section="products">
-                <span class="nav-icon">📦</span>
-                <span class="nav-label">Productos</span>
-            </button>
-            <button class="nav-item" data-section="offers">
-                <span class="nav-icon">🏷️</span>
-                <span class="nav-label">Ofertas</span>
-            </button>
-            <button class="nav-item" data-section="settings">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-label">Ajustes</span>
-            </button>
-        </nav>
-
-        <!-- Floating Action Button (FAB) -->
-        <div class="fab-container" id="fab-container">
-            <button class="fab-main" id="fab-main" onclick="adminPanel.toggleFabMenu()">
-                <span class="fab-icon">+</span>
-            </button>
-            <div class="fab-menu" id="fab-menu">
-                <button class="fab-item" onclick="adminPanel.openProductModal(); adminPanel.toggleFabMenu();">
-                    <span class="fab-item-icon">📦</span>
-                    <span class="fab-item-label">Producto</span>
-                </button>
-                <button class="fab-item" onclick="adminPanel.openCategoryModal(); adminPanel.toggleFabMenu();">
-                    <span class="fab-item-icon">📁</span>
-                    <span class="fab-item-label">Categoría</span>
-                </button>
-                <button class="fab-item" onclick="adminPanel.openOfferModal(); adminPanel.toggleFabMenu();">
-                    <span class="fab-item-icon">🏷️</span>
-                    <span class="fab-item-label">Oferta</span>
-                </button>
-            </div>
-        </div>
+    <div class="sb-footer">
+      <button id="logout-btn" class="sb-logout">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <span>Cerrar Sesión</span>
+      </button>
     </div>
+  </aside>
 
-    <!-- Product Modal -->
-    <div id="product-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="product-modal-title">Nuevo Producto</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="product-form" class="modal-body">
-                <input type="hidden" id="product-id" name="id">
+  <!-- Mobile Top Bar -->
+  <header class="app-header">
+    <button class="mob-menu-btn" onclick="document.getElementById('sidebar').classList.toggle('mob-open')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <span id="section-title" class="mob-title">Inicio</span>
+    <div style="width:36px"></div>
+  </header>
 
-                <div class="form-group">
-                    <label for="product-name">Nombre del Producto</label>
-                    <input type="text" id="product-name" name="name" required>
-                </div>
+  <!-- Main Content -->
+  <main class="admin-main">
 
-                <div class="form-group">
-                    <label for="product-description">Descripción</label>
-                    <textarea id="product-description" name="description" rows="3" required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="product-category">Categoría</label>
-                    <select id="product-category" name="category" required>
-                        <!-- Categories will be loaded dynamically -->
-                    </select>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="product-base-price">Precio Base</label>
-                        <input type="number" id="product-base-price" name="basePrice" required min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="product-status">Estado</label>
-                        <select id="product-status" name="isActive">
-                            <option value="true">Activo</option>
-                            <option value="false">Inactivo</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group offer-section">
-                    <label>🏷️ Oferta del Producto (Opcional)</label>
-                    <div class="offer-toggle">
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="product-has-offer" name="hasOffer">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span>Activar oferta</span>
-                    </div>
-
-                    <div id="product-offer-fields" class="offer-fields hidden">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="offer-type">Tipo de Oferta</label>
-                                <select id="offer-type" name="offerType">
-                                    <option value="percentage">Porcentaje (%)</option>
-                                    <option value="fixed">Precio Fijo ($)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="offer-value">Valor</label>
-                                <input type="number" id="offer-value" name="offerValue" min="0" placeholder="Ej: 20">
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="offer-start-date">Fecha Inicio</label>
-                                <input type="datetime-local" id="offer-start-date" name="offerStartDate">
-                            </div>
-                            <div class="form-group">
-                                <label for="offer-end-date">Fecha Fin</label>
-                                <input type="datetime-local" id="offer-end-date" name="offerEndDate">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="offer-status">Estado de la Oferta</label>
-                            <select id="offer-status" name="offerStatus">
-                                <option value="true">Activa</option>
-                                <option value="false">Inactiva</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Imagen del Producto</label>
-                    <div class="image-upload-container">
-                        <div class="image-upload-methods">
-                            <div class="upload-method">
-                                <label class="upload-label">
-                                    <span>📱 Subir desde dispositivo</span>
-                                    <input type="file" id="product-image-file" name="imageFile" accept="image/*" class="file-input">
-                                </label>
-                                <div id="file-preview" class="image-preview hidden">
-                                    <img id="file-preview-img" src="" alt="Vista previa">
-                                    <button type="button" class="remove-image-btn" onclick="adminPanel.removeFileImage()">✕</button>
-                                </div>
-                            </div>
-                            <div class="upload-divider">o</div>
-                            <div class="upload-method">
-                                <label for="product-image-url" class="url-label">🔗 URL de imagen</label>
-                                <input type="text" id="product-image-url" name="imageUrl" placeholder="https://ejemplo.com/imagen.jpg">
-                                <div id="url-preview" class="image-preview hidden">
-                                    <img id="url-preview-img" src="" alt="Vista previa">
-                                    <button type="button" class="remove-image-btn" onclick="adminPanel.removeUrlImage()">✕</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary close-modal-btn">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Producto</button>
-                </div>
-            </form>
+    <!-- ── HOME ── -->
+    <section id="home-section" class="content-section active">
+      <div class="adm-page-head">
+        <div>
+          <span class="adm-eyebrow">Panel de Control</span>
+          <h1 class="adm-title">Inicio</h1>
         </div>
-    </div>
+        <button class="adm-action-btn" onclick="adminPanel.openProductModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo Producto
+        </button>
+      </div>
 
-    <!-- Category Modal -->
-    <div id="category-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="category-modal-title">Nueva Categoría</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="category-form" class="modal-body">
-                <input type="hidden" id="category-id" name="id">
-
-                <div class="form-group">
-                    <label for="category-name">Nombre de la Categoría</label>
-                    <input type="text" id="category-name" name="name" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="category-description">Descripción</label>
-                    <textarea id="category-description" name="description" rows="3" required></textarea>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="category-order">Orden</label>
-                        <input type="number" id="category-order" name="order" required min="1">
-                    </div>
-                    <div class="form-group">
-                        <label for="category-status">Estado</label>
-                        <select id="category-status" name="isActive">
-                            <option value="true">Activa</option>
-                            <option value="false">Inactiva</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary close-modal-btn">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Categoría</button>
-                </div>
-            </form>
+      <!-- Stats -->
+      <div class="dashboard-summary">
+        <div class="summary-card">
+          <div class="summary-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+          </div>
+          <div class="summary-info">
+            <span class="summary-value" id="total-products">0</span>
+            <span class="summary-label">Productos</span>
+          </div>
         </div>
-    </div>
-
-    <!-- Offer Modal -->
-    <div id="offer-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="offer-modal-title">Nueva Oferta</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="offer-form" class="modal-body">
-                <input type="hidden" id="offer-id" name="id">
-
-                <div class="form-group">
-                    <label for="offer-name">Nombre de la Oferta</label>
-                    <input type="text" id="offer-name" name="name" required>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="offer-type">Tipo de Oferta</label>
-                        <select id="offer-type" name="type" required>
-                            <option value="percentage">Porcentaje (%)</option>
-                            <option value="fixed">Precio Fijo</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="offer-value">Valor</label>
-                        <input type="number" id="offer-value" name="value" required min="0">
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="offer-target-type">Tipo de Objetivo</label>
-                        <select id="offer-target-type" name="targetType" required>
-                            <option value="product">Producto Específico</option>
-                            <option value="category">Categoría Completa</option>
-                            <option value="catalog">Catálogo Completo</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="offer-target-id">ID del Objetivo</label>
-                        <select id="offer-target-id" name="targetId" required>
-                            <!-- Will be populated dynamically -->
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="offer-start-date">Fecha Inicio</label>
-                        <input type="datetime-local" id="offer-start-date" name="startDate" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="offer-end-date">Fecha Fin</label>
-                        <input type="datetime-local" id="offer-end-date" name="endDate" required>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label for="offer-priority">Prioridad</label>
-                    <select id="offer-priority" name="priority" required>
-                        <option value="2">Alta (Individual)</option>
-                        <option value="1">Baja (Categoría)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="offer-status">Estado</label>
-                    <select id="offer-status" name="isActive">
-                        <option value="true">Activa</option>
-                        <option value="false">Inactiva</option>
-                    </select>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary close-modal-btn">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar Oferta</button>
-                </div>
-            </form>
+        <div class="summary-card">
+          <div class="summary-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <div class="summary-info">
+            <span class="summary-value" id="total-categories">0</span>
+            <span class="summary-label">Categorías</span>
+          </div>
         </div>
-    </div>
-
-    <!-- Password Change Modal (Mobile) -->
-    <div id="password-modal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Cambiar Contraseña</h2>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="password-modal-form" class="modal-body">
-                <div class="form-group">
-                    <label for="modal-current-password">Contraseña Actual</label>
-                    <input type="password" id="modal-current-password" name="currentPassword" required>
-                </div>
-                <div class="form-group">
-                    <label for="modal-new-password">Nueva Contraseña</label>
-                    <input type="password" id="modal-new-password" name="newPassword" required>
-                </div>
-                <div class="form-group">
-                    <label for="modal-confirm-password">Confirmar Contraseña</label>
-                    <input type="password" id="modal-confirm-password" name="confirmPassword" required>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary close-modal-btn">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
-                </div>
-            </form>
+        <div class="summary-card">
+          <div class="summary-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l2.09 6.26L20 10l-5.91 4.74L16 21l-4-3-4 3 1.91-6.26L4 10l5.91-1.74z"/></svg>
+          </div>
+          <div class="summary-info">
+            <span class="summary-value" id="total-offers">0</span>
+            <span class="summary-label">Ofertas activas</span>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <!-- Toast Notifications -->
-    <div id="toast-container" class="toast-container"></div>
+      <!-- Quick Actions (hidden on mobile — FAB handles it) -->
+      <div class="quick-actions" style="display:none!important"></div>
 
-    <!-- Full-screen Image Preview Modal -->
-    <div id="image-fullscreen-modal" class="image-fullscreen-modal">
-        <button class="image-fullscreen-close" onclick="adminPanel.closeImageFullscreen()">&times;</button>
-        <div class="image-fullscreen-content">
-            <img id="image-fullscreen-img" src="" alt="Vista previa a pantalla completa" class="image-fullscreen-img">
-            <div class="image-fullscreen-actions">
-                <button class="image-fullscreen-btn cancel" onclick="adminPanel.closeImageFullscreen()">
-                    <span>✕</span> Cancelar
-                </button>
-                <button class="image-fullscreen-btn confirm" onclick="adminPanel.confirmImageSelection()">
-                    <span>✓</span> Confirmar
-                </button>
-            </div>
+      <!-- Orders -->
+      <div class="orders-section">
+        <div class="orders-head">
+          <h2 class="orders-title">Pedidos Recientes</h2>
+          <span class="orders-subtitle">Últimos pedidos de la tienda</span>
         </div>
-    </div>
+        <div class="orders-list" id="orders-list">
+          <div class="empty-state-orders">
+            <div class="empty-state-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+            </div>
+            <h3>Sin pedidos aún</h3>
+            <p>Los pedidos de la tienda aparecerán aquí</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-    <script src="firebase-config.js"></script>
-    <script src="admin.js"></script>
+    <!-- ── PRODUCTS ── -->
+    <section id="products-section" class="content-section">
+      <div class="adm-page-head">
+        <div>
+          <span class="adm-eyebrow">Gestión</span>
+          <h1 class="adm-title">Productos</h1>
+        </div>
+        <button id="add-product-btn" class="adm-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo Producto
+        </button>
+      </div>
+
+      <div class="filter-bar">
+        <label class="filter-label" for="category-filter">Filtrar por categoría</label>
+        <select id="category-filter" class="adm-select">
+          <option value="">Todas las categorías</option>
+        </select>
+      </div>
+
+      <!-- Desktop table -->
+      <div class="adm-table-wrap products-table-container">
+        <table class="adm-table data-table">
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Categoría</th>
+              <th>Precio Base</th>
+              <th>Precio Actual</th>
+              <th>Oferta</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="products-table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="products-list" id="products-list"></div>
+    </section>
+
+    <!-- ── CATEGORIES ── -->
+    <section id="categories-section" class="content-section">
+      <div class="adm-page-head">
+        <div>
+          <span class="adm-eyebrow">Gestión</span>
+          <h1 class="adm-title">Categorías</h1>
+        </div>
+        <button id="add-category-btn" class="adm-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nueva Categoría
+        </button>
+      </div>
+      <div class="categories-grid" id="categories-grid"></div>
+    </section>
+
+    <!-- ── OFFERS ── -->
+    <section id="offers-section" class="content-section">
+      <div class="adm-page-head">
+        <div>
+          <span class="adm-eyebrow">Gestión</span>
+          <h1 class="adm-title">Ofertas</h1>
+        </div>
+        <button id="add-offer-btn" class="adm-action-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nueva Oferta
+        </button>
+      </div>
+
+      <!-- Desktop table -->
+      <div class="adm-table-wrap offers-container">
+        <table class="adm-table data-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Valor</th>
+              <th>Objetivo</th>
+              <th>Estado</th>
+              <th>Fechas</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="offers-table-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Mobile cards -->
+      <div class="offers-list" id="offers-list"></div>
+    </section>
+
+    <!-- ── SETTINGS ── -->
+    <section id="settings-section" class="content-section">
+      <div class="adm-page-head">
+        <div>
+          <span class="adm-eyebrow">Preferencias</span>
+          <h1 class="adm-title">Ajustes</h1>
+        </div>
+      </div>
+
+      <!-- Desktop settings -->
+      <div class="settings-container">
+        <div class="adm-card settings-card">
+          <div class="settings-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </div>
+          <div class="settings-card-body">
+            <h3 class="settings-card-title">Modo Oscuro</h3>
+            <p class="settings-card-sub">Cambiar apariencia del panel</p>
+          </div>
+          <div class="settings-card-action">
+            <label class="toggle-switch">
+              <input type="checkbox" id="settings-theme-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+            <span id="settings-theme-label" class="toggle-label">Desactivado</span>
+          </div>
+        </div>
+
+        <div class="adm-card settings-card">
+          <div class="settings-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </div>
+          <div class="settings-card-body">
+            <h3 class="settings-card-title">Cambiar Contraseña</h3>
+            <p class="settings-card-sub">Seguridad del panel</p>
+          </div>
+        </div>
+
+        <div class="adm-card settings-form-card">
+          <form id="password-settings-form" class="pwd-form">
+            <div class="lf-group">
+              <label class="lf-label">Contraseña actual</label>
+              <input type="password" id="current-password" name="currentPassword" class="lf-input" required>
+            </div>
+            <div class="lf-group">
+              <label class="lf-label">Nueva contraseña</label>
+              <input type="password" id="new-password" name="newPassword" class="lf-input" required>
+            </div>
+            <div class="lf-group">
+              <label class="lf-label">Confirmar contraseña</label>
+              <input type="password" id="confirm-password" name="confirmPassword" class="lf-input" required>
+            </div>
+            <button type="submit" class="adm-action-btn">Guardar Contraseña</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Mobile settings -->
+      <div class="settings-list">
+        <div class="settings-group">
+          <p class="settings-group-label">Apariencia</p>
+          <div class="settings-item with-toggle">
+            <div class="settings-item-content">
+              <span class="settings-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              </span>
+              <div class="settings-item-info">
+                <span class="settings-item-title">Modo Oscuro</span>
+                <span class="settings-item-subtitle">Cambiar tema del panel</span>
+              </div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="mobile-settings-theme-toggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <p class="settings-group-label">Seguridad</p>
+          <div class="settings-item" onclick="adminPanel.openPasswordChangeModal()">
+            <div class="settings-item-content">
+              <span class="settings-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <div class="settings-item-info">
+                <span class="settings-item-title">Contraseña</span>
+                <span class="settings-item-subtitle">Cambiar contraseña de acceso</span>
+              </div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <p class="settings-group-label">Cuenta</p>
+          <div class="settings-item danger" onclick="adminPanel.handleLogout()">
+            <div class="settings-item-content">
+              <span class="settings-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              </span>
+              <div class="settings-item-info">
+                <span class="settings-item-title">Cerrar Sesión</span>
+                <span class="settings-item-subtitle">Salir del panel</span>
+              </div>
+            </div>
+            <span class="settings-arrow">›</span>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <p class="settings-group-label">Información</p>
+          <div class="settings-item">
+            <div class="settings-item-content">
+              <span class="settings-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </span>
+              <div class="settings-item-info">
+                <span class="settings-item-title">Versión</span>
+                <span class="settings-item-subtitle">2.0 · La Pastelería Admin</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main><!-- /admin-main -->
+
+  <!-- Mobile Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-section="home">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/></svg>
+      <span class="nav-label">Inicio</span>
+    </button>
+    <button class="nav-item" data-section="products">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      <span class="nav-label">Productos</span>
+    </button>
+    <button class="nav-item" data-section="offers">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l2.09 6.26L20 10l-5.91 4.74L16 21l-4-3-4 3 1.91-6.26L4 10l5.91-1.74z"/></svg>
+      <span class="nav-label">Ofertas</span>
+    </button>
+    <button class="nav-item" data-section="settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span class="nav-label">Ajustes</span>
+    </button>
+  </nav>
+
+  <!-- FAB -->
+  <div class="fab-container" id="fab-container">
+    <button class="fab-main" id="fab-main" onclick="adminPanel.toggleFabMenu()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <div class="fab-menu" id="fab-menu">
+      <button class="fab-item" onclick="adminPanel.openProductModal(); adminPanel.toggleFabMenu();">
+        <span class="fab-item-label">Producto</span>
+        <span class="fab-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/></svg>
+        </span>
+      </button>
+      <button class="fab-item" onclick="adminPanel.openCategoryModal(); adminPanel.toggleFabMenu();">
+        <span class="fab-item-label">Categoría</span>
+        <span class="fab-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        </span>
+      </button>
+      <button class="fab-item" onclick="adminPanel.openOfferModal(); adminPanel.toggleFabMenu();">
+        <span class="fab-item-label">Oferta</span>
+        <span class="fab-item-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l2.09 6.26L20 10l-5.91 4.74L16 21l-4-3-4 3 1.91-6.26L4 10z"/></svg>
+        </span>
+      </button>
+    </div>
+  </div>
+
+</div><!-- /admin-dashboard -->
+
+<!-- ═══════════ MODAL: PRODUCTO ═══════════ -->
+<div id="product-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="product-modal-title">Nuevo Producto</h2>
+      <button class="modal-close close-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="product-form" class="modal-body">
+      <input type="hidden" id="product-id" name="id">
+
+      <div class="form-grid-2">
+        <div class="lf-group full">
+          <label class="lf-label">Nombre del Producto</label>
+          <input type="text" id="product-name" name="name" class="lf-input" placeholder="Ej: Torta de chocolate" required>
+        </div>
+        <div class="lf-group full">
+          <label class="lf-label">Descripción</label>
+          <textarea id="product-description" name="description" class="lf-textarea" rows="3" placeholder="Descripción breve del producto..." required></textarea>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Categoría</label>
+          <select id="product-category" name="category" class="adm-select" required>
+            <option value="">Seleccionar categoría...</option>
+          </select>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Precio Base ($)</label>
+          <input type="number" id="product-base-price" name="basePrice" class="lf-input" min="0" placeholder="0" required>
+        </div>
+        <div class="lf-group full">
+          <label class="lf-label">Estado</label>
+          <select id="product-status" name="isActive" class="adm-select">
+            <option value="true">Activo — visible en la tienda</option>
+            <option value="false">Inactivo — oculto</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Oferta del producto -->
+      <div class="offer-section form-group">
+        <div class="offer-toggle-row">
+          <div class="offer-toggle-info">
+            <span class="offer-toggle-title">Oferta especial</span>
+            <span class="offer-toggle-sub">Aplicar descuento a este producto</span>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="product-has-offer" name="hasOffer">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div id="product-offer-fields" class="offer-fields hidden">
+          <div class="form-grid-2">
+            <div class="lf-group">
+              <label class="lf-label">Tipo de descuento</label>
+              <select id="offer-type" name="offerType" class="adm-select">
+                <option value="percentage">Porcentaje (%)</option>
+                <option value="fixed">Precio fijo ($)</option>
+              </select>
+            </div>
+            <div class="lf-group">
+              <label class="lf-label">Valor</label>
+              <input type="number" id="offer-value" name="offerValue" class="lf-input" min="0" placeholder="Ej: 20">
+            </div>
+            <div class="lf-group">
+              <label class="lf-label">Fecha inicio</label>
+              <input type="datetime-local" id="offer-start-date" name="offerStartDate" class="lf-input">
+            </div>
+            <div class="lf-group">
+              <label class="lf-label">Fecha fin</label>
+              <input type="datetime-local" id="offer-end-date" name="offerEndDate" class="lf-input">
+            </div>
+            <div class="lf-group full">
+              <label class="lf-label">Estado de la oferta</label>
+              <select id="offer-status" name="offerStatus" class="adm-select">
+                <option value="true">Activa</option>
+                <option value="false">Inactiva</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Imagen -->
+      <div class="lf-group full">
+        <label class="lf-label">Imagen del Producto</label>
+        <div class="img-upload-wrap">
+          <div class="upload-zone">
+            <label class="upload-file-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <span>Subir imagen</span>
+              <input type="file" id="product-image-file" name="imageFile" accept="image/*" class="file-input">
+            </label>
+            <div id="file-preview" class="img-preview hidden">
+              <img id="file-preview-img" src="" alt="Vista previa">
+              <button type="button" class="img-remove-btn close-modal-btn" onclick="adminPanel.removeFileImage()">✕</button>
+            </div>
+          </div>
+          <div class="upload-or">o</div>
+          <div class="upload-url">
+            <label class="lf-label" for="product-image-url">URL de imagen</label>
+            <input type="text" id="product-image-url" name="imageUrl" class="lf-input" placeholder="https://...">
+            <div id="url-preview" class="img-preview hidden">
+              <img id="url-preview-img" src="" alt="Vista previa">
+              <button type="button" class="img-remove-btn" onclick="adminPanel.removeUrlImage()">✕</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-sec close-modal-btn">Cancelar</button>
+        <button type="submit" class="adm-action-btn">Guardar Producto</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: CATEGORÍA ═══════════ -->
+<div id="category-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="category-modal-title">Nueva Categoría</h2>
+      <button class="modal-close close-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="category-form" class="modal-body">
+      <input type="hidden" id="category-id" name="id">
+      <div class="form-grid-2">
+        <div class="lf-group full">
+          <label class="lf-label">Nombre de la Categoría</label>
+          <input type="text" id="category-name" name="name" class="lf-input" placeholder="Ej: Tortas" required>
+        </div>
+        <div class="lf-group full">
+          <label class="lf-label">Descripción</label>
+          <textarea id="category-description" name="description" class="lf-textarea" rows="2" required></textarea>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Orden de aparición</label>
+          <input type="number" id="category-order" name="order" class="lf-input" min="1" required>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Estado</label>
+          <select id="category-status" name="isActive" class="adm-select">
+            <option value="true">Activa</option>
+            <option value="false">Inactiva</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-sec close-modal-btn">Cancelar</button>
+        <button type="submit" class="adm-action-btn">Guardar Categoría</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: OFERTA ═══════════ -->
+<div id="offer-modal" class="modal hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="offer-modal-title">Nueva Oferta</h2>
+      <button class="modal-close close-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="offer-form" class="modal-body">
+      <input type="hidden" id="offer-id" name="id">
+      <div class="form-grid-2">
+        <div class="lf-group full">
+          <label class="lf-label">Nombre de la Oferta</label>
+          <input type="text" id="offer-name" name="name" class="lf-input" placeholder="Ej: Descuento de temporada" required>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Tipo</label>
+          <select id="offer-type" name="type" class="adm-select" required>
+            <option value="percentage">Porcentaje (%)</option>
+            <option value="fixed">Precio Fijo ($)</option>
+          </select>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Valor</label>
+          <input type="number" id="offer-value" name="value" class="lf-input" min="0" required>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Tipo de Objetivo</label>
+          <select id="offer-target-type" name="targetType" class="adm-select" required>
+            <option value="product">Producto específico</option>
+            <option value="category">Categoría completa</option>
+            <option value="catalog">Catálogo completo</option>
+          </select>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Objetivo</label>
+          <select id="offer-target-id" name="targetId" class="adm-select" required>
+            <option value="">Seleccionar...</option>
+          </select>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Fecha inicio</label>
+          <input type="datetime-local" id="offer-start-date" name="startDate" class="lf-input" required>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Fecha fin</label>
+          <input type="datetime-local" id="offer-end-date" name="endDate" class="lf-input" required>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Prioridad</label>
+          <select id="offer-priority" name="priority" class="adm-select" required>
+            <option value="2">Alta — producto individual</option>
+            <option value="1">Baja — categoría</option>
+          </select>
+        </div>
+        <div class="lf-group">
+          <label class="lf-label">Estado</label>
+          <select id="offer-status" name="isActive" class="adm-select">
+            <option value="true">Activa</option>
+            <option value="false">Inactiva</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-sec close-modal-btn">Cancelar</button>
+        <button type="submit" class="adm-action-btn">Guardar Oferta</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════════ MODAL: CONTRASEÑA (mobile) ═══════════ -->
+<div id="password-modal" class="modal hidden">
+  <div class="modal-content modal-sm">
+    <div class="modal-header">
+      <h2 class="modal-title">Cambiar Contraseña</h2>
+      <button class="modal-close close-modal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <form id="password-modal-form" class="modal-body">
+      <div class="lf-group">
+        <label class="lf-label">Contraseña actual</label>
+        <input type="password" id="modal-current-password" name="currentPassword" class="lf-input" required>
+      </div>
+      <div class="lf-group">
+        <label class="lf-label">Nueva contraseña</label>
+        <input type="password" id="modal-new-password" name="newPassword" class="lf-input" required>
+      </div>
+      <div class="lf-group">
+        <label class="lf-label">Confirmar contraseña</label>
+        <input type="password" id="modal-confirm-password" name="confirmPassword" class="lf-input" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-sec close-modal-btn">Cancelar</button>
+        <button type="submit" class="adm-action-btn">Cambiar Contraseña</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toast notifications -->
+<div id="toast-container" class="toast-container"></div>
+
+<!-- Fullscreen image preview -->
+<div id="image-fullscreen-modal" class="image-fullscreen-modal">
+  <button class="image-fullscreen-close" onclick="adminPanel.closeImageFullscreen()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="image-fullscreen-content">
+    <img id="image-fullscreen-img" src="" alt="Vista previa" class="image-fullscreen-img">
+    <div class="image-fullscreen-actions">
+      <button class="image-fullscreen-btn cancel" onclick="adminPanel.closeImageFullscreen()">Cancelar</button>
+      <button class="image-fullscreen-btn confirm" onclick="adminPanel.confirmImageSelection()">Confirmar imagen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" onclick="document.getElementById('sidebar').classList.remove('mob-open');this.classList.remove('active');" id="sidebarOverlay"></div>
+
+<script src="firebase-config.js"></script>
+<script src="admin.js"></script>
+<script>
+  // Open sidebar overlay on mobile
+  document.getElementById('sidebar').addEventListener('transitionend', function() {
+    const overlay = document.getElementById('sidebarOverlay');
+    if (this.classList.contains('mob-open')) {
+      overlay.classList.add('active');
+    } else {
+      overlay.classList.remove('active');
+    }
+  });
+</script>
 </body>
 </html>
