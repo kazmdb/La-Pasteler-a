@@ -2460,6 +2460,7 @@ section.hero, section.shop-section { padding: 0 !important; }
 
   // ─── INLINE PRODUCT GRID WITH TAG FILTERING ──────────────
   let currentProductFilter = 'all';
+  let personalizadaInterval = null;
 
   function filterProducts(category) {
     currentProductFilter = category;
@@ -2480,6 +2481,11 @@ section.hero, section.shop-section { padding: 0 !important; }
     }
 
     grid.innerHTML = '';
+
+    if (personalizadaInterval) {
+      clearInterval(personalizadaInterval);
+      personalizadaInterval = null;
+    }
 
     const CATEGORY_ORDER = ['cumpleanos', 'postres', 'individuales', 'budines', 'salados'];
     const cats = currentProductFilter === 'all'
@@ -2556,6 +2562,44 @@ section.hero, section.shop-section { padding: 0 !important; }
     }
 
     grid.querySelectorAll('.fade-in:not(.visible)').forEach(el => io.observe(el));
+
+      // Slideshow para Torta Personalizada
+      if (currentProductFilter === 'all') {
+        const firstCard = grid.querySelector('.product-card:first-child .product-name');
+        if (firstCard && firstCard.textContent === 'Torta Personalizada de 1kg') {
+          const imgContainer = grid.querySelector('.product-card:first-child .product-image');
+          const imgEl = grid.querySelector('.product-card:first-child .product-image-img');
+          if (imgContainer && imgEl) {
+            const slides = ['personalizada2.webp', 'personalizada1.webp',
+              'personalizada3.webp', 'personalizada4.webp', 'personalizada5.webp',
+              'personalizada6.webp', 'personalizada7.webp', 'personalizada8.webp', 'personalizada9.webp'];
+            imgEl.src = 'assets/images/personalizada2.webp';
+
+            imgContainer.style.position = 'relative';
+            const overlay = document.createElement('img');
+            overlay.className = 'product-image-img';
+            overlay.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s ease;z-index:2;display:block;';
+            imgContainer.appendChild(overlay);
+
+            let idx = 0;
+            personalizadaInterval = setInterval(() => {
+              const nextIdx = (idx + 1) % slides.length;
+              const nextSrc = 'assets/images/' + slides[nextIdx];
+              overlay.src = nextSrc;
+              const crossfade = () => {
+                overlay.style.opacity = '1';
+                setTimeout(() => {
+                  imgEl.src = nextSrc;
+                  overlay.style.opacity = '0';
+                  idx = nextIdx;
+                }, 350);
+              };
+              if (overlay.complete) crossfade();
+              else overlay.onload = crossfade;
+            }, 4000);
+          }
+        }
+      }
   }
 
   // Render products when Firebase data is ready
