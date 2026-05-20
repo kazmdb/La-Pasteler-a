@@ -1363,7 +1363,7 @@ class AdminPanel {
 
     updateTargetOptions(targetType) {
         const select = document.getElementById('offer-target-id');
-        const selectGroup = select.closest('.form-group');
+        const selectGroup = select.closest('.lf-group');
 
         select.innerHTML = '<option value="">Seleccionar...</option>';
 
