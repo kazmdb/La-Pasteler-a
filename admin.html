@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel Admin · La Pastelería</title>
-  <link rel="icon" type="image/webp" href="assets/images/icon.webp">
+  <link rel="icon" type="image/svg+xml" href="assets/images/favicon.svg">
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -29,6 +29,13 @@
       <span class="login-eyebrow">Panel de Administración</span>
       <h1 class="login-title">Bienvenido</h1>
       <form id="login-form" class="login-form" autocomplete="off">
+        <div class="lf-group">
+          <label class="lf-label" for="email">Correo electrónico</label>
+          <div class="lf-input-wrap">
+            <svg class="lf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16v16H4V4zm0 0l8 9 8-9"/></svg>
+            <input type="email" id="email" name="email" class="lf-input" placeholder="admin@lapasteleria.com" required autocomplete="username">
+          </div>
+        </div>
         <div class="lf-group">
           <label class="lf-label" for="password">Contraseña</label>
           <div class="lf-input-wrap">

@@ -1,10 +1,18 @@
 // Admin Panel JavaScript
 // Sistema completo de gestión de productos, categorías y ofertas
 
-// Asegurar acceso a variables globales de Firebase
-if (typeof db === 'undefined' && typeof window !== 'undefined' && window.db) {
-    window.db = window.db;
-    const db = window.db;
+// Logger de desarrollo — poner DEBUG=true solo en local
+const DEBUG = false;
+const log = (...args) => { if (DEBUG) console.log(...args); };
+
+// HTML escape helper — evita XSS al insertar datos de Firestore en innerHTML
+function esc(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 class AdminPanel {
@@ -173,60 +181,49 @@ class AdminPanel {
     }
 
     // Authentication
-    async checkAuth() {
-        const session = localStorage.getItem('adminSession');
-        if (session) {
-            try {
-                const sessionData = JSON.parse(session);
-                if (Date.now() < sessionData.expiry) {
-                    this.currentUser = sessionData.user;
-                    this.showDashboard();
-                    await this.loadData();
-                } else {
-                    localStorage.removeItem('adminSession');
-                    this.showLogin();
-                }
-            } catch (error) {
+    checkAuth() {
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if (user) {
+                this.currentUser = user;
+                this.showDashboard();
+                await this.loadData();
+            } else {
+                this.currentUser = null;
                 this.showLogin();
             }
-        } else {
-            this.showLogin();
-        }
+        });
     }
 
     async handleLogin() {
+        const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value;
         const errorElement = document.getElementById('login-error');
+        const submitBtn = document.querySelector('#login-form .login-btn');
+
+        errorElement.textContent = '';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Ingresando...';
 
         try {
-            // En producción, esto debería validar contra Firebase Auth
-            // Por ahora, usamos una validación simple
-            const ADMIN_PASSWORD = 'ines89'; // Cambiar esto en producción
-
-            if (password === ADMIN_PASSWORD) {
-                const sessionData = {
-                    user: { email: 'admin@lapasteleria.com' },
-                    expiry: Date.now() + (3600 * 1000) // 1 hora
-                };
-
-                localStorage.setItem('adminSession', JSON.stringify(sessionData));
-                this.currentUser = sessionData.user;
-                this.showDashboard();
-                await this.loadData();
-                this.showToast('Sesión iniciada correctamente', 'success');
-            } else {
-                errorElement.textContent = 'Contraseña incorrecta';
-            }
+            await firebase.auth().signInWithEmailAndPassword(email, password);
+            this.showToast('Sesión iniciada correctamente', 'success');
         } catch (error) {
-            errorElement.textContent = 'Error al iniciar sesión';
-            console.error('Login error:', error);
+            const messages = {
+                'auth/user-not-found':    'No existe una cuenta con ese correo.',
+                'auth/wrong-password':    'Contraseña incorrecta.',
+                'auth/invalid-email':     'El correo no es válido.',
+                'auth/too-many-requests': 'Demasiados intentos. Intenta más tarde.',
+                'auth/invalid-credential':'Correo o contraseña incorrectos.'
+            };
+            errorElement.textContent = messages[error.code] || 'Error al iniciar sesión.';
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Ingresar al Panel';
         }
     }
 
-    handleLogout() {
-        localStorage.removeItem('adminSession');
-        this.currentUser = null;
-        this.showLogin();
+    async handleLogout() {
+        await firebase.auth().signOut();
         this.showToast('Sesión cerrada', 'info');
     }
 
@@ -472,7 +469,7 @@ class AdminPanel {
         try {
             const snapshot = await db.collection('products').get();
             this.products = snapshot.docs.map(doc => doc.data());
-            console.log(`📦 ${this.products.length} productos cargados desde Firebase`);
+            log(`📦 ${this.products.length} productos cargados desde Firebase`);
         } catch (error) {
             console.error('Error loading products from Firebase:', error);
             // Fallback a datos de ejemplo si hay error
@@ -484,7 +481,7 @@ class AdminPanel {
         try {
             const snapshot = await db.collection('categories').get();
             this.categories = snapshot.docs.map(doc => doc.data());
-            console.log(`📁 ${this.categories.length} categorías cargadas desde Firebase`);
+            log(`📁 ${this.categories.length} categorías cargadas desde Firebase`);
         } catch (error) {
             console.error('Error loading categories from Firebase:', error);
             this.categories = [];
@@ -495,7 +492,7 @@ class AdminPanel {
         try {
             const snapshot = await db.collection('offers').get();
             this.offers = snapshot.docs.map(doc => doc.data());
-            console.log(`🏷️ ${this.offers.length} ofertas cargadas desde Firebase`);
+            log(`🏷️ ${this.offers.length} ofertas cargadas desde Firebase`);
         } catch (error) {
             console.error('Error loading offers from Firebase:', error);
             this.offers = [];
@@ -511,7 +508,7 @@ class AdminPanel {
                 id: doc.id,
                 ...doc.data()
             }));
-            console.log(`📦 ${this.orders.length} pedidos cargados desde Firebase`);
+            log(`📦 ${this.orders.length} pedidos cargados desde Firebase`);
             this.renderOrders();
         } catch (error) {
             console.error('Error loading orders from Firebase:', error);
@@ -525,7 +522,7 @@ class AdminPanel {
             const doc = await db.collection('settings').doc('config').get();
             if (doc.exists) {
                 this.settings = doc.data();
-                console.log('⚙️ Configuración cargada desde Firebase');
+                log('⚙️ Configuración cargada desde Firebase');
             } else {
                 // Configuración por defecto si no existe
                 this.settings = {
@@ -535,7 +532,7 @@ class AdminPanel {
                         roundTo: 10
                     }
                 };
-                console.log('⚙️ Usando configuración por defecto');
+                log('⚙️ Usando configuración por defecto');
             }
         } catch (error) {
             console.error('Error loading settings from Firebase:', error);
@@ -577,11 +574,11 @@ class AdminPanel {
 
             row.innerHTML = `
                 <td>
-                    <div style="font-weight: 600;">${product.name}</div>
-                    <div style="font-size: 0.85rem; color: #666;">${product.description.substring(0, 50)}...</div>
+                    <div style="font-weight: 600;">${esc(product.name)}</div>
+                    <div style="font-size: 0.85rem; color: #666;">${esc(product.description.substring(0, 50))}...</div>
                 </td>
-                <td>${this.getCategoryName(product.category)}</td>
-                <td id="price-td-${product.id}" class="inline-editable" onclick="adminPanel.startInlinePriceEdit('${product.id}')" title="Clic para editar precio">$${product.basePrice}</td>
+                <td>${esc(this.getCategoryName(product.category))}</td>
+                <td id="price-td-${esc(product.id)}" class="inline-editable" onclick="adminPanel.startInlinePriceEdit(${JSON.stringify(product.id)})" title="Clic para editar precio">$${product.basePrice}</td>
                 <td>
                     ${offer ? `
                         <span class="price-display original">$${product.basePrice}</span>
@@ -590,7 +587,7 @@ class AdminPanel {
                         <span class="price-display">$${product.currentPrice}</span>
                     `}
                 </td>
-                <td id="offer-td-${product.id}" class="inline-editable" onclick="adminPanel.startInlineOfferEdit('${product.id}')" title="${offer ? 'Clic para editar oferta' : 'Clic para agregar oferta'}">
+                <td id="offer-td-${esc(product.id)}" class="inline-editable" onclick="adminPanel.startInlineOfferEdit(${JSON.stringify(product.id)})" title="${offer ? 'Clic para editar oferta' : 'Clic para agregar oferta'}">
                     ${offer ? `
                         <span class="discount-badge">${offer.type === 'percentage' ? offer.value + '%' : '$' + offer.value}</span>
                     ` : '<span class="add-offer-hint">+ oferta</span>'}
@@ -602,11 +599,11 @@ class AdminPanel {
                 </td>
                 <td>
                     <div class="action-buttons">
-                        <button class="action-btn edit" onclick="adminPanel.editProduct('${product.id}')">Editar</button>
-                        <button class="action-btn toggle" onclick="adminPanel.toggleProduct('${product.id}')">
+                        <button class="action-btn edit" onclick="adminPanel.editProduct(${JSON.stringify(product.id)})">Editar</button>
+                        <button class="action-btn toggle" onclick="adminPanel.toggleProduct(${JSON.stringify(product.id)})">
                             ${product.isActive ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button class="action-btn delete" onclick="adminPanel.deleteProduct('${product.id}')">Eliminar</button>
+                        <button class="action-btn delete" onclick="adminPanel.deleteProduct(${JSON.stringify(product.id)})">Eliminar</button>
                     </div>
                 </td>
             `;
@@ -636,8 +633,8 @@ class AdminPanel {
             const card = document.createElement('div');
             card.className = 'category-card';
             card.innerHTML = `
-                <h3>${category.name}</h3>
-                <p>${category.description}</p>
+                <h3>${esc(category.name)}</h3>
+                <p>${esc(category.description)}</p>
                 <div class="category-info">
                     <span>${productCount} productos</span>
                     <span class="status-badge ${category.isActive ? 'status-active' : 'status-inactive'}">
@@ -645,8 +642,8 @@ class AdminPanel {
                     </span>
                 </div>
                 <div class="category-actions">
-                    <button class="action-btn edit" onclick="adminPanel.editCategory('${category.id}')">Editar</button>
-                    <button class="action-btn delete" onclick="adminPanel.deleteCategory('${category.id}')">Eliminar</button>
+                    <button class="action-btn edit" onclick="adminPanel.editCategory(${JSON.stringify(category.id)})">Editar</button>
+                    <button class="action-btn delete" onclick="adminPanel.deleteCategory(${JSON.stringify(category.id)})">Eliminar</button>
                 </div>
             `;
 
@@ -664,7 +661,7 @@ class AdminPanel {
 
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td style="font-weight: 600;">${offer.name}</td>
+                <td style="font-weight: 600;">${esc(offer.name)}</td>
                 <td>
                     <span class="status-badge ${offer.type === 'percentage' ? 'status-active' : 'status-pending'}">
                         ${offer.type === 'percentage' ? 'Porcentaje' : 'Precio Fijo'}
@@ -674,7 +671,7 @@ class AdminPanel {
                     ${offer.type === 'percentage' ? offer.value + '%' : '$' + offer.value}
                 </td>
                 <td>
-                    <div style="font-weight: 600;">${targetName}</div>
+                    <div style="font-weight: 600;">${esc(targetName)}</div>
                     <div style="font-size: 0.85rem; color: #666;">
                         ${offer.targetType === 'product' ? 'Producto' : 'Categoría'}
                     </div>
@@ -692,11 +689,11 @@ class AdminPanel {
                 </td>
                 <td>
                     <div class="action-buttons">
-                        <button class="action-btn edit" onclick="adminPanel.editOffer('${offer.id}')">Editar</button>
-                        <button class="action-btn toggle" onclick="adminPanel.toggleOffer('${offer.id}')">
+                        <button class="action-btn edit" onclick="adminPanel.editOffer(${JSON.stringify(offer.id)})">Editar</button>
+                        <button class="action-btn toggle" onclick="adminPanel.toggleOffer(${JSON.stringify(offer.id)})">
                             ${offer.isActive ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button class="action-btn delete" onclick="adminPanel.deleteOffer('${offer.id}')">Eliminar</button>
+                        <button class="action-btn delete" onclick="adminPanel.deleteOffer(${JSON.stringify(offer.id)})">Eliminar</button>
                     </div>
                 </td>
             `;
@@ -730,21 +727,21 @@ class AdminPanel {
             orderCard.className = 'order-card';
             orderCard.innerHTML = `
                 <div class="order-card-header">
-                    <div class="order-card-id">#${order.id}</div>
-                    <div class="order-card-date">${this.formatOrderDate(order.fecha)}</div>
+                    <div class="order-card-id">#${esc(order.id)}</div>
+                    <div class="order-card-date">${esc(this.formatOrderDate(order.fecha))}</div>
                 </div>
 
                 <div class="order-card-customer">
-                    <div class="order-card-customer-name">${order.cliente.nombre}</div>
+                    <div class="order-card-customer-name">${esc(order.cliente.nombre)}</div>
                     <div class="order-card-customer-contact">
-                        📞 ${order.cliente.telefono} | 📧 ${order.cliente.email}
+                        📞 ${esc(order.cliente.telefono)} | 📧 ${esc(order.cliente.email)}
                     </div>
                 </div>
 
                 <div class="order-card-items">
                     ${order.items.map(item => `
                         <div class="order-card-item">
-                            <span class="order-card-item-name">${item.nombre}</span>
+                            <span class="order-card-item-name">${esc(item.nombre)}</span>
                             <span class="order-card-item-quantity">x${item.cantidad}</span>
                             <span class="order-card-item-price">$${item.subtotal}</span>
                         </div>
@@ -760,13 +757,13 @@ class AdminPanel {
                         ${this.getOrderStatusLabel(order.estado)}
                     </span>
                     <div class="order-card-actions">
-                        <button class="action-btn edit" onclick="adminPanel.viewOrderDetails('${order.id}')">
+                        <button class="action-btn edit" onclick="adminPanel.viewOrderDetails(${JSON.stringify(order.id)})">
                             <span>👁️</span> Ver
                         </button>
-                        <button class="action-btn toggle" onclick="adminPanel.updateOrderStatus('${order.id}')">
+                        <button class="action-btn toggle" onclick="adminPanel.updateOrderStatus(${JSON.stringify(order.id)})">
                             <span>🔄</span> Estado
                         </button>
-                        <button class="action-btn delete" onclick="adminPanel.deleteOrder('${order.id}')">
+                        <button class="action-btn delete" onclick="adminPanel.deleteOrder(${JSON.stringify(order.id)})">
                             <span>🗑️</span> Eliminar
                         </button>
                     </div>
@@ -1538,7 +1535,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
             };
 
             await db.collection('orders').doc(orderId).set(orderWithId);
-            console.log('✅ Pedido creado:', orderId);
+            log('✅ Pedido creado:', orderId);
             return { success: true, orderId };
         } catch (error) {
             console.error('Error creating order:', error);
@@ -1866,44 +1863,44 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         const totalCategories = document.getElementById('total-categories');
         const totalOffers = document.getElementById('total-offers');
 
-        console.log('=== DASHBOARD SUMMARY UPDATE ===');
-        console.log('Data loaded:', {
+        log('=== DASHBOARD SUMMARY UPDATE ===');
+        log('Data loaded:', {
             products: this.products.length,
             categories: this.categories.length,
             offers: this.offers.length
         });
 
-        console.log('DOM Elements found:', {
+        log('DOM Elements found:', {
             totalProducts: !!totalProducts,
             totalCategories: !!totalCategories,
             totalOffers: !!totalOffers
         });
 
         if (totalProducts) {
-            console.log('Before update - Products value:', totalProducts.textContent);
+            log('Before update - Products value:', totalProducts.textContent);
             totalProducts.textContent = this.products.length;
-            console.log('After update - Products value:', totalProducts.textContent);
+            log('After update - Products value:', totalProducts.textContent);
         } else {
             console.warn('total-products element not found!');
         }
 
         if (totalCategories) {
-            console.log('Before update - Categories value:', totalCategories.textContent);
+            log('Before update - Categories value:', totalCategories.textContent);
             totalCategories.textContent = this.categories.length;
-            console.log('After update - Categories value:', totalCategories.textContent);
+            log('After update - Categories value:', totalCategories.textContent);
         } else {
             console.warn('total-categories element not found!');
         }
 
         if (totalOffers) {
-            console.log('Before update - Offers value:', totalOffers.textContent);
+            log('Before update - Offers value:', totalOffers.textContent);
             totalOffers.textContent = this.offers.length;
-            console.log('After update - Offers value:', totalOffers.textContent);
+            log('After update - Offers value:', totalOffers.textContent);
         } else {
             console.warn('total-offers element not found!');
         }
 
-        console.log('=== END DASHBOARD SUMMARY UPDATE ===');
+        log('=== END DASHBOARD SUMMARY UPDATE ===');
     }
 
     toggleProductActions(productId) {
@@ -2132,7 +2129,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         try {
             // Guardar configuración en Firebase
             await db.collection('settings').doc('config').set(this.settings);
-            console.log('💾 Configuración guardada en Firebase');
+            log('💾 Configuración guardada en Firebase');
         } catch (error) {
             console.error('Error saving data to Firebase:', error);
             // Fallback a localStorage si hay error
@@ -2143,13 +2140,9 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
                 settings: this.settings
             };
             localStorage.setItem('adminData', JSON.stringify(data));
-            console.log('💾 Datos guardados en localStorage (fallback)');
+            log('💾 Datos guardados en localStorage (fallback)');
         }
     }
 }
 
-// Initialize the admin panel
-const adminPanel = new AdminPanel();
-
-// Make it available globally for onclick handlers
-window.adminPanel = adminPanel;
+// Ini

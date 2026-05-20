@@ -1,54 +1,38 @@
-// Firebase SDK
-const firebaseScript = document.createElement('script');
-firebaseScript.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js';
-document.head.appendChild(firebaseScript);
-
-const firestoreScript = document.createElement('script');
-firestoreScript.src = 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js';
-document.head.appendChild(firestoreScript);
-
-// Firebase Configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyBo5jBsKvQTP7rTy8GYXbs7YlA1nD_7A3s",
-  authDomain: "la-pasteleria-b2b83.firebaseapp.com",
-  projectId: "la-pasteleria-b2b83",
-  storageBucket: "la-pasteleria-b2b83.firebasestorage.app",
-  messagingSenderId: "747582851026",
-  appId: "1:747582851026:web:caf908805814fc82492a0b",
-  measurementId: "G-6FZ21G8Q6X"
-};
-
-// Initialize Firebase
-let db = null;
+// Firebase ya está inicializado por firebase-config.js (cargado antes en el HTML)
+// db, auth y storage están disponibles globalmente desde ese archivo.
 let catalogData = {};
 let offers = [];
 
-// Initialize Firebase when scripts are loaded
-function initializeFirebase() {
-  if (typeof firebase !== 'undefined' && !db) {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.firestore();
-    loadCatalogData();
-    loadOffers();
-  }
+// Logger de desarrollo — cambiar DEBUG a true solo en local para ver logs
+const DEBUG = false;
+const log = (...args) => { if (DEBUG) console.log(...args); };
+
+// HTML escape helper — prevents XSS when inserting Firestore data in innerHTML
+function esc(str) {
+  return String(str ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 // Load offers from Firebase
 async function loadOffers() {
   try {
-    console.log('🔄 Cargando ofertas desde Firebase...');
+    log('🔄 Cargando ofertas desde Firebase...');
     const offersSnapshot = await db.collection('offers').get();
     offers = offersSnapshot.docs.map(doc => doc.data());
-    console.log(`✅ ${offers.length} ofertas cargadas desde Firebase`);
+    log(`✅ ${offers.length} ofertas cargadas desde Firebase`);
 
     // Mostrar detalles de las ofertas cargadas
     offers.forEach(offer => {
-      console.log(`   - ${offer.name}:`);
-      console.log(`     ID: ${offer.id}`);
-      console.log(`     Tipo: ${offer.targetType}, Target: ${offer.targetId}`);
-      console.log(`     Descuento: ${offer.type} - ${offer.value}`); // Cambiado a type y value
-      console.log(`     Activa: ${offer.isActive}`);
-      console.log(`     Fechas: ${offer.startDate} - ${offer.endDate}`);
+      log(`   - ${offer.name}:`);
+      log(`     ID: ${offer.id}`);
+      log(`     Tipo: ${offer.targetType}, Target: ${offer.targetId}`);
+      log(`     Descuento: ${offer.type} - ${offer.value}`); // Cambiado a type y value
+      log(`     Activa: ${offer.isActive}`);
+      log(`     Fechas: ${offer.startDate} - ${offer.endDate}`);
     });
 
     // Aplicar ofertas a los productos cargados
@@ -56,14 +40,16 @@ async function loadOffers() {
       applyOffersToProducts();
     }
   } catch (error) {
-    console.error('❌ Error cargando ofertas:', error);
+    console.error('Error cargando ofertas:', error);
     offers = [];
+    // Las ofertas no son críticas — el catálogo sigue funcionando sin ellas.
+    // Solo logueamos; no mostramos error al usuario.
   }
 }
 
 // Apply offers to products
 function applyOffersToProducts() {
-  console.log('🏷️ Aplicando ofertas a productos...');
+  log('🏷️ Aplicando ofertas a productos...');
 
   Object.keys(catalogData).forEach(categoryId => {
     const category = catalogData[categoryId];
@@ -89,7 +75,7 @@ function applyOffersToProducts() {
     }
   });
 
-  console.log('✅ Ofertas aplicadas');
+  log('✅ Ofertas aplicadas');
 
   // Actualizar badges de categorías después de aplicar ofertas
   updateCategoryBadges();
@@ -102,8 +88,8 @@ function calculateProductPrice(product) {
   let finalPrice = basePrice;
   let appliedOffer = null;
 
-  console.log(`🔍 Calculando precio para ${product.name}:`);
-  console.log(`   Base: $${basePrice}, Category: ${product.category}, ID: ${product.id}`);
+  log(`🔍 Calculando precio para ${product.name}:`);
+  log(`   Base: $${basePrice}, Category: ${product.category}, ID: ${product.id}`);
 
   // Get active offers for this product
   const productOffers = offers.filter(offer =>
@@ -120,22 +106,22 @@ function calculateProductPrice(product) {
     isOfferValid(offer)
   );
 
-  console.log(`   Ofertas de producto: ${productOffers.length}`);
-  console.log(`   Ofertas de categoría: ${categoryOffers.length}`);
+  log(`   Ofertas de producto: ${productOffers.length}`);
+  log(`   Ofertas de categoría: ${categoryOffers.length}`);
 
   // Apply offer with highest priority
   if (productOffers.length > 0) {
     // Individual offers have priority
     appliedOffer = productOffers.sort((a, b) => b.priority - a.priority)[0];
     finalPrice = applyOfferToPrice(basePrice, appliedOffer);
-    console.log(`   ✅ Oferta de producto aplicada: ${appliedOffer.name}`);
+    log(`   ✅ Oferta de producto aplicada: ${appliedOffer.name}`);
   } else if (categoryOffers.length > 0) {
     // Category offers
     appliedOffer = categoryOffers.sort((a, b) => b.priority - a.priority)[0];
     finalPrice = applyOfferToPrice(basePrice, appliedOffer);
-    console.log(`   ✅ Oferta de categoría aplicada: ${appliedOffer.name}`);
+    log(`   ✅ Oferta de categoría aplicada: ${appliedOffer.name}`);
   } else {
-    console.log(`   ❌ No se aplicaron ofertas`);
+    log(`   ❌ No se aplicaron ofertas`);
   }
 
   // Round price
@@ -148,7 +134,7 @@ function calculateProductPrice(product) {
     discountPercentage: appliedOffer ? calculateDiscountPercentage(basePrice, finalPrice) : 0
   };
 
-  console.log(`   Resultado: $${result.finalPrice} (descuento: ${result.discountPercentage}%)`);
+  log(`   Resultado: $${result.finalPrice} (descuento: ${result.discountPercentage}%)`);
 
   return result;
 }
@@ -243,57 +229,69 @@ function updateCategoryBadges() {
 
 // Función de prueba para verificar el sistema de precios
 function testPricingSystem() {
-  console.log('🧪 Probando sistema de precios...');
+  log('🧪 Probando sistema de precios...');
 
   if (Object.keys(catalogData).length === 0) {
-    console.log('❌ No hay datos cargados');
+    log('❌ No hay datos cargados');
     return;
   }
 
-  console.log(`📦 Catálogo cargado: ${Object.keys(catalogData).length} categorías`);
-  console.log(`🏷️ Ofertas cargadas: ${offers.length}`);
+  log(`📦 Catálogo cargado: ${Object.keys(catalogData).length} categorías`);
+  log(`🏷️ Ofertas cargadas: ${offers.length}`);
 
   // Mostrar ofertas disponibles
   if (offers.length > 0) {
-    console.log('\n📋 Ofertas disponibles:');
+    log('\n📋 Ofertas disponibles:');
     offers.forEach(offer => {
-      console.log(`   - ${offer.name} (${offer.targetType}: ${offer.targetId})`);
-      console.log(`     Tipo: ${offer.type}, Valor: ${offer.value}`); // Cambiado a type y value
-      console.log(`     Activa: ${offer.isActive}, Válida: ${isOfferValid(offer)}`);
+      log(`   - ${offer.name} (${offer.targetType}: ${offer.targetId})`);
+      log(`     Tipo: ${offer.type}, Valor: ${offer.value}`); // Cambiado a type y value
+      log(`     Activa: ${offer.isActive}, Válida: ${isOfferValid(offer)}`);
     });
   }
 
   // Mostrar productos con precios
   Object.keys(catalogData).forEach(categoryId => {
     const category = catalogData[categoryId];
-    console.log(`\n📂 ${categoryId} (${category.title}):`);
+    log(`\n📂 ${categoryId} (${category.title}):`);
 
     category.products.forEach(product => {
       const hasDiscount = product.appliedOffer !== null;
-      console.log(`   ${hasDiscount ? '🏷️' : '💰'} ${product.name}:`);
-      console.log(`      ID: ${product.id}`);
-      console.log(`      Categoría: ${product.category}`);
-      console.log(`      Precio base: $${product.basePrice}`);
-      console.log(`      Precio final: $${product.price}`);
+      log(`   ${hasDiscount ? '🏷️' : '💰'} ${product.name}:`);
+      log(`      ID: ${product.id}`);
+      log(`      Categoría: ${product.category}`);
+      log(`      Precio base: $${product.basePrice}`);
+      log(`      Precio final: $${product.price}`);
       if (hasDiscount) {
-        console.log(`      Descuento: ${product.discountPercentage}% (${product.appliedOffer.name})`);
-        console.log(`      Oferta aplicada:`, product.appliedOffer);
+        log(`      Descuento: ${product.discountPercentage}% (${product.appliedOffer.name})`);
+        log(`      Oferta aplicada:`, product.appliedOffer);
       } else {
-        console.log(`      Sin descuento aplicado`);
+        log(`      Sin descuento aplicado`);
       }
     });
   });
 
-  console.log('\n✅ Prueba completada');
+  log('\n✅ Prueba completada');
 }
 
 // Hacer la función disponible globalmente para pruebas
 window.testPricingSystem = testPricingSystem;
 
+// Muestra un mensaje de error visible en el catálogo cuando Firebase falla
+function showCatalogError(message) {
+  const catalogGrid = document.getElementById('catalog-grid');
+  if (catalogGrid) {
+    catalogGrid.innerHTML = `
+      <div style="grid-column:1/-1; text-align:center; padding:40px 20px; color:#c0392b;">
+        <p style="font-size:1.1rem; margin-bottom:8px;">⚠️ ${esc(message)}</p>
+        <p style="font-size:0.9rem; color:#666;">Verificá tu conexión y recargá la página.</p>
+      </div>`;
+  }
+}
+
 // Load catalog data from Firebase
 async function loadCatalogData() {
   try {
-    console.log('🔄 Cargando catálogo desde Firebase...');
+    log('🔄 Cargando catálogo desde Firebase...');
 
     // Load categories
     const categoriesSnapshot = await db.collection('categories').get();
@@ -332,7 +330,7 @@ async function loadCatalogData() {
           images: product.images || (product.image ? [product.image] : [])
         };
 
-        console.log(`📦 Producto cargado: ${product.name} - Base: $${product.basePrice}, Current: $${product.currentPrice}, Category: ${categoryId}`);
+        log(`📦 Producto cargado: ${product.name} - Base: $${product.basePrice}, Current: $${product.currentPrice}, Category: ${categoryId}`);
 
         // Si es tipo sections y el producto tiene sección, agregar a la sección correspondiente
         if (categories[categoryId].type === 'sections' && product.section) {
@@ -350,14 +348,14 @@ async function loadCatalogData() {
     });
 
     catalogData = categories;
-    console.log('✅ Catálogo cargado desde Firebase:', Object.keys(catalogData));
+    log('✅ Catálogo cargado desde Firebase:', Object.keys(catalogData));
 
     // Log de precios para verificar
     Object.keys(catalogData).forEach(categoryId => {
       const category = categories[categoryId];
-      console.log(`📦 ${categoryId}: ${category.products.length} productos`);
+      log(`📦 ${categoryId}: ${category.products.length} productos`);
       category.products.forEach(product => {
-        console.log(`   - ${product.name}: $${product.price} (base: $${product.basePrice})`);
+        log(`   - ${product.name}: $${product.price} (base: $${product.basePrice})`);
       });
     });
 
@@ -369,19 +367,22 @@ async function loadCatalogData() {
     // Actualizar badges de categorías con ofertas
     updateCategoryBadges();
 
-    // Actualizar imágenes de servicios después de cargar datos
-    if (typeof setRandomServiceImages === 'function') {
-      setRandomServiceImages();
-    }
+    // Inicializar imágenes de servicios ahora que los datos están listos
+    onCatalogLoaded();
   } catch (error) {
-    console.error('❌ Error cargando catálogo:', error);
+    console.error('Error cargando catálogo:', error);
+    showCatalogError('No se pudo cargar el catálogo de productos.');
   }
 }
 
-// Wait for Firebase scripts to load
-firebaseScript.onload = () => {
-  firestoreScript.onload = initializeFirebase;
-};
+// Iniciar carga del catálogo cuando el DOM esté listo
+// (Firebase ya está inicializado por firebase-config.js)
+document.addEventListener('DOMContentLoaded', () => {
+  if (window.db) {
+    loadCatalogData();
+    loadOffers();
+  }
+});
 
 // Scroll Animation Observer
 const observerOptions = {
@@ -450,29 +451,24 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     });
 });
 
-// Parallax effect on scroll
-window.addEventListener('scroll', () => {
+// Parallax effect on scroll — single rAF-throttled handler, DOM refs cached once
+const _parallaxContent = document.querySelector('.hero-content');
+let parallaxTicking = false;
+function handleParallax() {
     const scrolled = window.pageYOffset;
-    const hero = document.querySelector('.hero');
-    const heroContent = document.querySelector('.hero-content');
-    const heroImage = document.querySelector('.hero-image');
-
-    if (hero && heroContent && heroImage) {
-        heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
-        heroImage.style.transform = `translateY(${scrolled * 0.2}px)`;
+    if (_parallaxContent) {
+        _parallaxContent.style.transform = `translateY(${scrolled * 0.15}px)`;
     }
-});
+    parallaxTicking = false;
+}
+window.addEventListener('scroll', () => {
+    if (!parallaxTicking) {
+        requestAnimationFrame(handleParallax);
+        parallaxTicking = true;
+    }
+}, { passive: true });
 
-// Add hover effect to cards
-document.querySelectorAll('.service-card, .price-card, .testimonial-card, .shipping-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-10px) scale(1.02)';
-    });
-
-    card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0) scale(1)';
-    });
-});
+// Hover effects handled entirely by CSS :hover rules — no JS needed.
 
 // Counter animation for single prices
 const animateCounter = (element, target, duration = 2000) => {
@@ -553,20 +549,12 @@ document.querySelectorAll('.price-card').forEach(card => {
     priceObserver.observe(card);
 });
 
-// Add loading animation
-window.addEventListener('load', () => {
-    document.body.style.opacity = '0';
-    document.body.style.transition = 'opacity 0.5s ease';
-
-    setTimeout(() => {
-        document.body.style.opacity = '1';
-    }, 100);
-});
+// Fade-in de body manejado por CSS (ver styles.css — @keyframes bodyFadeIn)
 
 // Mobile menu toggle (if needed in future)
 const addMobileMenu = () => {
     // Placeholder for future mobile menu functionality
-    console.log('Mobile menu ready for implementation');
+    log('Mobile menu ready for implementation');
 };
 
 // Mobile-specific optimizations
@@ -584,9 +572,7 @@ const adjustForMobile = () => {
                 if (index > 2) el.remove();
             });
         }
-
-        // Disable parallax on mobile for better performance
-        window.removeEventListener('scroll', debouncedParallax);
+        // Parallax is handled by a single rAF handler; no separate mobile removal needed
     }
 };
 
@@ -606,36 +592,7 @@ window.addEventListener('resize', () => {
 // Set initial mobile state
 document.body.dataset.mobile = isMobile();
 
-// Performance optimization: Debounce scroll events
-const debounce = (func, wait) => {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-};
-
-// Debounced parallax effect
-const debouncedParallax = debounce(() => {
-    const scrolled = window.pageYOffset;
-    const hero = document.querySelector('.hero');
-    const heroContent = document.querySelector('.hero-content');
-    const heroImage = document.querySelector('.hero-image');
-
-    if (hero && heroContent && heroImage) {
-        heroContent.style.transform = `translateY(${scrolled * 0.3}px)`;
-        heroImage.style.transform = `translateY(${scrolled * 0.2}px)`;
-    }
-}, 10);
-
-window.removeEventListener('scroll', () => {});
-window.addEventListener('scroll', debouncedParallax);
-
-console.log('La Pastelería website loaded successfully! 🎂');
+log('La Pastelería website loaded successfully! 🎂');
 
 // ==================== HERO SLIDESHOW ====================
 
@@ -686,176 +643,32 @@ function startHeroSlideshow() {
     }, 4000); // 4 segundos
 }
 
-// Iniciar el slideshow cuando el DOM esté listo
+// Iniciar el hero slideshow al cargar el DOM
 document.addEventListener('DOMContentLoaded', () => {
     startHeroSlideshow();
-
-    // Esperar a que Firebase cargue antes de inicializar las imágenes de servicios
-    const checkFirebaseReady = setInterval(() => {
-        if (db && Object.keys(catalogData).length > 0) {
-            clearInterval(checkFirebaseReady);
-            console.log('✅ Firebase listo, inicializando imágenes de servicios...');
-            setRandomServiceImages();
-            startServiceImagesRotation();
-        }
-    }, 500);
-
-    // Timeout después de 10 segundos
-    setTimeout(() => {
-        clearInterval(checkFirebaseReady);
-        if (Object.keys(catalogData).length === 0) {
-            console.log('⚠️ Timeout esperando Firebase, usando fallback...');
-            setRandomServiceImages();
-            startServiceImagesRotation();
-        }
-    }, 10000);
 });
 
-// ==================== IMÁGENES ALEATORIAS DE SERVICIOS ====================
-
-// Variables para controlar la rotación de imágenes de servicios
-let serviceImagesIntervals = {};
-let serviceCurrentImageIndices = {};
-
-// Función para obtener un índice aleatorio diferente al actual
-function getServiceRandomImageIndex(totalImages, currentIndex) {
-    let newIndex;
-    do {
-        newIndex = Math.floor(Math.random() * totalImages);
-    } while (newIndex === currentIndex && totalImages > 1);
-    return newIndex;
-}
-
-// Función para obtener todas las imágenes de una categoría
-function getCategoryImages(category) {
-    // Verificar si hay datos cargados
-    if (!catalogData || Object.keys(catalogData).length === 0) {
-        console.log('⏳ Esperando datos de Firebase para getCategoryImages');
-        return [];
-    }
-
-    const categoryData = catalogData[category];
-    if (!categoryData) {
-        console.log(`❌ Categoría ${category} no encontrada`);
-        return [];
-    }
-
-    console.log(`🔍 Analizando categoría ${category}:`);
-    console.log(`   Tipo: ${categoryData.type}`);
-    console.log(`   Productos directos: ${categoryData.products ? categoryData.products.length : 0}`);
-    console.log(`   Secciones: ${categoryData.sections ? categoryData.sections.length : 0}`);
-
-    let images = [];
-
-    if (categoryData.type === 'sections' && categoryData.sections) {
-        // Para categorías tipo sections (individuales), obtener productos de todas las secciones
-        const allProducts = categoryData.sections.flatMap(section => section.products);
-        images = allProducts
-            .filter(product => product.images && product.images.length > 0)
-            .map(product => product.images[0]);
-        console.log(`   ✅ Usando imágenes de secciones: ${images.length} imágenes de ${allProducts.length} productos`);
-    } else if (categoryData.products && categoryData.products.length > 0) {
-        // Para categorías normales y slideshow, usar las imágenes de todos los productos
-        images = categoryData.products
-            .filter(product => product.images && product.images.length > 0)
-            .flatMap(product => product.images); // Usar flatMap para obtener todas las imágenes de cada producto
-        console.log(`   ✅ Usando imágenes de productos: ${images.length} imágenes de ${categoryData.products.length} productos`);
-    } else {
-        console.log(`   ❌ No se encontraron imágenes para esta categoría`);
-    }
-
-    console.log(`   📷 Total de imágenes: ${images.length}`);
-    return images;
-}
-
-// Función para establecer imágenes aleatorias en las tarjetas de servicio
-function setRandomServiceImages() {
-    const categories = ['cumpleanos', 'postres', 'individuales', 'budines', 'salados', 'diadelamadre'];
-
-    categories.forEach(category => {
-        const images = getCategoryImages(category);
-        if (images.length === 0) return;
-
-        const serviceSlideshow = document.getElementById(`${category}-service-slideshow`);
-        if (!serviceSlideshow) return;
-
-        const serviceImages = serviceSlideshow.querySelectorAll('.service-bg-image');
-        if (serviceImages.length === 0) return;
-
-        // Seleccionar índices aleatorios iniciales (asegurando que sean diferentes)
-        serviceCurrentImageIndices[category] = [];
-
-        for (let i = 0; i < serviceImages.length; i++) {
-            let randomIndex;
-            if (i === 0) {
-                // Primera imagen: completamente aleatoria
-                randomIndex = Math.floor(Math.random() * images.length);
-            } else {
-                // Imágenes siguientes: diferentes a las anteriores
-                let previousIndex = serviceCurrentImageIndices[category][i - 1];
-                randomIndex = getServiceRandomImageIndex(images.length, previousIndex);
-            }
-
-            serviceCurrentImageIndices[category].push(randomIndex);
-            serviceImages[i].src = images[randomIndex];
-            serviceImages[i].classList.add('active');
-        }
-    });
-}
-
-// Función para iniciar la rotación continua de imágenes de servicios
-function startServiceImagesRotation() {
-    const categories = ['cumpleanos', 'postres', 'individuales', 'budines', 'salados', 'diadelamadre'];
-
-    categories.forEach(category => {
-        const images = getCategoryImages(category);
-        if (images.length === 0) return;
-
-        const serviceSlideshow = document.getElementById(`${category}-service-slideshow`);
-        if (!serviceSlideshow) return;
-
-        const serviceImages = serviceSlideshow.querySelectorAll('.service-bg-image');
-        if (serviceImages.length === 0) return;
-
-        // Inicializar índices actuales si no existen
-        if (!serviceCurrentImageIndices[category]) {
-            serviceCurrentImageIndices[category] = serviceImages.map((_, i) =>
-                i === 0 ? Math.floor(Math.random() * images.length) : getServiceRandomImageIndex(images.length, serviceCurrentImageIndices[category]?.[i - 1] || 0)
-            );
-        }
-
-        // Crear intervalo para cada categoría
-        serviceImagesIntervals[category] = setInterval(() => {
-            serviceImages.forEach((serviceImage, imageIndex) => {
-                // Remover clase active de la imagen actual
-                serviceImage.classList.remove('active');
-
-                // Obtener un índice aleatorio diferente al actual
-                const currentIndex = serviceCurrentImageIndices[category][imageIndex];
-                const nextIndex = getServiceRandomImageIndex(images.length, currentIndex);
-                serviceCurrentImageIndices[category][imageIndex] = nextIndex;
-
-                // Cambiar la imagen
-                serviceImage.src = images[nextIndex];
-
-                // Agregar clase active después de un breve retraso para suavizar la transición
-                setTimeout(() => {
-                    serviceImage.classList.add('active');
-                }, 50);
-            });
-        }, 4000); // Cambiar cada 4 segundos (igual que el hero)
-    });
-}
-
-// Función para detener la rotación de imágenes de servicios
-function stopServiceImagesRotation() {
-    Object.keys(serviceImagesIntervals).forEach(category => {
-        clearInterval(serviceImagesIntervals[category]);
-    });
-    serviceImagesIntervals = {};
+// Llamado desde loadCatalogData() cuando los datos de Firebase están listos
+function onCatalogLoaded() {
+    // Los slideshows del catálogo se inician al renderizar las tarjetas
 }
 
 // ==================== SISTEMA DE CARRITO ====================
+
+// Pausar/reanudar todos los intervals cuando el tab no es visible
+// Evita trabajo innecesario de CPU/GPU cuando el usuario no está mirando
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Pausar hero
+        if (heroSlideshowInterval) { clearInterval(heroSlideshowInterval); heroSlideshowInterval = null; }
+        // Pausar catalog slideshows
+        clearSlideshowIntervals();
+    } else {
+        // Reanudar hero
+        startHeroSlideshow();
+        // Los catalog slideshows se reanudan al volver al catálogo
+    }
+});
 
 // Objeto global del carrito
 let cart = {
@@ -1141,7 +954,7 @@ function renderCartItems() {
 
         cartItem.innerHTML = `
             <div class="cart-item-info">
-                <h4 class="cart-item-name">${item.name}</h4>
+                <h4 class="cart-item-name">${esc(item.name)}</h4>
                 <p class="cart-item-price">$${item.price} c/u</p>
             </div>
             <div class="cart-item-controls">
@@ -1269,7 +1082,7 @@ async function checkout() {
             estado: 'pendiente'
         });
 
-        console.log('✅ Pedido guardado en Firebase:', orderId);
+        log('✅ Pedido guardado en Firebase:', orderId);
 
         // Mostrar confirmación antes de redirigir
         if (confirm(`¿Confirmar pedido por $${total}?\n\nSerás redirigido a WhatsApp para enviar tu pedido.\n\n✅ Pedido registrado en el sistema.`)) {
@@ -1312,7 +1125,7 @@ let currentSubCategory = null;
 function showCatalog(category, subCategory = null) {
     // Verificar si Firebase está inicializado y los datos están cargados
     if (!db || Object.keys(catalogData).length === 0) {
-        console.log('⏳ Esperando carga de datos de Firebase...');
+        log('⏳ Esperando carga de datos de Firebase...');
         // Mostrar mensaje de carga
         const catalogSection = document.getElementById('catalogo');
         const catalogGrid = document.getElementById('catalog-grid');
@@ -1403,17 +1216,20 @@ function showCatalog(category, subCategory = null) {
             // Crear ID único para este slideshow
             const slideshowId = `slideshow-${product.id}`;
 
+            // Deduplicar imágenes para evitar que se muestre la misma foto dos veces
+            const uniqueImages = [...new Set(product.images)];
+
             slideshowCard.innerHTML = `
                 <div class="catalog-slideshow" id="${slideshowId}">
                     <div class="slideshow-images-container">
-                        ${product.images.map((img, imgIndex) => `
-                            <img src="${img}" alt="${product.name}" class="slideshow-image ${imgIndex === 0 ? 'active' : ''}" data-index="${imgIndex}">
+                        ${uniqueImages.map((img, imgIndex) => `
+                            <img src="${esc(img)}" alt="${esc(product.name)}" class="slideshow-image ${imgIndex === 0 ? 'active' : ''}" data-index="${imgIndex}">
                         `).join('')}
                     </div>
                 </div>
                 <div class="product-info">
-                    <h3 class="product-name">${product.name}</h3>
-                    <p class="product-description">${product.description}</p>
+                    <h3 class="product-name">${esc(product.name)}</h3>
+                    <p class="product-description">${esc(product.description)}</p>
                     <div class="product-price">
                         ${product.appliedOffer ? `
                             <span class="original-price">$${product.basePrice}</span>
@@ -1421,7 +1237,7 @@ function showCatalog(category, subCategory = null) {
                             <span class="discount-badge">-${product.discountPercentage}%</span>
                         ` : `$${product.price}`}
                     </div>
-                    <button class="add-to-cart-button" onclick="addToCartWithRange(this, '${product.name}', '${product.price}')">
+                    <button class="add-to-cart-button" onclick="addToCartWithRange(this, ${JSON.stringify(esc(product.name))}, '${product.price}')">
                         Añadir al Carrito
                     </button>
                 </div>
@@ -1430,7 +1246,7 @@ function showCatalog(category, subCategory = null) {
             catalogGrid.appendChild(slideshowCard);
 
             // Iniciar la rotación de imágenes para este slideshow
-            startSlideshowRotation(slideshowId, product.id, product.images.length);
+            startSlideshowRotation(slideshowId, product.id, uniqueImages.length);
 
             // Animar entrada
             setTimeout(() => {
@@ -1485,11 +1301,11 @@ function showCatalog(category, subCategory = null) {
 
                 productCard.innerHTML = `
                     <div class="product-image">
-                        <img src="${product.images && product.images.length > 0 ? product.images[0] : ''}" alt="${product.name}" class="product-image-img">
+                        <img src="${esc(product.images && product.images.length > 0 ? product.images[0] : '')}" alt="${esc(product.name)}" class="product-image-img" loading="lazy">
                     </div>
                     <div class="product-info">
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
+                        <h3 class="product-name">${esc(product.name)}</h3>
+                        <p class="product-description">${esc(product.description)}</p>
                         <div class="product-price">
                             ${product.appliedOffer ? `
                                 <span class="original-price">$${product.basePrice}</span>
@@ -1497,7 +1313,7 @@ function showCatalog(category, subCategory = null) {
                                 <span class="discount-badge">-${product.discountPercentage}%</span>
                             ` : `$${product.price}`}
                         </div>
-                        <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
+                        <button class="add-to-cart-button" onclick="addToCart(this, ${JSON.stringify(esc(product.name))}, ${product.price})">
                             Añadir al Carrito
                         </button>
                     </div>
@@ -1545,16 +1361,16 @@ function showCatalog(category, subCategory = null) {
                 productCard.style.transitionDelay = `${globalIndex * 0.1}s`;
 
                 const imageContent = product.images && product.images.length > 0
-                    ? `<img src="${product.images[0]}" alt="${product.name}" class="product-image-img">`
-                    : `<span>${product.emoji}</span>`;
+                    ? `<img src="${esc(product.images[0])}" alt="${esc(product.name)}" class="product-image-img" loading="lazy">`
+                    : `<span>${esc(product.emoji)}</span>`;
 
                 productCard.innerHTML = `
                     <div class="product-image">
                         ${imageContent}
                     </div>
                     <div class="product-info">
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
+                        <h3 class="product-name">${esc(product.name)}</h3>
+                        <p class="product-description">${esc(product.description)}</p>
                         <div class="product-price">
                             ${product.appliedOffer ? `
                                 <span class="original-price">$${product.basePrice}</span>
@@ -1562,7 +1378,7 @@ function showCatalog(category, subCategory = null) {
                                 <span class="discount-badge">-${product.discountPercentage}%</span>
                             ` : `$${product.price}`}
                         </div>
-                        <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
+                        <button class="add-to-cart-button" onclick="addToCart(this, ${JSON.stringify(esc(product.name))}, ${product.price})">
                             Añadir al Carrito
                         </button>
                     </div>
@@ -1596,18 +1412,18 @@ function showCatalog(category, subCategory = null) {
 
             // Usar imagen si está disponible, si no usar emoji
             const imageContent = product.images && product.images.length > 0
-                ? `<img src="${product.images[0]}" alt="${product.name}" class="product-image-img">`
-                : `<span>${product.emoji}</span>`;
+                ? `<img src="${esc(product.images[0])}" alt="${esc(product.name)}" class="product-image-img" loading="lazy">`
+                : `<span>${esc(product.emoji)}</span>`;
 
             productCard.innerHTML = `
                 <div class="product-image">
                     ${imageContent}
                 </div>
                 <div class="product-info">
-                    <h3 class="product-name">${product.name}</h3>
-                    <p class="product-description">${product.description}</p>
+                    <h3 class="product-name">${esc(product.name)}</h3>
+                    <p class="product-description">${esc(product.description)}</p>
                     <div class="product-price">$${product.price}</div>
-                    <button class="add-to-cart-button" onclick="addToCart(this, '${product.name}', ${product.price})">
+                    <button class="add-to-cart-button" onclick="addToCart(this, ${JSON.stringify(esc(product.name))}, ${product.price})">
                         Añadir al Carrito
                     </button>
                 </div>
@@ -1628,39 +1444,28 @@ function showCatalog(category, subCategory = null) {
 
 // Función para iniciar la rotación de imágenes de un slideshow
 function startSlideshowRotation(slideshowId, productId, imageCount) {
-    const slideshowElement = document.getElementById(slideshowId);
+    if (imageCount <= 1) return; // Sin sentido rotar si solo hay una imagen
 
+    const slideshowElement = document.getElementById(slideshowId);
     if (!slideshowElement) return;
 
-    // Crear intervalo para rotar imágenes cada 3 segundos
+    // Cachear referencias al DOM una sola vez — no re-consultar en cada tick
+    const images = Array.from(slideshowElement.querySelectorAll('.slideshow-image'));
+    if (images.length === 0) return;
+
+    let currentIndex = 0; // La primera imagen arranca activa
+
     const interval = setInterval(() => {
-        // Obtener todas las imágenes
-        const images = slideshowElement.querySelectorAll('.slideshow-image');
-        if (images.length === 0) return;
+        // Desactivar imagen actual
+        images[currentIndex].classList.remove('active');
 
-        // Encontrar la imagen activa actual
-        const currentActive = slideshowElement.querySelector('.slideshow-image.active');
-        let currentActiveIndex = 0;
+        // Avanzar secuencialmente (evita repetición y es más predecible que random)
+        currentIndex = (currentIndex + 1) % images.length;
 
-        if (currentActive) {
-            currentActiveIndex = parseInt(currentActive.dataset.index);
-            currentActive.classList.remove('active');
-        }
+        // Activar la siguiente
+        images[currentIndex].classList.add('active');
+    }, 3000);
 
-        // Seleccionar una imagen aleatoria diferente a la actual
-        let nextIndex;
-        do {
-            nextIndex = Math.floor(Math.random() * imageCount);
-        } while (nextIndex === currentActiveIndex && imageCount > 1);
-
-        // Activar la siguiente imagen aleatoria
-        const nextImage = slideshowElement.querySelector(`.slideshow-image[data-index="${nextIndex}"]`);
-        if (nextImage) {
-            nextImage.classList.add('active');
-        }
-    }, 3000); // 3 segundos
-
-    // Guardar el intervalo para limpiarlo después
     slideshowIntervals.push(interval);
 }
 
