@@ -2437,12 +2437,12 @@ section.hero, section.shop-section { padding: 0 !important; }
     }
     const customerMsg = `🍰 *Gracias por tu pedido — La Pastelería*\n\nHola ${name}, recibimos tu pedido correctamente.\n\n*Productos:*\n${cart.items.map(i => `  • ${i.name} × ${i.quantity} — $${i.price}`).join('\n')}\n\n💰 *Total: $${total}*\n💵 *Pago a coordinar*\n\nTe contactaremos pronto para coordinar la entrega.`;
     try {
-      const ultramsgUrl = 'https://api.ultramsg.com/instance176269/messages/chat';
+      const ultramsgUrl = 'https://api.ultramsg.com/instance174468/messages/chat';
       await fetch(ultramsgUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({
-          token: 'y62pg7fri91v98z4',
+          token: '22buqtstxo87neek',
           to: customerPhone,
           body: customerMsg
         })
