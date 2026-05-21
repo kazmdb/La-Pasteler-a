@@ -578,7 +578,7 @@ class AdminPanel {
                     <div style="font-size: 0.85rem; color: #666;">${esc(product.description.substring(0, 50))}...</div>
                 </td>
                 <td>${esc(this.getCategoryName(product.category))}</td>
-                <td id="price-td-${esc(product.id)}" class="inline-editable" onclick="adminPanel.startInlinePriceEdit(${JSON.stringify(product.id)})" title="Clic para editar precio">$${product.basePrice}</td>
+                <td id="price-td-${esc(product.id)}" class="inline-editable" onclick='adminPanel.startInlinePriceEdit(${JSON.stringify(product.id)})' title="Clic para editar precio">$${product.basePrice}</td>
                 <td>
                     ${offer ? `
                         <span class="price-display original">$${product.basePrice}</span>
@@ -587,7 +587,7 @@ class AdminPanel {
                         <span class="price-display">$${product.currentPrice}</span>
                     `}
                 </td>
-                <td id="offer-td-${esc(product.id)}" class="inline-editable" onclick="adminPanel.startInlineOfferEdit(${JSON.stringify(product.id)})" title="${offer ? 'Clic para editar oferta' : 'Clic para agregar oferta'}">
+                <td id="offer-td-${esc(product.id)}" class="inline-editable" onclick='adminPanel.startInlineOfferEdit(${JSON.stringify(product.id)})' title="${offer ? 'Clic para editar oferta' : 'Clic para agregar oferta'}">
                     ${offer ? `
                         <span class="discount-badge">${offer.type === 'percentage' ? offer.value + '%' : '$' + offer.value}</span>
                     ` : '<span class="add-offer-hint">+ oferta</span>'}
@@ -599,11 +599,11 @@ class AdminPanel {
                 </td>
                 <td>
                     <div class="action-buttons">
-                        <button class="action-btn edit" onclick="adminPanel.editProduct(${JSON.stringify(product.id)})">Editar</button>
-                        <button class="action-btn toggle" onclick="adminPanel.toggleProduct(${JSON.stringify(product.id)})">
+                        <button class="action-btn edit" onclick='adminPanel.editProduct(${JSON.stringify(product.id)})'>Editar</button>
+                        <button class="action-btn toggle" onclick='adminPanel.toggleProduct(${JSON.stringify(product.id)})'>
                             ${product.isActive ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button class="action-btn delete" onclick="adminPanel.deleteProduct(${JSON.stringify(product.id)})">Eliminar</button>
+                        <button class="action-btn delete" onclick='adminPanel.deleteProduct(${JSON.stringify(product.id)})'>Eliminar</button>
                     </div>
                 </td>
             `;
@@ -642,8 +642,8 @@ class AdminPanel {
                     </span>
                 </div>
                 <div class="category-actions">
-                    <button class="action-btn edit" onclick="adminPanel.editCategory(${JSON.stringify(category.id)})">Editar</button>
-                    <button class="action-btn delete" onclick="adminPanel.deleteCategory(${JSON.stringify(category.id)})">Eliminar</button>
+                    <button class="action-btn edit" onclick='adminPanel.editCategory(${JSON.stringify(category.id)})'>Editar</button>
+                    <button class="action-btn delete" onclick='adminPanel.deleteCategory(${JSON.stringify(category.id)})'>Eliminar</button>
                 </div>
             `;
 
@@ -689,11 +689,11 @@ class AdminPanel {
                 </td>
                 <td>
                     <div class="action-buttons">
-                        <button class="action-btn edit" onclick="adminPanel.editOffer(${JSON.stringify(offer.id)})">Editar</button>
-                        <button class="action-btn toggle" onclick="adminPanel.toggleOffer(${JSON.stringify(offer.id)})">
+                        <button class="action-btn edit" onclick='adminPanel.editOffer(${JSON.stringify(offer.id)})'>Editar</button>
+                        <button class="action-btn toggle" onclick='adminPanel.toggleOffer(${JSON.stringify(offer.id)})'>
                             ${offer.isActive ? 'Desactivar' : 'Activar'}
                         </button>
-                        <button class="action-btn delete" onclick="adminPanel.deleteOffer(${JSON.stringify(offer.id)})">Eliminar</button>
+                        <button class="action-btn delete" onclick='adminPanel.deleteOffer(${JSON.stringify(offer.id)})'>Eliminar</button>
                     </div>
                 </td>
             `;
@@ -757,13 +757,13 @@ class AdminPanel {
                         ${this.getOrderStatusLabel(order.estado)}
                     </span>
                     <div class="order-card-actions">
-                        <button class="action-btn edit" onclick="adminPanel.viewOrderDetails(${JSON.stringify(order.id)})">
+                        <button class="action-btn edit" onclick='adminPanel.viewOrderDetails(${JSON.stringify(order.id)})'>
                             <span>👁️</span> Ver
                         </button>
-                        <button class="action-btn toggle" onclick="adminPanel.updateOrderStatus(${JSON.stringify(order.id)})">
+                        <button class="action-btn toggle" onclick='adminPanel.updateOrderStatus(${JSON.stringify(order.id)})'>
                             <span>🔄</span> Estado
                         </button>
-                        <button class="action-btn delete" onclick="adminPanel.deleteOrder(${JSON.stringify(order.id)})">
+                        <button class="action-btn delete" onclick='adminPanel.deleteOrder(${JSON.stringify(order.id)})'>
                             <span>🗑️</span> Eliminar
                         </button>
                     </div>
@@ -2145,4 +2145,4 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
     }
 }
 
-// Ini
+const adminPanel = new AdminPanel();
