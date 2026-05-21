@@ -1232,8 +1232,10 @@ function showCatalog(category, subCategory = null) {
                     <p class="product-description">${esc(product.description)}</p>
                     <div class="product-price">
                         ${product.appliedOffer ? `
-                            <span class="original-price">$${product.basePrice}</span>
-                            <span class="discounted-price">$${product.price}</span>
+                            <span class="price-group">
+                                <span class="original-price">$${product.basePrice}</span>
+                                <span class="discounted-price">$${product.price}</span>
+                            </span>
                             <span class="discount-badge">-${product.discountPercentage}%</span>
                         ` : `$${product.price}`}
                     </div>
@@ -1308,8 +1310,10 @@ function showCatalog(category, subCategory = null) {
                         <p class="product-description">${esc(product.description)}</p>
                         <div class="product-price">
                             ${product.appliedOffer ? `
-                                <span class="original-price">$${product.basePrice}</span>
-                                <span class="discounted-price">$${product.price}</span>
+                                <span class="price-group">
+                                    <span class="original-price">$${product.basePrice}</span>
+                                    <span class="discounted-price">$${product.price}</span>
+                                </span>
                                 <span class="discount-badge">-${product.discountPercentage}%</span>
                             ` : `$${product.price}`}
                         </div>
@@ -1373,8 +1377,10 @@ function showCatalog(category, subCategory = null) {
                         <p class="product-description">${esc(product.description)}</p>
                         <div class="product-price">
                             ${product.appliedOffer ? `
-                                <span class="original-price">$${product.basePrice}</span>
-                                <span class="discounted-price">$${product.price}</span>
+                                <span class="price-group">
+                                    <span class="original-price">$${product.basePrice}</span>
+                                    <span class="discounted-price">$${product.price}</span>
+                                </span>
                                 <span class="discount-badge">-${product.discountPercentage}%</span>
                             ` : `$${product.price}`}
                         </div>

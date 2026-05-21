@@ -2116,7 +2116,7 @@ section {
 
     .nav-menu {
         gap: 15px;
-        flex-wrap: wrap;
+    flex-wrap: nowrap;
         justify-content: center;
     }
 
@@ -2699,7 +2699,16 @@ html {
 .product-price {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+
+.price-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
     flex-wrap: wrap;
 }
 
@@ -2722,4 +2731,5 @@ html {
     border-radius: 12px;
     font-size: 0.8rem;
     font-weight: bold;
+    flex-shrink: 0;
 }
