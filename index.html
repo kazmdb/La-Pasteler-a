@@ -1765,6 +1765,188 @@ section.hero, section.shop-section { padding: 0 !important; }
   .shipping-new-inner { padding: 48px 14px 56px; }
   .testimonials-new-inner { padding: 48px 14px 56px; }
 }
+
+/* ══════════════════════════════════════════
+   COUNTDOWN — SIDEBAR WIDGET (desktop)
+══════════════════════════════════════════ */
+.cd-widget {
+  background: linear-gradient(160deg, var(--mocha-dark) 0%, var(--mocha) 100%);
+  border: 1px solid rgba(201,168,76,.3);
+  text-align: center;
+  padding: 22px 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.cd-widget::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(201,168,76,.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cd-crown {
+  color: var(--gold);
+  font-size: 14px;
+  letter-spacing: 6px;
+  margin-bottom: 10px;
+  opacity: .8;
+}
+.cd-offer-label {
+  font-family: 'Cinzel', serif;
+  font-size: 8px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(232,208,138,.65);
+  margin-bottom: 6px;
+}
+.cd-offer-pct {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--gold-light);
+  letter-spacing: -1px;
+  margin-bottom: 2px;
+}
+.cd-offer-sub {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 15px;
+  font-style: italic;
+  color: rgba(255,255,255,.65);
+  margin-bottom: 18px;
+}
+.cd-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: 14px;
+}
+.cd-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,.25);
+  border: 1px solid rgba(201,168,76,.2);
+  border-radius: 10px;
+  padding: 8px 10px 6px;
+  min-width: 48px;
+}
+.cd-num {
+  font-family: 'Cinzel', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  line-height: 1;
+  display: block;
+}
+.cd-lbl {
+  font-family: 'Jost', sans-serif;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(232,208,138,.55);
+  margin-top: 3px;
+  display: block;
+}
+.cd-colon {
+  font-family: 'Cinzel', serif;
+  font-size: 22px;
+  color: var(--gold);
+  opacity: .6;
+  padding-bottom: 8px;
+  align-self: center;
+}
+.cd-deadline {
+  font-family: 'Cinzel', serif;
+  font-size: 7.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(232,208,138,.45);
+}
+/* Pulso en segundos */
+@keyframes cdPulse {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.12); color: var(--gold-light); }
+  100% { transform: scale(1); }
+}
+.cd-pulse { animation: cdPulse .4s ease; }
+
+/* ── BANNER HORIZONTAL (desktop + mobile) ── */
+.cd-mobile-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--mocha-dark), var(--mocha));
+  border: 1px solid rgba(201,168,76,.25);
+  border-radius: 14px;
+  padding: 14px 22px;
+  margin-bottom: 20px;
+}
+.cd-mob-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.cd-mob-pct {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--gold-light);
+  line-height: 1;
+}
+.cd-mob-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 13px;
+  font-style: italic;
+  color: rgba(255,255,255,.6);
+}
+.cd-mob-timer {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.cd-mob-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(201,168,76,.18);
+  border-radius: 8px;
+  padding: 5px 7px 4px;
+  min-width: 34px;
+}
+.cd-mob-block .cd-num {
+  font-size: 16px;
+}
+.cd-mob-lbl {
+  font-family: 'Jost', sans-serif;
+  font-size: 7px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: rgba(232,208,138,.5);
+  margin-top: 2px;
+  display: block;
+}
+.cd-mob-colon {
+  font-family: 'Cinzel', serif;
+  font-size: 16px;
+  color: var(--gold);
+  opacity: .5;
+  padding-bottom: 6px;
+}
+
+/* Ocultar widget vertical del sidebar en desktop (el banner horizontal lo reemplaza) */
+@media (min-width: 769px) {
+  .cd-widget { display: none !important; }
+  .cd-mob-pct { font-size: 34px; }
+  .cd-mob-text { font-size: 15px; }
+  .cd-mob-block { min-width: 42px; padding: 7px 10px 5px; }
+  .cd-mob-block .cd-num { font-size: 20px; }
+  .cd-mob-lbl { font-size: 8px; }
+  .cd-mob-colon { font-size: 20px; }
+}
 </style>
 </head>
 <body>
@@ -1925,6 +2107,23 @@ section.hero, section.shop-section { padding: 0 !important; }
         </div>
       </div>
 
+      <!-- Countdown banner — mobile only -->
+      <div class="cd-mobile-banner fade-in">
+        <div class="cd-mob-left">
+          <span class="cd-mob-pct">−10%</span>
+          <span class="cd-mob-text">en toda la carta</span>
+        </div>
+        <div class="cd-mob-timer">
+          <div class="cd-mob-block"><span class="cd-num" id="cdm-days">00</span><span class="cd-mob-lbl">d</span></div>
+          <span class="cd-mob-colon">:</span>
+          <div class="cd-mob-block"><span class="cd-num" id="cdm-hours">00</span><span class="cd-mob-lbl">h</span></div>
+          <span class="cd-mob-colon">:</span>
+          <div class="cd-mob-block"><span class="cd-num" id="cdm-mins">00</span><span class="cd-mob-lbl">m</span></div>
+          <span class="cd-mob-colon">:</span>
+          <div class="cd-mob-block"><span class="cd-num" id="cdm-secs">00</span><span class="cd-mob-lbl">s</span></div>
+        </div>
+      </div>
+
       <div id="products-grid" class="products-grid">
         <p class="products-loading">Cargando productos…</p>
       </div>
@@ -1932,6 +2131,25 @@ section.hero, section.shop-section { padding: 0 !important; }
 
     <!-- SIDEBAR -->
     <aside class="sidebar">
+
+      <!-- ── COUNTDOWN WIDGET ── -->
+      <div class="widget fade-in cd-widget">
+        <div class="cd-crown">✦</div>
+        <p class="cd-offer-label">Oferta especial</p>
+        <p class="cd-offer-pct">−10%</p>
+        <p class="cd-offer-sub">en toda la carta</p>
+        <div class="cd-grid">
+          <div class="cd-block"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">días</span></div>
+          <span class="cd-colon">:</span>
+          <div class="cd-block"><span class="cd-num" id="cd-hours">00</span><span class="cd-lbl">hrs</span></div>
+          <span class="cd-colon">:</span>
+          <div class="cd-block"><span class="cd-num" id="cd-mins">00</span><span class="cd-lbl">min</span></div>
+          <span class="cd-colon">:</span>
+          <div class="cd-block"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">seg</span></div>
+        </div>
+        <p class="cd-deadline">Hasta el 30 de mayo · 23:59</p>
+      </div>
+
       <!-- Tags / Categorías — PRIMERO -->
       <div class="widget fade-in sidebar-tags-widget">
         <svg class="w-flourish" viewBox="0 0 60 22" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2796,6 +3014,69 @@ section.hero, section.shop-section { padding: 0 !important; }
       });
     }, { threshold: 0 }).observe(heroSection);
   }
+</script>
+
+<!-- ══════════════════════════════════════════
+     COUNTDOWN — Oferta 10% hasta 30/05/2026
+══════════════════════════════════════════ -->
+<script>
+(function () {
+  // Fecha límite: 30 mayo 2026, 23:59 hora Uruguay (UTC-3)
+  const DEADLINE = new Date('2026-05-30T23:59:00-03:00');
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    const now  = new Date();
+    const diff = DEADLINE - now;
+
+    // IDs desktop (sidebar) y mobile
+    const sets = [
+      { d:'cd-days',  h:'cd-hours',  m:'cd-mins',  s:'cd-secs'  },
+      { d:'cdm-days', h:'cdm-hours', m:'cdm-mins', s:'cdm-secs' }
+    ];
+
+    if (diff <= 0) {
+      // Oferta expirada
+      sets.forEach(ids => {
+        ['d','h','m','s'].forEach(k => {
+          const el = document.getElementById(ids[k]);
+          if (el) el.textContent = '00';
+        });
+      });
+      // Ocultar banners
+      document.querySelectorAll('.cd-mobile-banner').forEach(el => {
+        el.style.display = 'none';
+      });
+      return;
+    }
+
+    const days  = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins  = Math.floor((diff % 3600000)  / 60000);
+    const secs  = Math.floor((diff % 60000)    / 1000);
+
+    sets.forEach(ids => {
+      const dEl = document.getElementById(ids.d);
+      const hEl = document.getElementById(ids.h);
+      const mEl = document.getElementById(ids.m);
+      const sEl = document.getElementById(ids.s);
+      if (dEl) dEl.textContent = pad(days);
+      if (hEl) hEl.textContent = pad(hours);
+      if (mEl) mEl.textContent = pad(mins);
+      if (sEl) {
+        // Pulso sutil en el cambio de segundo
+        sEl.classList.remove('cd-pulse');
+        void sEl.offsetWidth;
+        sEl.classList.add('cd-pulse');
+        sEl.textContent = pad(secs);
+      }
+    });
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
 </script>
 
 </body>
