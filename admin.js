@@ -1097,31 +1097,23 @@ class AdminPanel {
     }
 
     async uploadImageToStorage(file) {
-        // ── Intento 1: Firebase Storage (guarda solo la URL en Firestore) ──
-        if (typeof storage !== 'undefined') {
-            try {
-                const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-                const blob = await this.compressImageToBlob(file, 1200, 0.85);
-                const ref  = storage.ref(`products/${Date.now()}_${safeName}`);
-                const snap = await ref.put(blob, { contentType: 'image/jpeg' });
-                const url  = await snap.ref.getDownloadURL();
-                return url;
-            } catch (storageErr) {
-                console.warn('Firebase Storage no disponible, usando Base64 comprimido:', storageErr);
-            }
-        }
+        // Guardar como Base64 comprimido directamente en Firestore
+        // (sin Firebase Storage — no requiere plan Blaze)
 
-        // ── Fallback: Base64 muy comprimido (< 700 KB para caber en Firestore) ──
-        this.showToast('Comprimiendo imagen para almacenar…', 'info');
-        const b64 = await this.compressImageToBase64(file, 480, 0.60);
+        // Paso 1: intentar con buena calidad (800px, 82%)
+        let b64 = await this.compressImageToBase64(file, 800, 0.82);
         if (!b64) throw new Error('No se pudo procesar la imagen');
 
-        // Verificar tamaño estimado (~750 KB límite seguro)
-        const estimatedBytes = Math.ceil(b64.length * 0.75);
-        if (estimatedBytes > 750000) {
-            // Comprimir más agresivamente
-            return await this.compressImageToBase64(file, 320, 0.50);
+        // Paso 2: si supera ~700 KB estimados, comprimir más
+        if (b64.length > 950000) {
+            b64 = await this.compressImageToBase64(file, 600, 0.70);
         }
+
+        // Paso 3: si aún es grande, comprimir al mínimo aceptable
+        if (b64.length > 950000) {
+            b64 = await this.compressImageToBase64(file, 400, 0.55);
+        }
+
         return b64;
     }
 
@@ -1810,7 +1802,7 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
             // Get product image
             const productImage = product.images && product.images.length > 0
                 ? product.images[0]
-                : 'assets/images/placeholder.webp';
+                : `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54' viewBox='0 0 54 54'%3E%3Crect width='54' height='54' fill='%23f0e4d4'/%3E%3Ctext x='27' y='32' text-anchor='middle' font-size='22' fill='%23a08070'%3E🍰%3C/text%3E%3C/svg%3E`;
 
             card.innerHTML = `
                 <div class="product-card-main">
