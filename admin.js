@@ -1059,23 +1059,70 @@ class AdminPanel {
         }
     }
 
+    // ── Image compression helpers ──────────────────────────
+    compressImageToBlob(file, maxWidth = 1200, quality = 0.85) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                const scale = Math.min(1, maxWidth / img.width);
+                const canvas = document.createElement('canvas');
+                canvas.width  = Math.round(img.width  * scale);
+                canvas.height = Math.round(img.height * scale);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                canvas.toBlob(blob => resolve(blob), 'image/jpeg', quality);
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+            img.src = url;
+        });
+    }
+
+    compressImageToBase64(file, maxWidth = 480, quality = 0.60) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            const url = URL.createObjectURL(file);
+            img.onload = () => {
+                const scale = Math.min(1, maxWidth / img.width);
+                const canvas = document.createElement('canvas');
+                canvas.width  = Math.round(img.width  * scale);
+                canvas.height = Math.round(img.height * scale);
+                canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+            img.src = url;
+        });
+    }
+
     async uploadImageToStorage(file) {
-        try {
-            // Convert image to Base64 as fallback for CORS issues
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    resolve(e.target.result);
-                };
-                reader.onerror = (error) => {
-                    reject(error);
-                };
-                reader.readAsDataURL(file);
-            });
-        } catch (error) {
-            console.error('Error in uploadImageToStorage:', error);
-            throw error;
+        // ── Intento 1: Firebase Storage (guarda solo la URL en Firestore) ──
+        if (typeof storage !== 'undefined') {
+            try {
+                const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const blob = await this.compressImageToBlob(file, 1200, 0.85);
+                const ref  = storage.ref(`products/${Date.now()}_${safeName}`);
+                const snap = await ref.put(blob, { contentType: 'image/jpeg' });
+                const url  = await snap.ref.getDownloadURL();
+                return url;
+            } catch (storageErr) {
+                console.warn('Firebase Storage no disponible, usando Base64 comprimido:', storageErr);
+            }
         }
+
+        // ── Fallback: Base64 muy comprimido (< 700 KB para caber en Firestore) ──
+        this.showToast('Comprimiendo imagen para almacenar…', 'info');
+        const b64 = await this.compressImageToBase64(file, 480, 0.60);
+        if (!b64) throw new Error('No se pudo procesar la imagen');
+
+        // Verificar tamaño estimado (~750 KB límite seguro)
+        const estimatedBytes = Math.ceil(b64.length * 0.75);
+        if (estimatedBytes > 750000) {
+            // Comprimir más agresivamente
+            return await this.compressImageToBase64(file, 320, 0.50);
+        }
+        return b64;
     }
 
     async handleProductSubmit() {
