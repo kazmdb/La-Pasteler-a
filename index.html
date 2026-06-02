@@ -2143,8 +2143,8 @@ section.hero, section.shop-section { padding: 0 !important; }
       <!-- Countdown banner — mobile only -->
       <div class="cd-mobile-banner fade-in">
         <div class="cd-mob-left">
-          <span class="cd-mob-pct">−10%</span>
-          <span class="cd-mob-text">en toda la carta</span>
+          <span class="cd-mob-pct">PROMO</span>
+          <span class="cd-mob-text">Día de los abuelos</span>
         </div>
         <div class="cd-mob-timer">
           <div class="cd-mob-block"><span class="cd-num" id="cdm-days">00</span><span class="cd-mob-lbl">d</span></div>
@@ -2168,9 +2168,9 @@ section.hero, section.shop-section { padding: 0 !important; }
       <!-- ── COUNTDOWN WIDGET ── -->
       <div class="widget fade-in cd-widget">
         <div class="cd-crown">✦</div>
-        <p class="cd-offer-label">Oferta especial</p>
-        <p class="cd-offer-pct">−10%</p>
-        <p class="cd-offer-sub">en toda la carta</p>
+        <p class="cd-offer-label">PROMO</p>
+        <p class="cd-offer-pct">Día de los</p>
+        <p class="cd-offer-sub">abuelos</p>
         <div class="cd-grid">
           <div class="cd-block"><span class="cd-num" id="cd-days">00</span><span class="cd-lbl">días</span></div>
           <span class="cd-colon">:</span>
@@ -2180,7 +2180,7 @@ section.hero, section.shop-section { padding: 0 !important; }
           <span class="cd-colon">:</span>
           <div class="cd-block"><span class="cd-num" id="cd-secs">00</span><span class="cd-lbl">seg</span></div>
         </div>
-        <p class="cd-deadline">Hasta el 30 de mayo · 23:59</p>
+        <p class="cd-deadline">Hasta el 15 de junio · 23:59</p>
       </div>
 
       <!-- Tags / Categorías — PRIMERO -->
@@ -3060,8 +3060,8 @@ section.hero, section.shop-section { padding: 0 !important; }
 ══════════════════════════════════════════ -->
 <script>
 (function () {
-  // Fecha límite: 30 mayo 2026, 23:59 hora Uruguay (UTC-3)
-  const DEADLINE = new Date('2026-05-30T23:59:00-03:00');
+  // Fecha límite: 15 de junio 2026, 23:59 hora Uruguay (UTC-3)
+  const DEADLINE = new Date('2026-06-15T23:59:00-03:00');
 
   function pad(n) { return String(n).padStart(2, '0'); }
 
@@ -3086,11 +3086,9 @@ section.hero, section.shop-section { padding: 0 !important; }
       // Ocultar banners
       document.querySelectorAll('.cd-mobile-banner').forEach(el => {
         el.style.display = 'none';
-        el.style.visibility = 'hidden';
       });
       document.querySelectorAll('.cd-widget').forEach(el => {
         el.style.display = 'none';
-        el.style.visibility = 'hidden';
       });
       clearInterval(timer);
       return;
