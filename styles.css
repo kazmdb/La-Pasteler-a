@@ -493,18 +493,18 @@ section {
     width: 100%;
 }
 
-/* Día de la madre catalog cards - taller for longer descriptions */
-.product-card.diadelamadre-card {
+/* Día de los abuelos catalog cards - taller for longer descriptions */
+.product-card.diadelosabuelos-card {
     min-height: 600px;
     padding: 25px;
 }
 
-.product-card.diadelamadre-card .product-image {
+.product-card.diadelosabuelos-card .product-image {
     height: 300px;
     margin-bottom: 20px;
 }
 
-.product-card.diadelamadre-card .product-description {
+.product-card.diadelosabuelos-card .product-description {
     font-size: 1.15rem;
     line-height: 1.8;
     white-space: pre-line;
@@ -705,18 +705,18 @@ section {
         min-height: 280px;
     }
 
-    /* Día de la madre cards en tablet */
-    .product-card.diadelamadre-card {
+    /* Día de los abuelos cards en tablet */
+    .product-card.diadelosabuelos-card {
         min-height: 500px;
         padding: 15px;
     }
 
-    .product-card.diadelamadre-card .product-image {
+    .product-card.diadelosabuelos-card .product-image {
         height: 250px;
         margin-bottom: 15px;
     }
 
-    .product-card.diadelamadre-card .product-description {
+    .product-card.diadelosabuelos-card .product-description {
         font-size: 1rem;
         white-space: pre-line;
     }
@@ -850,18 +850,18 @@ section {
         height: auto;
     }
 
-    /* Día de la madre cards en móvil */
-    .product-card.diadelamadre-card {
+    /* Día de los abuelos cards en móvil */
+    .product-card.diadelosabuelos-card {
         min-height: auto;
         padding: 12px;
     }
 
-    .product-card.diadelamadre-card .product-image {
+    .product-card.diadelosabuelos-card .product-image {
         height: 200px;
         margin-bottom: 12px;
     }
 
-    .product-card.diadelamadre-card .product-description {
+    .product-card.diadelosabuelos-card .product-description {
         font-size: 0.95rem;
         white-space: pre-line;
     }
@@ -2493,18 +2493,18 @@ section {
         padding: 10px;
     }
 
-    /* Día de la madre cards en móvil pequeño */
-    .product-card.diadelamadre-card {
+    /* Día de los abuelos cards en móvil pequeño */
+    .product-card.diadelosabuelos-card {
         min-height: 400px;
         padding: 10px;
     }
 
-    .product-card.diadelamadre-card .product-image {
+    .product-card.diadelosabuelos-card .product-image {
         height: 180px;
         margin-bottom: 10px;
     }
 
-    .product-card.diadelamadre-card .product-description {
+    .product-card.diadelosabuelos-card .product-description {
         font-size: 0.9rem;
         white-space: pre-line;
     }

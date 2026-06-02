@@ -1400,6 +1400,49 @@ function showCatalog(category, subCategory = null) {
                 globalIndex++;
             });
         });
+
+        // Renderizar también productos sin sección asignada (categoryData.products)
+        if (categoryData.products && categoryData.products.length > 0) {
+            categoryData.products.forEach((product) => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.style.transitionDelay = `${globalIndex * 0.1}s`;
+
+                const imageContent = product.images && product.images.length > 0
+                    ? `<img src="${esc(product.images[0])}" alt="${esc(product.name)}" class="product-image-img" loading="lazy">`
+                    : `<span></span>`;
+
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        ${imageContent}
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-name">${esc(product.name)}</h3>
+                        <p class="product-description">${esc(product.description)}</p>
+                        <div class="product-price">
+                            ${product.appliedOffer ? `
+                                <span class="price-group">
+                                    <span class="original-price">$${product.basePrice}</span>
+                                    <span class="discounted-price">$${product.price}</span>
+                                </span>
+                                <span class="discount-badge">-${product.discountPercentage}%</span>
+                            ` : `$${product.price}`}
+                        </div>
+                        <button class="add-to-cart-button" onclick="addToCart(this, ${JSON.stringify(esc(product.name))}, ${product.price})">
+                            Añadir al Carrito
+                        </button>
+                    </div>
+                `;
+
+                catalogGrid.appendChild(productCard);
+
+                setTimeout(() => {
+                    productCard.classList.add('visible');
+                }, 100 + globalIndex * 100);
+
+                globalIndex++;
+            });
+        }
     } else {
         // Catálogo normal de productos
         currentNavigationLevel = 1;
@@ -1409,9 +1452,9 @@ function showCatalog(category, subCategory = null) {
             const productCard = document.createElement('div');
             productCard.className = 'product-card';
 
-            // Agregar clase especial para Día de la madre
-            if (category === 'diadelamadre') {
-                productCard.classList.add('diadelamadre-card');
+            // Agregar clase especial para Día de los abuelos
+            if (category === 'diadelosabuelos') {
+                productCard.classList.add('diadelosabuelos-card');
             }
 
             productCard.style.transitionDelay = `${index * 0.1}s`;
