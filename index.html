@@ -1525,6 +1525,25 @@ section.hero, section.shop-section { padding: 0 !important; }
   gap: 6px;
   flex-wrap: wrap;
 }
+.promo-countdown-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, var(--rose), var(--rose-deep));
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-family: 'Cinzel', serif;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  margin-left: auto;
+}
+.promo-countdown-badge .countdown-timer {
+  font-size: 10px;
+  font-weight: 600;
+}
 .products-grid .add-to-cart-button {
   width: 100%;
   padding: 11px 16px;
@@ -1784,6 +1803,14 @@ section.hero, section.shop-section { padding: 0 !important; }
 @media (max-width: 768px) {
   .notice-bar-text { font-size: 7px; letter-spacing: 2px; }
   .notice-bar-gem { display: none; }
+
+  .promo-countdown-badge {
+    padding: 3px 8px;
+    font-size: 8px;
+  }
+  .promo-countdown-badge .countdown-timer {
+    font-size: 9px;
+  }
 
   .shipping-new-inner { padding: 56px 18px 64px; }
   .shipping-new-grid { grid-template-columns: 1fr; gap: 16px; }
@@ -3091,6 +3118,9 @@ section.hero, section.shop-section { padding: 0 !important; }
       document.querySelectorAll('.cd-widget').forEach(el => {
         el.style.display = 'none';
       });
+      document.querySelectorAll('.promo-countdown-badge').forEach(el => {
+        el.style.display = 'none';
+      });
       clearInterval(timer);
       return;
     }
@@ -3115,6 +3145,11 @@ section.hero, section.shop-section { padding: 0 !important; }
         sEl.classList.add('cd-pulse');
         sEl.textContent = pad(secs);
       }
+    });
+
+    // Actualizar badges de countdown en productos "Día de los abuelos"
+    document.querySelectorAll('.promo-countdown-badge .countdown-timer').forEach(el => {
+      el.textContent = `${pad(hours)}:${pad(mins)}:${pad(secs)}`;
     });
   }
 
