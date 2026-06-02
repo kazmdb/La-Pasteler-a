@@ -1970,11 +1970,6 @@ section.hero, section.shop-section { padding: 0 !important; }
   padding-bottom: 6px;
 }
 
-/* Ocultar banner en mobile pequeño */
-@media (max-width: 768px) {
-  .cd-mobile-banner { display: none !important; }
-}
-
 /* Ocultar widget vertical del sidebar en desktop (el banner horizontal lo reemplaza) */
 @media (min-width: 769px) {
   .cd-widget { display: none !important; }
@@ -3091,7 +3086,13 @@ section.hero, section.shop-section { padding: 0 !important; }
       // Ocultar banners
       document.querySelectorAll('.cd-mobile-banner').forEach(el => {
         el.style.display = 'none';
+        el.style.visibility = 'hidden';
       });
+      document.querySelectorAll('.cd-widget').forEach(el => {
+        el.style.display = 'none';
+        el.style.visibility = 'hidden';
+      });
+      clearInterval(timer);
       return;
     }
 
@@ -3119,7 +3120,7 @@ section.hero, section.shop-section { padding: 0 !important; }
   }
 
   tick();
-  setInterval(tick, 1000);
+  const timer = setInterval(tick, 1000);
 })();
 </script>
 
