@@ -1362,6 +1362,12 @@ function showCatalog(category, subCategory = null) {
             section.products.forEach((product, productIndex) => {
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
+                
+                // Agregar clase especial para Día de los abuelos
+                if (category === 'diadelosabuelos') {
+                    productCard.classList.add('diadelosabuelos-card');
+                }
+                
                 productCard.style.transitionDelay = `${globalIndex * 0.1}s`;
 
                 const imageContent = product.images && product.images.length > 0
@@ -1383,6 +1389,7 @@ function showCatalog(category, subCategory = null) {
                                 </span>
                                 <span class="discount-badge">-${product.discountPercentage}%</span>
                             ` : `$${product.price}`}
+                            ${category === 'diadelosabuelos' ? `<span class="promo-countdown-badge" data-product-id="${product.id}"><span class="countdown-timer">00:00:00</span></span>` : ''}
                         </div>
                         <button class="add-to-cart-button" onclick="addToCart(this, ${JSON.stringify(esc(product.name))}, ${product.price})">
                             Añadir al Carrito
@@ -1406,6 +1413,12 @@ function showCatalog(category, subCategory = null) {
             categoryData.products.forEach((product) => {
                 const productCard = document.createElement('div');
                 productCard.className = 'product-card';
+                
+                // Agregar clase especial para Día de los abuelos
+                if (category === 'diadelosabuelos') {
+                    productCard.classList.add('diadelosabuelos-card');
+                }
+                
                 productCard.style.transitionDelay = `${globalIndex * 0.1}s`;
 
                 const imageContent = product.images && product.images.length > 0
@@ -1427,6 +1440,7 @@ function showCatalog(category, subCategory = null) {
                                 </span>
                                 <span class="discount-badge">-${product.discountPercentage}%</span>
                             ` : `$${product.price}`}
+                            ${category === 'diadelosabuelos' ? `<span class="promo-countdown-badge" data-product-id="${product.id}"><span class="countdown-timer">00:00:00</span></span>` : ''}
                         </div>
                         <button class="add-to-cart-button" onclick="addToCart(this, ${JSON.stringify(esc(product.name))}, ${product.price})">
                             Añadir al Carrito
@@ -1471,7 +1485,10 @@ function showCatalog(category, subCategory = null) {
                 <div class="product-info">
                     <h3 class="product-name">${esc(product.name)}</h3>
                     <p class="product-description">${esc(product.description)}</p>
-                    <div class="product-price">$${product.price}</div>
+                    <div class="product-price">
+                        $${product.price}
+                        ${category === 'diadelosabuelos' ? `<span class="promo-countdown-badge" data-product-id="${product.id}"><span class="countdown-timer">00:00:00</span></span>` : ''}
+                    </div>
                     <button class="add-to-cart-button" onclick="addToCart(this, ${JSON.stringify(esc(product.name))}, ${product.price})">
                         Añadir al Carrito
                     </button>
