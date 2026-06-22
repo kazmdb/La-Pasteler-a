@@ -2527,10 +2527,6 @@ section.hero, section.shop-section { padding: 0 !important; }
             <input type="text" id="checkoutName" placeholder="Tu nombre" required>
           </div>
           <div class="modal-field">
-            <label>Teléfono / WhatsApp</label>
-            <input type="tel" id="checkoutPhone" placeholder="+598 99 000 000" required>
-          </div>
-          <div class="modal-field">
             <label>Notas (opcional)</label>
             <textarea id="checkoutNotes" placeholder="Instrucciones especiales, alérgenos…"></textarea>
           </div>
@@ -2555,7 +2551,7 @@ section.hero, section.shop-section { padding: 0 !important; }
       <div class="modal-success" id="modalSuccess">
         <div class="success-icon">🎉</div>
         <h3 class="success-title">¡Pedido enviado!</h3>
-        <p class="success-msg">Tu pedido fue enviado a WhatsApp.<br>Te contactaremos pronto para coordinar la entrega.</p>
+        <p class="success-msg">Se ha abierto WhatsApp con tu pedido.<br>Por favor, envía el mensaje para confirmar tu pedido.<br>Te contactaremos pronto para coordinar la entrega.</p>
         <button class="btn-success-close" id="btnSuccessClose">Seguir comprando</button>
       </div>
 
@@ -2696,11 +2692,10 @@ section.hero, section.shop-section { padding: 0 !important; }
   // ─── CONFIRMAR PEDIDO POR WHATSAPP ────────────────────────
   document.getElementById('btnPlaceOrder').addEventListener('click', async () => {
     const name    = document.getElementById('checkoutName').value.trim();
-    const phone   = document.getElementById('checkoutPhone').value.trim();
     const notes   = document.getElementById('checkoutNotes').value.trim();
 
-    if (!name || !phone) {
-      alert('Por favor completá nombre y teléfono.');
+    if (!name) {
+      alert('Por favor completá tu nombre.');
       return;
     }
 
@@ -2713,7 +2708,6 @@ section.hero, section.shop-section { padding: 0 !important; }
     // Construir mensaje de WhatsApp
     let msg = `🍰 *Nuevo pedido — La Pastelería*\n\n`;
     msg += `👤 *Cliente:* ${name}\n`;
-    msg += `📞 *Teléfono:* ${phone}\n`;
     if (notes) msg += `📝 *Notas:* ${notes}\n`;
     msg += `\n*Productos:*\n`;
     cart.items.forEach(i => {
@@ -2723,13 +2717,19 @@ section.hero, section.shop-section { padding: 0 !important; }
     msg += `💵 *Pago a coordinar*\n`;
     msg += `\n_Pedido realizado desde la web_`;
 
+    // Crear enlace de WhatsApp y redirigir
+    const phoneNumber = '59892062729'; // Número de la pastelería
+    const encodedMessage = encodeURIComponent(msg);
+    const whatsappLink = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodedMessage}`;
+    window.open(whatsappLink, '_blank');
+
     // Guardar en Firebase si está disponible
     try {
       if (typeof db !== 'undefined' && db) {
         const orderId = 'order_' + Date.now();
         await db.collection('orders').doc(orderId).set({
           id: orderId,
-          cliente: { nombre: name, telefono: phone, email: '' },
+          cliente: { nombre: name, telefono: '', email: '' },
           notas: notes,
           metodoPago: 'a_coordinar',
           items: cart.items.map(i => ({
@@ -2750,27 +2750,6 @@ section.hero, section.shop-section { padding: 0 !important; }
       console.error('Error guardando pedido:', e);
     }
 
-    // Enviar confirmación al cliente via UltraMsg
-    let customerPhone = phone.replace(/[\s\-\(\)]/g, '');
-    if (!customerPhone.startsWith('+')) {
-      customerPhone = '+' + customerPhone;
-    }
-    const customerMsg = `🍰 *Gracias por tu pedido — La Pastelería*\n\nHola ${name}, recibimos tu pedido correctamente.\n\n*Productos:*\n${cart.items.map(i => `  • ${i.name} × ${i.quantity} — $${i.price}`).join('\n')}\n\n💰 *Total: $${total}*\n💵 *Pago a coordinar*\n\nTe contactaremos pronto para coordinar la entrega.`;
-    try {
-      const ultramsgUrl = 'https://api.ultramsg.com/instance174468/messages/chat';
-      await fetch(ultramsgUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          token: '22buqtstxo87neek',
-          to: customerPhone,
-          body: customerMsg
-        })
-      });
-      console.log('✅ Confirmación enviada al cliente');
-    } catch(e) {
-      console.error('Error enviando confirmación al cliente:', e);
-    }
 
     // Mostrar pantalla de éxito
     document.getElementById('modalFormContent').classList.add('hide');
