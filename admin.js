@@ -1679,6 +1679,53 @@ ${order.items.map(item => `• ${item.nombre} x${item.cantidad} - $${item.subtot
         return pricing.appliedOffer;
     }
 
+    // Export Menu
+    exportMenu() {
+        if (this.products.length === 0) {
+            this.showToast('No hay productos para exportar', 'warning');
+            return;
+        }
+
+        const grouped = {};
+        this.categories.forEach(cat => { grouped[cat.id] = { name: cat.name, products: [] }; });
+
+        this.products.forEach(product => {
+            if (!grouped[product.category]) {
+                grouped[product.category] = { name: product.category, products: [] };
+            }
+            grouped[product.category].products.push(product);
+        });
+
+        const date = new Date().toLocaleDateString('es-UY');
+        let lines = [`LA PASTELERÍA — Menú completo`, `Exportado el ${date}`, ``, `${'─'.repeat(40)}`];
+
+        Object.values(grouped).forEach(({ name, products }) => {
+            if (products.length === 0) return;
+            lines.push(``, `▸ ${name.toUpperCase()}`, ``);
+            products.forEach(p => {
+                const offer = this.getProductOffer(p);
+                const price = offer
+                    ? `$${p.currentPrice} (antes $${p.basePrice})`
+                    : `$${p.basePrice}`;
+                const status = p.isActive ? '' : ' [inactivo]';
+                lines.push(`  ${p.name}${status}`);
+                if (p.description) lines.push(`  ${p.description}`);
+                lines.push(`  Precio: ${price}`, ``);
+            });
+            lines.push(`${'─'.repeat(40)}`);
+        });
+
+        const text = lines.join('\n');
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `menu-la-pasteleria-${date.replace(/\//g, '-')}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.showToast('Menú exportado correctamente', 'success');
+    }
+
     // Settings Management
     async handlePasswordChange() {
         const form = document.getElementById('password-settings-form');
